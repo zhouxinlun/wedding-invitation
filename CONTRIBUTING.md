@@ -29,7 +29,7 @@ python3 -m http.server 8765 --bind 127.0.0.1
 
 | 内容 | 文件或目录 |
 | --- | --- |
-| 新人、婚礼时间、地点、流程、相册与影像配置 | `miniprogram/wedding.js` |
+| 新人、婚礼时间、地点、流程与相册配置 | `miniprogram/wedding.js` |
 | 请柬主页面与样式 | `miniprogram/pages/invitation/` |
 | 祝福投稿、回复、本人删除 | `miniprogram/components/blessings/` |
 | 祝福接口、飘雪、相册等共享逻辑 | `miniprogram/shared/` |
@@ -58,7 +58,7 @@ git push -u origin feature/album-layout
 ## 素材与上线
 
 - 原红色封面和 64 张相册照片已保留；不要覆盖原图或重新拟合人物。新的照片可以另外增加文件。原片清单记录的历史本机路径仅用于追溯，克隆运行不依赖这些路径。
-- “我们”的双人招手动图已经接入；“一眼千年”的新娘敦煌视频仍等待最终成片。接入方法见 [FILM.md](FILM.md) 和 [COUPLE-MOTION.md](COUPLE-MOTION.md)。
+- “我们”的双人招手动图已经接入，见 [COUPLE-MOTION.md](COUPLE-MOTION.md)；2026-09-09 已取消“一眼千年”的 AI 影像章节与菜单。
 - 小程序相册使用云端素材，网页版使用本地副本。新增素材按 [CLOUD-MEDIA.md](CLOUD-MEDIA.md) 同步，不要把有期限的签名链接写进代码。
 - 真实亲友祝福、上传照片、原始 AI 视频、预览码、测试截图和本机凭据未纳入仓库。旧文档中的 `work/` 证据路径与预览码指向维护者本地文件；需要手机预览时在开发者工具重新生成。
 - `project.private.config.json` 和 `.env` 留在本机。AppID、环境 ID 与固定云素材 ID 是项目配置，不是登录密钥。管理员身份配置保存在云端，不要复制到 Git。

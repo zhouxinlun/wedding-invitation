@@ -22,8 +22,29 @@ verify('分享路径及两种封面文件存在',()=>{
   [share.imageUrl,timeline.imageUrl].forEach(file=>assert(fs.existsSync(path.join(root,'miniprogram',file))));
   assert(share.title.includes(config.groom)&&share.title.includes(config.bride));
 });
-verify('当前版本未自动播放未确认影片',()=>{const {page,calls}=setup();page.onLoad();assert.equal(page.data.filmOpen,false);assert(calls.some(c=>c.name==='showShareMenu'));});
-verify('影像菜单只滚动到独立区域；有影片也须点击播放，可关闭并保留当前位置',()=>{const w=structuredClone(config);w.openingFilm.enabled=true;w.openingFilm.url='https://example.invalid/approved.mp4';const {page,calls,timers}=setup(w);page.onLoad();assert.equal(page.data.filmOpen,false);assert.equal(timers.size,0);page.navigate({currentTarget:{dataset:{target:'film'}}});assert.equal(page.data.active,'film');assert.equal(calls.find(c=>c.name==='pageScrollTo').options.selector,'#film');assert.equal(page.data.filmOpen,false);page.openFilm();assert.equal(page.data.filmOpen,true);page.onFilmError();assert.equal(page.data.filmError,true);page.closeFilm();assert.equal(page.data.filmOpen,false);});
+verify('六个菜单均有真实章节，移除影像后导航与后台暂停仍正常',()=>{
+ const {page,calls,timers}=setup();page.onLoad();
+ const expected=['invitation','us','album','blessings','schedule','journey'];
+ const native=fs.readFileSync(path.join(root,'miniprogram/pages/invitation/index.wxml'),'utf8');
+ const web=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
+ assert.deepEqual(Array.from(page.data.chapters,c=>c.id),expected);
+ const nav=web.match(/<nav class="bottom-nav"[\s\S]*?<\/nav>/)[0];
+ assert.deepEqual(Array.from(nav.matchAll(/href="#([^"]+)"/g),m=>m[1]),expected);
+ assert.deepEqual(Array.from(nav.matchAll(/class="nav-number"[^>]*>([^<]+)/g),m=>m[1]),['01','02','03','04','05','06']);
+ for(const [index,id] of expected.entries()){
+  assert(native.includes('id="'+id+'"'));assert(web.includes('id="'+id+'"'));
+  page.navigate({currentTarget:{dataset:{target:id}}});
+  assert.equal(page.data.active,id);assert.equal(page.data.activeIndex,index);
+  assert.equal(calls.filter(c=>c.name==='pageScrollTo').at(-1).options.selector,'#'+id);
+ }
+ const before=calls.length;page.navigate({currentTarget:{dataset:{target:'film'}}});assert.equal(calls.length,before);
+ assert(!('openingFilm' in config));assert.equal(page.openFilm,undefined);
+ for(const template of [native,web])assert(!/id="film"|opening-video|opening-film|filmOpen|一眼千年|敬请期待/.test(template));
+ assert(native.includes('<couple-motion'));assert(web.includes('class="us-motion"'));
+ assert(calls.some(c=>c.name==='showShareMenu'));
+ page.onHide();assert.equal(page.data.pageVisible,false);assert.equal(page.data.navQuiet,false);
+ page.onShow();assert.equal(page.data.pageVisible,true);page.onUnload();assert.equal(timers.size,0);
+});
 verify('未确认地图坐标时不调用导航',()=>{const {page,calls}=setup(withoutLocations());assert.equal(page.data.canNavigate,false);page.navigateVenue();assert(!calls.some(c=>c.name==='openLocation'));assert(!calls.some(c=>c.name==='getLocation'||c.name==='getPrivacySetting'));});
 verify('有效坐标原样传给地图，失败提供复制地址',()=>{const w=structuredClone(config);w.venue.latitude=39.9;w.venue.longitude=116.4;const {page,calls}=setup(w);assert.equal(page.data.canNavigate,true);page.openMap(page.data.selectedPlace);const map=calls.find(c=>c.name==='openLocation');assert.equal(map.options.latitude,39.9);assert.equal(map.options.name,w.venue.fullName);map.options.fail();assert(calls.some(c=>c.name==='showModal'));});
 verify('相册预览涵盖四张合照',()=>{const {page,calls}=setup();page.previewPhoto({currentTarget:{dataset:{src:'/assets/couple-smile.jpg'}}});const preview=calls.find(c=>c.name==='previewImage').options;assert.equal(preview.current,'/assets/couple-smile.jpg');assert.equal(preview.urls.length,4);preview.urls.forEach(file=>assert(fs.existsSync(path.join(root,'miniprogram',file))));});
@@ -49,12 +70,6 @@ verify('菜单滚动仅切换两次透明状态，停止和后台恢复，重复
  for(let i=0;i<20;i++)page.onPageScroll();assert.equal(changes,1);assert.equal(page.data.navQuiet,true);assert.equal(timers.size,1);[...timers.values()][0].fn();assert.equal(page.data.navQuiet,false);assert.equal(changes,2);
  page.navigate({currentTarget:{dataset:{target:'us'}}});page.navigate({currentTarget:{dataset:{target:'journey'}}});assert.equal(page.data.active,'journey');assert.equal(page.data.turns,undefined);assert.equal(timers.size,1);
  page.celebrate();assert.equal(page.data.sparks.length,8);page.onPageScroll();page.onHide();assert.equal(page.data.pageVisible,false);assert.equal(page.data.navQuiet,false);assert.equal(page._navigating,false);page.onUnload();assert.equal(timers.size,0);assert.equal(page._origin,null);assert(!page._alive);
-});
-verify('未提供视频不会打开空播放器；进度、播放超时、重播、后台退出均可恢复',()=>{
- const missing=setup();missing.page.onLoad();missing.page.openFilm();assert.equal(missing.page.data.filmOpen,false);assert.equal(missing.timers.size,0);
- const w=structuredClone(config);w.openingFilm.enabled=true;w.openingFilm.url='https://example.invalid/bride.mp4';const {page,timers}=setup(w);page.onLoad();page.openFilm();assert.equal(page.data.filmLoading,true);assert.equal(timers.size,1);page.onFilmPlay();assert.equal(timers.size,0);assert.equal(page.data.filmLoading,false);
- page.onFilmTimeUpdate({detail:{currentTime:30,duration:60}});assert.equal(page.data.filmProgress,50);page.onFilmTimeUpdate({detail:{currentTime:40,duration:0}});assert.equal(page.data.filmProgress,50);page.onFilmTimeUpdate({detail:{currentTime:90,duration:60}});assert.equal(page.data.filmProgress,100);
- page.closeFilm();page.onFilmError();assert.equal(page.data.filmError,false);page.openFilm();assert.equal(page.data.filmProgress,0);[...timers.values()][0].fn();assert.equal(page.data.filmError,true);page.openFilm();assert.equal(page.data.filmError,false);page.onHide();assert.equal(page.data.filmOpen,false);assert.equal(timers.size,0);page.onShow();assert.equal(page.data.filmOpen,false);
 });
 verify('微信授权等待不受 GPS 超时约束，取消后不获取位置',()=>{const {page,calls,timers}=setup(withLocations());page.onLoad();page.requestDistance();calls.find(c=>c.name==='getPrivacySetting').options.success({needAuthorization:false});assert.equal(timers.size,0);assert.equal(calls.find(c=>c.name==='authorize').options.scope,'scope.userLocation');assert(!calls.some(c=>c.name==='getLocation'));calls.find(c=>c.name==='authorize').options.fail();assert.equal(page.data.distanceState,'error');assert.equal(page.data.distance,'');});
 verify('小程序声明仅按需定位权限，不声明后台定位',()=>{const app=JSON.parse(fs.readFileSync(path.join(root,'miniprogram/app.json'),'utf8'));assert.deepEqual(app.requiredPrivateInfos,['getLocation']);assert(app.permission['scope.userLocation']);assert(!app.requiredBackgroundModes);});

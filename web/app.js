@@ -145,30 +145,4 @@
   document.querySelector('#share-invite').addEventListener('click',()=>document.querySelector('#share-dialog').showModal());
   const caption=`我们结婚啦！\n${w.groom} & ${w.bride}\n诚邀你在${w.dateLabel} ${w.ceremonyTime}，来见证我们的婚礼。\n${w.venue.district} · ${w.venue.fullName} · ${w.venue.room}\n请于${w.guestArrivalTime}前到场。\n带着祝福来，就很好。`;
   document.querySelector('#copy-caption').addEventListener('click',()=>copy(caption,'邀请文案已复制'));
-  const filmDialog=document.querySelector('#film-dialog'); const video=document.querySelector('#opening-film');
-  if(w.openingFilm.enabled && w.openingFilm.url){
-    const button=document.querySelector('#watch-film');button.hidden=false;
-    document.querySelector('.cinema-coming').hidden=true;
-    document.querySelector('#cinema-status').textContent='轻触欣赏 ↗';
-    document.querySelector('.cinema-portal').classList.add('cinema-ready');
-    if(w.openingFilm.poster){const poster=document.querySelector('.cinema-poster');poster.src=w.openingFilm.poster;poster.hidden=false;}
-    video.src=w.openingFilm.url;video.poster=w.openingFilm.poster||'';
-    const error=document.querySelector('#film-error'), state=document.querySelector('#film-state');
-    let filmTimer;
-    const failed=()=>{if(!filmDialog.open)return;clearTimeout(filmTimer);video.pause();video.hidden=true;error.hidden=false;state.textContent='我们的喜帖，随时为你展开';};
-    const openFilm=()=>{
-      clearTimeout(filmTimer);error.hidden=true;video.hidden=false;
-      document.querySelector('#film-percent').textContent='0%';document.querySelector('.film-progress div').style.width='0%';
-      state.textContent='正在展开影像…';if(!filmDialog.open)filmDialog.showModal();
-      video.load();filmTimer=setTimeout(failed,20000);
-      video.play().catch(()=>{clearTimeout(filmTimer);if(filmDialog.open && error.hidden)state.textContent='轻触播放，展开这一场梦';});
-    };
-    button.addEventListener('click',openFilm);document.querySelector('#retry-film').addEventListener('click',openFilm);
-    document.querySelector('#skip-failed-film').addEventListener('click',()=>filmDialog.close());
-    filmDialog.addEventListener('close',()=>{clearTimeout(filmTimer);video.pause();});
-    video.addEventListener('playing',()=>{clearTimeout(filmTimer);state.textContent='一舞惊鸿，赴一生之约';});
-    video.addEventListener('timeupdate',()=>{if(!filmDialog.open||!(video.duration>0))return;const progress=Math.max(0,Math.min(100,Math.floor(video.currentTime/video.duration*100)));document.querySelector('#film-percent').textContent=progress+'%';document.querySelector('.film-progress div').style.width=progress+'%';});
-    video.addEventListener('ended',()=>filmDialog.close());video.addEventListener('error',failed);
-    document.addEventListener('visibilitychange',()=>{if(document.hidden&&filmDialog.open)filmDialog.close();});
-  }
 })();

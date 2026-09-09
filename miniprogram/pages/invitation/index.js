@@ -6,7 +6,6 @@ const coverVines = vines.plan('album-covers', Math.max(0, wedding.albums.length 
 const destinations = journey.destinations(wedding);
 const chapters = [
   {id: 'invitation', label: '喜帖', title: '翻开这一封喜悦'},
-  {id: 'film', label: '影像', title: '一眼千年，珍藏此刻'},
   {id: 'us', label: '我们', title: '把余生，写成我们'},
   {id: 'album', label: '相册', title: '收藏每一个心动'},
   {id: 'blessings', label: '祝福', title: '有你们，欢喜成双'},
@@ -36,8 +35,6 @@ Page({
     albums: wedding.albums.map((album, index) => ({...album, vine: coverVines[index] || '', count: wedding.photos.filter(photo => photo.group === album.id).length})),
     active: 'invitation', activeIndex: 0, motion: true, pageVisible: true, navQuiet: false,
     revealReady: false, revealed: {}, sparks: [], blessing: '',
-    filmReady: !!(wedding.openingFilm.enabled && wedding.openingFilm.url),
-    filmOpen: false, filmError: false, filmLoading: false, filmProgress: 0,
     selectedPlace: destinations[0], selectedIndex: 0,
     mapMarkers: markers(destinations[0]), canNavigate: destinations[0].canNavigate,
     hasOrigin: false, locationDenied: false, navigationRequested: false, distance: '', distanceState: 'idle', distanceNote: '轻触计算你与喜宴的距离',
@@ -67,7 +64,7 @@ Page({
   onShow() { this.setData({pageVisible: true}); },
   onHide() {
     clearTimeout(this._navTimer); clearTimeout(this._turnTimer); this._navigating = false;
-    this.closeFilm(); this.setData({pageVisible: false, navQuiet: false});
+    this.setData({pageVisible: false, navQuiet: false});
   },
   onPageScroll() {
     if (!this._alive || !this.data.pageVisible) return;
@@ -81,7 +78,7 @@ Page({
   onUnload() {
     this._alive = false; this._origin = null; previewImages.cleanup(this);
     [this.sectionObserver, this.revealObserver].forEach(observer => { if (observer) observer.disconnect(); });
-    [this._turnTimer, this._navTimer, this._sparkTimer, this._locationTimer, this._filmTimer].forEach(clearTimeout);
+    [this._turnTimer, this._navTimer, this._sparkTimer, this._locationTimer].forEach(clearTimeout);
   },
   navigate(event) {
     const index = chapters.findIndex(chapter => chapter.id === event.currentTarget.dataset.target);
@@ -217,22 +214,6 @@ Page({
   locationFailed() {
     if (this._alive) this.setData({distance: '', distanceState: 'error', distanceNote: this.data.locationDenied ? '可开启定位，或复制地址赴约' : '暂时无法获取位置，可重试或复制地址'});
   },
-  openFilm() {
-    if (!this.data.filmReady) return;
-    clearTimeout(this._filmTimer);
-    this.setData({filmOpen: true, filmError: false, filmLoading: true, filmProgress: 0});
-    this._filmTimer = setTimeout(() => { if (this._alive && this.data.filmOpen) this.onFilmError(); }, 20000);
-  },
-  onFilmPlay() { clearTimeout(this._filmTimer); if (this.data.filmOpen) this.setData({filmLoading: false}); },
-  onFilmTimeUpdate(event) {
-    if (!this.data.filmOpen || this.data.filmError) return;
-    const {currentTime, duration} = event.detail;
-    if (!(duration > 0) || !Number.isFinite(currentTime)) return;
-    const progress = Math.max(0, Math.min(100, Math.floor(currentTime / duration * 100)));
-    if (progress !== this.data.filmProgress) this.setData({filmProgress: progress});
-  },
-  closeFilm() { clearTimeout(this._filmTimer); this.setData({filmOpen: false, filmLoading: false}); },
-  onFilmError() { clearTimeout(this._filmTimer); if (this.data.filmOpen) this.setData({filmError: true, filmLoading: false}); },
   onShareAppMessage() {
     return {title: `${wedding.groom} & ${wedding.bride}｜10月6日，邀你赴约`, path: '/pages/invitation/index', imageUrl: '/assets/share-card.png'};
   },

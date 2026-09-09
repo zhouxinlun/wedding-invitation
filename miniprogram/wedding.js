@@ -41,12 +41,6 @@ const wedding = {
     "enabled": true,
     "webFile": "media/couple-wave.mp4"
   },
-  "openingFilm": {
-    "enabled": false,
-    "url": "",
-    "poster": "",
-    "title": "一眼千年 · 敦煌飞天"
-  },
   "photos": [
     {
       "file": "couple-red.jpg",
