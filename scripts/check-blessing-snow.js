@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+const snow=require('../miniprogram/shared/blessing-snow');
+function setup(client){let definition,serial=0;const timers=new Map(),calls=[];vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../miniprogram/components/blessings/index.js'),'utf8'),{require:id=>id.includes('blessing-snow')?snow:id.includes('blessing-editor')?require('../miniprogram/shared/blessing-editor'):client,Component:d=>definition=d,wx:{showToast:o=>calls.push(o)},setTimeout:(fn,ms)=>{timers.set(++serial,{fn,ms});return serial;},clearTimeout:id=>timers.delete(id)});const c={...definition.methods,data:structuredClone(definition.data),properties:{paused:false},setData(p){Object.assign(this.data,p);},triggerEvent(){}};definition.lifetimes.attached.call(c);return {c,definition,timers,calls};}
+(async()=>{
+ const styles=new Set();for(let serial=1;serial<=60;serial++){const f=snow.create({id:'x',text:serial%2?'新婚快乐，岁岁欢喜。':'！！！',emoji:'❤️',photos:[]},serial%snow.slots,serial);styles.add(f.variant);assert(f.width>0&&f.height>0);assert(f.opacity<=.4);assert(f.chars.length<=10);assert(f.left+f.width/7.5<100);assert(f.chars.every(c=>Number.isFinite(c.x)&&Number.isFinite(c.y)));assert(f.chars.slice(0,-1).every(c=>c.link));}assert.equal(styles.size,6);
+ console.log('PASS 六种连接字串、透明度上限、文字长度、标点空内容和手机横向边界');
+ const cold=setup({configured:()=>false});cold.c.openForm();await cold.c.submit();assert(cold.c.data.error.includes('还未接通'));assert.equal(cold.timers.size,0);cold.definition.lifetimes.detached.call(cold.c);
+ let publicItems=[{id:'older',name:'老友',text:'幸福一直在',emoji:'❤️',photos:[],createdAt:1},{id:'newer',name:'新友',text:'喜乐常相伴',emoji:'🌹',photos:[],createdAt:2}],sent=[],finishSend;
+ const client={configured:()=>true,pollMs:20000,nonce:()=> 'stable-nonce',invoke:async(action)=>action==='identity'?{ownerKey:'owner',admin:false,adminConfigured:false}:{items:publicItems},uploadDraft(draft){sent.push(draft);return new Promise(resolve=>{finishSend=resolve;});}};
+ const h=setup(client);await h.c.loadIdentity();await h.c.refresh();assert.equal(h.c.data.ready,true);assert.equal(h.c.data.items[0].id,'newer');assert.equal(h.c.data.postCount,2);
+ h.c.openForm();assert.equal(h.c.data.flakes.length,0);assert(h.c.data.motionPaused);h.c.inputName({detail:{value:'亲友'}});h.c.inputText({detail:{value:'祝福已到'}});
+ const sending=h.c.submit();await h.c.submit();assert.equal(sent.length,1);assert(!('consent'in sent[0]));publicItems=[{id:'sent',name:'亲友',text:'祝福已到',emoji:'❤️',photos:[],createdAt:3},...publicItems];finishSend({status:'approved',id:'sent'});await sending;
+ assert.equal(h.c.data.formOpen,false);assert.equal(h.c.data.items[0].id,'sent');assert.equal(h.c.data.postCount,3);assert(h.c.data.flakes.some(f=>f.postId==='sent'));assert(h.calls.some(c=>c.title.includes('祝福已送达')));
+ for(let i=0;i<6;i++)h.c.spawnSnow(i);assert.equal(h.c.data.flakes.length,6);h.c.spawnSnow(0);assert.equal(h.c.data.flakes.length,6);
+ h.c.openForm();assert.equal(h.c.data.flakes.length,0);assert.equal(h.c._endTimers.length,0);h.c.closeForm();h.definition.pageLifetimes.hide.call(h.c);assert.equal(h.timers.size,0);h.definition.lifetimes.detached.call(h.c);assert.equal(h.c._alive,false);
+ console.log('PASS 无管理员也可使用、公开倒序、无勾选发送、重复点击去重、成功立刻入雪、最多六条、编辑/后台/卸载清理');
+ let fail=true,requests=[];const retryClient={...client,uploadDraft(draft){requests.push(draft);return fail?Promise.reject(Error('network')):Promise.resolve({status:'approved',id:'sent'});}};
+ const retry=setup(retryClient);await retry.c.loadIdentity();retry.c.openForm();retry.c.inputName({detail:{value:'来宾'}});retry.c.inputText({detail:{value:'保留这份心意'}});await retry.c.submit();assert(retry.c.data.uncertain);assert.equal(retry.c.data.text,'保留这份心意');retry.c.inputText({detail:{value:'不能覆盖'}});assert.equal(retry.c.data.text,'保留这份心意');fail=false;await retry.c.submit();assert.equal(requests[0],requests[1]);assert.equal(retry.c.data.uncertain,false);retry.definition.lifetimes.detached.call(retry.c);
+ console.log('PASS 送达不明保留并锁定原稿，重试复用同一 nonce 与已上传照片');
+})().catch(error=>{console.error(error);process.exitCode=1;});

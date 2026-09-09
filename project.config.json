@@ -1,0 +1,39 @@
+{
+  "description": "周新沦与李小妮的婚礼请柬",
+  "miniprogramRoot": "miniprogram/",
+  "projectname": "良辰之约",
+  "appid": "wx0d45570c72a490e7",
+  "compileType": "miniprogram",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "minified": true,
+    "urlCheck": true,
+    "minifyWXML": true
+  },
+  "cloudfunctionRoot": "cloudfunctions/",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "album-one/images"
+      },
+      {
+        "type": "folder",
+        "value": "album-two/images"
+      },
+      {
+        "type": "folder",
+        "value": "album-three/images"
+      },
+      {
+        "type": "folder",
+        "value": "album-four/images"
+      },
+      {
+        "type": "folder",
+        "value": "album-five/images"
+      }
+    ]
+  }
+}

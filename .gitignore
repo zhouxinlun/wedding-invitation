@@ -1,0 +1,28 @@
+# Local dependencies, settings and credentials
+node_modules/
+.DS_Store
+.idea/
+.vscode/
+*.log
+.env
+.env.*
+!.env.example
+project.private.config.json
+.private/
+*.private.*
+*.pem
+*.key
+.cloudbase/
+/work/
+
+# Preview QR codes, screenshots and duplicated render exports stay local.
+# Keep the web invitation, calendar and asset provenance needed by the project.
+/exports/*
+!/exports/良辰之约-微信请柬.png
+!/exports/婚礼日程.ics
+!/exports/微信邀请文案.txt
+!/exports/婚礼流程与筹备提醒.txt
+!/exports/相册原片清单.json
+!/exports/云端相册素材清单.json
+!/exports/玫瑰藤蔓-素材清单.json
+!/exports/小程序头像-双名花藤-v2.jpg

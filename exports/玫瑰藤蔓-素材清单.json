@@ -1,0 +1,142 @@
+[
+  {
+    "id": "01",
+    "name": "月弧相拥",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-e52aee2e-fb97-4754-b493-32c88a1886c2.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. A broad low crescent/U sweep with one open burgundy rose at the lowest middle, one tiny rosebud near each ascending endpoint. Sweeping arc occupies almost the full width, open upper center. It must NOT have the reference's large left flower or identical placement. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-01.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 27883,
+    "sha256": "a153d916a638c1db84bf6ab64e7d6752789d6c07d3ce6bea47c28a5593d1afad",
+    "transparentFraction": 0.798
+  },
+  {
+    "id": "02",
+    "name": "双环心结",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-5d2af8d5-973b-45d7-b146-a629ffdbcf0f.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. An airy horizontal infinity knot: two large loose champagne-gold loops cross only once at the center, with a burgundy rose at the outer lower left, a second at the upper right, and one minute bud at the crossover. Curves are continuous, graceful, not a rigid mathematical symbol. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-02.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 33322,
+    "sha256": "b0c79c8535e9431fe07271076bdfb1d8b452d19bc00f8c2fe0aadcfe0a2d4e86",
+    "transparentFraction": 0.732
+  },
+  {
+    "id": "03",
+    "name": "斜枝寄语",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-68f8ea6a-9acb-4c6b-943e-e166224341cd.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. A single elegant diagonal vine travelling from lower left to upper right in one long rising S sweep, one open burgundy rose near the lower-left quarter, two small buds near the upper-right end. Fine gold curling offshoots create a graceful sloping silhouette. No U-shaped garland. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-03.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 23487,
+    "sha256": "c91590bce018c7822bae2f2f05f8c737fe5d1c8782b59d7f085000c518669829",
+    "transparentFraction": 0.826
+  },
+  {
+    "id": "04",
+    "name": "花瀑轻垂",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-73b7abfe-3bd3-4e81-8c2a-56468f6a1493.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. An almost horizontal fine gold vine across the upper middle with THREE slender drooping tendrils hanging below at different lengths. A burgundy rose hangs at the longest left-of-center tendril, tiny burgundy buds at the other two. Graceful waterfall silhouette with lots of negative space; delicate asymmetrical botanical chandelier, not a dense row of flowers. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-04.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 23937,
+    "sha256": "63d67a96a47015051602e2b7370e6f739dccc00c212ac6ae452f4a40d22ba4d9",
+    "transparentFraction": 0.824
+  },
+  {
+    "id": "05",
+    "name": "心形花笺",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-20d99e9c-96aa-4866-8fce-b5e4e24768f2.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. Two fine gold stems curl together into ONE low wide OPEN HEART outline in the center, tips trail outward to both canvas sides. Two modest burgundy roses grow at the left and right shoulders of the heart. Hollow transparent middle. Thin wistful botanical heart, never thick or cartoonish. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-05.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 22383,
+    "sha256": "b85506da5d8821b12d9802887c5e2b6a180e0d53f546145d66fec959ca807da1",
+    "transparentFraction": 0.849
+  },
+  {
+    "id": "06",
+    "name": "回旋圆舞",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-f95e97e1-6200-4c56-9638-ffa806c6acaf.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Fine champagne-gold curling vines, dark burgundy red roses, small sage green leaves, refined antique botanical engraving. A distinctive single large inward gold spiral on the left half of the wide composition, flows into a long soft wave toward the right edge. One burgundy rose nestles at the open spiral center, a second small side-view rose near the right third. Fine small spiralling tendrils, asymmetrical airy movement. Not a U or infinity shape. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas.",
+    "file": "miniprogram/assets/rose-vines/vine-06.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 32270,
+    "sha256": "42fe0c26ce9ba4db1a2a23198c5c9ce7854719e7e9dc008d48b161ddbfad9f3d",
+    "transparentFraction": 0.764
+  },
+  {
+    "id": "07",
+    "name": "并蒂相依",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-ff0a9b76-7781-45ce-831e-8de51e98b455.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. TWO slender gold stems entwine loosely like a double helix, with TWO equally sized open burgundy roses leaning together at the middle, delicate leaves and tiny buds only near the outer tails. Stems separate into long opposing curling flourishes at both ends. Intimate paired blossoms, horizontal composition. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-07.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 20924,
+    "sha256": "70597fd4a08dafaa64c6ec6e9f71d872537d0ddfa8987157a87ca62317ebe486",
+    "transparentFraction": 0.836
+  },
+  {
+    "id": "08",
+    "name": "疏影留白",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-519c6951-ff54-4a64-b0b9-aa4832d6813b.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. The sparsest composition: a long almost horizontal threadlike gold stem makes three shallow gentle waves, decorated only with FOUR very tiny burgundy rosebuds and a few narrow sage leaves scattered unevenly. NO large open rose. Plenty of transparent space and fine curled tip endings, airy and quiet. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-08.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 11694,
+    "sha256": "b6faab86cd34e46b497996d3338904a4e24c7b7ec102118758643abd368aaee9",
+    "transparentFraction": 0.931
+  },
+  {
+    "id": "09",
+    "name": "花束长卷",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-ca1afefb-0845-4ffa-9487-dcbe11817696.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. A modest asymmetric cluster of THREE deep burgundy roses with sage leaves concentrated at the LEFT quarter, from which TWO long gold stems travel and curl across the remaining canvas toward the far right, ending in a small bud. Bouquet-to-scroll silhouette: textured flowers on left balanced by pure delicate calligraphic vines on right. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-09.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 28628,
+    "sha256": "9e44f0d39f598c9b19b42ef91a07d81f6fe3d2c19d2e68b8adc389954157da92",
+    "transparentFraction": 0.77
+  },
+  {
+    "id": "10",
+    "name": "蝶吻玫瑰",
+    "source": "/Users/zhouxinlun/.codex/generated_images/01a07f57-9c7d-7972-a1dd-9a1ce5611c8f/exec-7d245ec8-ef3c-4667-b751-33bacb66ba5a.png",
+    "prompt": "Create a transparent-background PNG botanical wedding divider, width-to-height ratio 3:1. Dark burgundy red roses, small muted sage green leaves, fine slender champagne-gold stems and curling tendrils. Refined antique botanical engraving, realistic softly painted petals, very airy and elegant, not chunky sculpted metal. A broad sweeping gold S vine with two small burgundy roses, one near each outer third, and TWO tiny graceful butterflies with champagne-gold outlined wings hovering near the open central gap, all visually joined as one botanical ornament. Butterfly detail is subtle like engraved jewelry, rose petals detailed, no large central bloom. Isolated cutout with actual alpha transparency. No checkerboard, no background texture, no backdrop color, no text. All petals fully inside canvas with 5% clear margins. Fine stems legible when image is 340px wide.",
+    "file": "miniprogram/assets/rose-vines/vine-10.png",
+    "size": [
+      660,
+      220
+    ],
+    "bytes": 30567,
+    "sha256": "f254362159db424aa57e28d15d81bf6d86ac707784e5a45cbf06412edb150fcc",
+    "transparentFraction": 0.759
+  }
+]

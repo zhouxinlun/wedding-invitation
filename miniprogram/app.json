@@ -1,0 +1,54 @@
+{
+  "pages": [
+    "pages/invitation/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "良辰之约 · 婚礼邀请",
+    "navigationBarBackgroundColor": "#123d40",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#123d40",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于计算你与婚礼地点的直线距离，不上传或保存位置"
+    }
+  },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "subPackages": [
+    {
+      "root": "album-one",
+      "pages": [
+        "pages/gallery/index"
+      ]
+    },
+    {
+      "root": "album-two",
+      "pages": [
+        "pages/gallery/index"
+      ]
+    },
+    {
+      "root": "album-three",
+      "pages": [
+        "pages/gallery/index"
+      ]
+    },
+    {
+      "root": "album-four",
+      "pages": [
+        "pages/gallery/index"
+      ]
+    },
+    {
+      "root": "album-five",
+      "pages": [
+        "pages/gallery/index"
+      ]
+    }
+  ]
+}

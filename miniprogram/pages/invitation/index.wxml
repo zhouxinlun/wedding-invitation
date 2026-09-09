@@ -1,0 +1,76 @@
+<view class="invitation-page {{motion ? '' : 'still'}} {{pageVisible ? '' : 'paused'}}">
+  <view class="joy-snow" aria-hidden="true"><view wx:for="{{confetti}}" wx:key="id" class="snow-piece" style="left:{{item.left}}%;font-size:{{item.size}}rpx;--sway:{{item.sway}}rpx;animation-duration:{{item.duration}}s;animation-delay:{{item.delay}}s">{{item.glyph}}</view></view>
+  <view class="topline"><text class="eyebrow">一封喜帖 · 一生之约</text><view class="joy-emblem" aria-hidden="true"><text class="emblem-date">拾月</text><text class="emblem-seal serif">囍</text><text class="emblem-date">六日</text></view></view>
+  <view id="invitation" class="hero nav-section">
+    <view class="hero-top"><text class="vertical-note serif">谨备喜宴 · 敬候光临</text><view class="arch"><image class="hero-photo" src="/assets/couple-red.jpg" mode="aspectFill"/><view class="photo-shade"/><view class="hero-title serif" aria-label="良辰之约"><view class="title-words"><text>良辰</text><text class="title-last">之约</text></view><text class="title-dedication">A PROMISE FOR LIFE</text></view></view><text class="vertical-note serif">天作之合 · 佳偶天成</text></view>
+    <view class="hero-caption eyebrow">THE WEDDING OF</view>
+    <view class="couple-names serif"><text>{{wedding.groom}}</text><text class="amp">&</text><text>{{wedding.bride}}</text></view>
+    <view class="date-row"><view><text class="date-number">2026</text><text class="date-small">年</text></view><view class="date-main">10.06</view><view><text class="date-number">10:58</text><text class="date-small">仪式开始</text></view></view>
+    <view class="hero-venue">{{wedding.venue.district}} · {{wedding.venue.fullName}}</view>
+    <button class="invitation-button hero-cta" data-target="journey" bindtap="navigate"><text class="button-seal serif">赴</text><view class="button-copy"><text class="button-title">赴一场喜宴</text><text class="button-subtitle">时间 · 地点 · 路线</text></view><text class="button-arrow">↗</text></button>
+    <view class="scroll-note"><text class="scroll-thread"/>向下，展开我们的故事</view>
+  </view>
+  <view id="letter" class="letter reveal-section {{revealed.letter || !revealReady ? 'is-visible' : ''}}">
+    <view class="stamp-wrap"><button class="seal joy-stamp serif" bindtap="celebrate" aria-label="点喜印，接祝福">囍</button><view class="stamp-sparks" aria-hidden="true"><view wx:for="{{sparks}}" wx:key="id" class="spark-ray" style="transform:rotate({{item.angle}}deg)"><text class="spark-glyph">{{item.glyph}}</text></view></view></view>
+    <view class="stamp-note {{blessing ? 'has-blessing' : ''}}">{{blessing || '点一点喜印，接一份欢喜'}}</view>
+    <view class="eyebrow">诚 · 挚 · 邀 · 请</view><view class="letter-title serif">这一天，想与你分享。</view>
+    <view class="letter-lines"><view wx:for="{{wedding.invitation}}" wx:key="*this">{{item}}</view></view>
+    <view class="signature serif">{{wedding.groom}} & {{wedding.bride}} 敬邀</view><view class="line-ornament">✧</view>
+  </view>
+  <view id="film" class="cinema-portal nav-section reveal-section {{revealed.film || !revealReady ? 'is-visible' : ''}} {{filmReady ? 'cinema-ready' : ''}}">
+    <view class="cinema-heading"><text class="cinema-kicker">THE BRIDAL FILM</text><text class="cinema-edition">壹 · 新娘映像</text></view>
+    <view class="cinema-stage">
+      <image wx:if="{{wedding.openingFilm.poster}}" class="cinema-poster" src="{{wedding.openingFilm.poster}}" mode="aspectFill"/>
+      <view class="silk silk-one"/><view class="silk silk-two"/><view class="silk silk-three"/><view class="cinema-halo"/><view class="cinema-grain"/>
+      <view class="cinema-copy"><text class="cinema-overline">李小妮 · 个人映像</text><view class="cinema-name serif">一眼千年</view><view class="cinema-subtitle">流光入梦 · 敦煌飞天</view></view>
+      <button wx:if="{{filmReady}}" class="cinema-play" bindtap="openFilm" aria-label="欣赏新娘敦煌飞天短片"><text>▷</text></button>
+      <view wx:else class="cinema-coming"><text class="coming-star">✧</text><text>敬请期待</text></view>
+      <view class="cinema-bottom"><text>一舞惊鸿，赴一生之约</text><text>{{filmReady ? '轻触欣赏 ↗' : '新娘影像 · 即将呈现'}}</text></view>
+    </view>
+    <view class="cinema-footnote"><text class="cinema-thread"/><text>将这一眼，珍藏成永远</text><text class="cinema-thread"/></view>
+  </view>
+  <view id="us" class="section nav-section reveal-section {{revealed.us || !revealReady ? 'is-visible' : ''}}">
+    <view class="section-kicker"><text class="chapter-number">贰</text> THE TWO OF US</view><view class="section-title serif story-title"><view class="story-first">往后余生<text class="title-punctuation">，</text></view><view class="story-last">都是我们<text class="title-punctuation">。</text></view></view>
+    <couple-motion id="couple-motion" enabled="{{wedding.coupleMotion.enabled}}" paused="{{filmOpen || privacyOpen || !pageVisible || !motion}}" bindpreview="previewPhoto" data-src="/assets/couple-white.jpg"/>
+    <view class="names-details"><view><text class="role">新郎</text><text class="serif person-name">{{wedding.groom}}</text></view><view class="heart-seal serif">囍</view><view><text class="role">新娘</text><text class="serif person-name">{{wedding.bride}}</text></view></view>
+    <view class="story-caption"><view>从此，一屋两人，三餐四季。</view><view>平凡的日子，也有了温柔的意义。</view></view>
+    
+  </view>
+  <view id="album" class="section nav-section reveal-section {{revealed.album || !revealReady ? 'is-visible' : ''}}">
+    <view class="section-kicker"><text class="chapter-number">叁</text> MOMENTS TO KEEP</view><view class="section-title serif">心动，有迹可循。</view><view class="muted album-hint">{{albums.length}}本相册 · {{wedding.photos.length}}个心动瞬间 · 轻触翻开</view>
+    <view class="album-books"><button wx:for="{{albums}}" wx:key="id" id="book-{{item.id}}" class="album-book reveal-section {{revealed['book-' + item.id] || !revealReady ? 'is-visible' : ''}} {{index === 0 ? 'book-feature' : ''}}" data-id="{{item.id}}" bindtap="openAlbum" aria-label="翻开{{item.title}}，共{{item.count}}张"><view class="book-photo"><image src="/assets/{{item.cover}}" mode="aspectFill" lazy-load/><text class="book-number">0{{index + 1}}</text><text class="book-open">翻开 ↗</text></view><view class="book-label"><text class="serif">{{item.title}}</text><text class="book-count">{{item.count}}帧</text></view><view wx:if="{{index === 0}}" class="book-subtitle">{{item.subtitle}}</view><view wx:if="{{index < albums.length - 2}}" class="book-vine {{index % 2 ? 'vine-reverse' : ''}}" aria-hidden="true"><image src="/assets/{{item.vine}}" mode="aspectFit" lazy-load/></view></button></view>
+  </view>
+  <view id="blessings" class="section nav-section"><guest-blessings id="guest-blessings" paused="{{filmOpen || privacyOpen || active === 'journey'}}"/></view>
+  <view id="schedule" class="section schedule nav-section reveal-section {{revealed.schedule || !revealReady ? 'is-visible' : ''}}">
+    <view class="section-kicker"><text class="chapter-number">肆</text> OUR WEDDING DAY</view><view class="section-title serif">良辰，一刻一刻。</view>
+    <view class="schedule-date">{{wedding.dateLabel}} · 从清晨的欢喜，到一生的约定</view>
+    <view class="guest-arrival"><view class="arrival-heading"><text class="serif">致每一位来赴约的你</text><text class="arrival-seal serif">囍</text></view><view class="arrival-times"><view><text class="arrival-time">{{wedding.guestArrivalTime}}</text><text class="arrival-label">请于此时前到场</text></view><text class="arrival-thread">—</text><view><text class="arrival-time">{{wedding.ceremonyTime}}</text><text class="arrival-label">婚礼典礼开始</text></view></view><button class="arrival-place" data-place="venue" bindtap="scheduleDestination">{{wedding.venue.name}} · {{wedding.venue.room}} <text>查看地图 ↗</text></button></view>
+    <view class="schedule-phases"><view wx:for="{{wedding.schedule}}" wx:key="id" wx:for-item="phase" wx:for-index="phaseIndex" id="phase-{{phase.id}}" class="schedule-phase reveal-section {{revealed['phase-' + phase.id] || !revealReady ? 'is-visible' : ''}}"><view class="phase-heading"><view><view class="phase-title serif"><text class="phase-number">0{{phaseIndex + 1}}</text>{{phase.title}}</view><view class="phase-subtitle">{{phase.subtitle}}</view></view><button class="phase-place" data-place="{{phase.destination}}" bindtap="scheduleDestination">{{phase.placeLabel}} ↗</button></view><view class="event-list"><view wx:for="{{phase.events}}" wx:key="title" class="schedule-event {{item.highlight ? 'event-highlight' : ''}}"><view class="event-clock"><text>{{item.time}}</text><text wx:if="{{item.end}}" class="event-end">— {{item.end}}</text><text wx:if="{{item.timeNote}}" class="event-time-note">{{item.timeNote}}</text></view><view class="event-copy"><view class="event-title serif">{{item.title}}</view><view class="event-detail">{{item.detail}}</view></view></view></view></view></view>
+    <view class="schedule-note">接亲亲友请留意两家集合时间；赴宴宾客请于10:30前到场。<text class="serif">一路平安，满心欢喜。</text></view>
+  </view>
+  <view id="journey" class="section journey nav-section reveal-section {{revealed.journey || !revealReady ? 'is-visible' : ''}}">
+    <view class="section-kicker"><text class="chapter-number">伍</text> SAVE THE DATE</view><view class="section-title serif">有你在，才圆满。</view>
+    <view class="event-date serif">{{wedding.dateLabel}}</view><view class="timeline"><view class="timeline-dot"/><view><view class="time">{{wedding.ceremonyTime}}</view><view class="gold">婚礼仪式开始</view><view class="muted">请于{{wedding.guestArrivalTime}}前到场 · {{wedding.venue.room}}</view></view></view>
+    <view class="journey-card">
+      <view class="journey-greeting"><view><view class="eyebrow">山海有距离 · 欢喜没有</view><view class="greeting-title serif">不管多远，都盼你来。</view></view><view class="postmark serif"><text>赴</text><text>约</text></view></view>
+      <view wx:if="{{destinations.length > 1}}" class="destination-tabs"><button wx:for="{{destinations}}" wx:key="id" class="{{selectedIndex === index ? 'selected' : ''}}" data-index="{{index}}" bindtap="selectDestination">{{item.label}}</button></view>
+      <map wx:if="{{canNavigate}}" id="destination-map" class="destination-map" latitude="{{selectedPlace.latitude}}" longitude="{{selectedPlace.longitude}}" scale="16" markers="{{mapMarkers}}" enable-zoom enable-scroll enable-rotate="{{false}}" show-location="{{false}}"/>
+      <view class="destination-details {{canNavigate ? 'with-map' : ''}}"><view class="eyebrow">{{selectedPlace.label}}</view><view class="venue-name serif">{{selectedPlace.displayName || selectedPlace.name}}</view><view wx:if="{{selectedPlace.branch}}" class="venue-branch">{{selectedPlace.branch}}</view><view wx:if="{{selectedPlace.room}}" class="venue-room">{{selectedPlace.room}}</view><view class="venue-address" selectable>{{selectedPlace.district}}<text wx:if="{{selectedPlace.address}}"> {{selectedPlace.address}}</text></view>
+        <view wx:if="{{selectedPlace.note}}" class="place-note">{{selectedPlace.note}}</view><view wx:if="{{canNavigate}}" class="distance-card"><view><view class="distance-number serif">{{distance || '你与赴约地，相距几许？'}}</view><view class="distance-note">{{distanceNote}}</view></view><button wx:if="{{!locationDenied}}" class="distance-button {{distanceState === 'loading' ? 'is-locating' : ''}}" bindtap="requestDistance" disabled="{{distanceState === 'loading'}}"><view class="compass-icon"><text>✦</text></view><text class="distance-action">{{distanceState === 'loading' ? '正在定位' : distance ? '更新位置' : distanceState === 'error' ? '重新定位' : '查看距离'}}</text></button><button wx:else class="distance-button" bindtap="openLocationSettings"><view class="compass-icon"><text>✦</text></view><text class="distance-action">开启定位</text></button></view>
+        <view class="venue-actions"><button wx:if="{{canNavigate}}" class="invitation-button route-button" bindtap="navigateVenue" loading="{{distanceState === 'loading'}}" disabled="{{distanceState === 'loading'}}"><text class="button-seal serif">约</text><view class="button-copy"><text class="button-title">{{hasOrigin ? '开始导航，去赴约' : '定位并导航'}}</text><text class="button-subtitle">{{hasOrigin ? '打开微信地图 · 选择出行方式' : '允许定位后，打开导航地图'}}</text></view><text class="button-arrow">↗</text></button><button class="copy-address {{canNavigate ? '' : 'copy-only'}}" bindtap="copyDestination"><text class="copy-mark" aria-hidden="true">▱</text><text>复制赴约地址</text><text class="copy-arrow">↗</text></button></view>
+        <view wx:if="{{!canNavigate}}" class="map-note">复制完整店名，可在地图中搜索路线。</view>
+      </view><view class="journey-card-footer"><text>路途慢慢，喜悦满满</text><text class="serif">囍</text></view>
+    </view>
+    <view class="farewell"><view class="seal serif">囍</view><view class="serif farewell-title">{{wedding.closing}}</view><view class="muted">我们在这里，等你赴约。</view><button class="outline-btn share-btn" open-type="share"><text>分享这份喜悦</text><text class="button-arrow">↗</text></button><view class="footer-date">{{wedding.groom}} & {{wedding.bride}} · 2026.10.06</view></view>
+  </view>
+  <view class="bottom-nav {{navQuiet ? 'nav-quiet' : ''}}" bindtouchstart="showNavigation"><view class="nav-track"><button wx:for="{{chapters}}" wx:key="id" class="{{active === item.id ? 'active' : ''}}" data-target="{{item.id}}" bindtap="navigate"><text class="nav-number">0{{index + 1}}</text><text>{{item.label}}</text></button></view></view>
+  <view wx:if="{{privacyOpen}}" class="privacy-overlay"><view class="privacy-card"><view class="seal serif">约</view><view class="serif privacy-title">{{navigationRequested ? '从你的位置，出发赴约' : '看看，我们相隔多远'}}</view><view class="privacy-copy">同意后，将获取你本次的位置，显示到所选地点的直线距离，并按你的选择打开导航。本请柬不保存你的位置。</view><button class="privacy-link" bindtap="openPrivacyContract">阅读《{{privacyContractName}}》</button><button id="agree-distance" class="primary-btn" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="agreeDistance">{{navigationRequested ? '同意定位并导航' : '同意并查看距离'}}</button><button class="privacy-cancel" bindtap="cancelDistance">暂不查看，继续看请柬</button></view></view>
+  <view wx:if="{{filmOpen}}" class="film-overlay">
+    <view class="film-masthead"><text>李小妮 · 敦煌飞天</text><button class="skip-film" bindtap="closeFilm">返回影像 ×</button></view>
+    <view class="film-aureole" aria-hidden="true"/><view class="film-heading"><text class="cinema-kicker">THE BRIDAL FILM</text><view class="serif">一眼千年</view></view>
+    <video wx:if="{{!filmError}}" id="opening-video" class="opening-video" src="{{wedding.openingFilm.url}}" poster="{{wedding.openingFilm.poster}}" autoplay muted controls show-center-play-btn enable-play-gesture object-fit="contain" bindplay="onFilmPlay" bindtimeupdate="onFilmTimeUpdate" bindended="closeFilm" binderror="onFilmError"/>
+    <view wx:else class="film-fallback"><view class="serif">让美好，稍等片刻。</view><view>短片暂时未能加载，你可以继续浏览请柬。</view><button class="primary-btn" bindtap="openFilm">重新播放</button><button class="outline-btn" bindtap="closeFilm">继续浏览请柬 →</button></view>
+    <view class="film-caption"><text>{{filmLoading ? '正在展开影像…' : filmError ? '我们的喜帖，随时为你展开' : '一舞惊鸿，赴一生之约'}}</text><text wx:if="{{!filmError}}">{{filmProgress}}%</text></view><view class="film-progress"><view style="width:{{filmProgress}}%"/></view>
+    <view class="film-ending">一眼千年 · 愿此刻，长留心间</view>
+  </view>
+</view>

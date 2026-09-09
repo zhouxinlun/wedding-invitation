@@ -1,0 +1,1 @@
+<import src="../../../shared/gallery.wxml"/><template is="wedding-gallery" data="{{album, photos, missing, revealReady, revealed, pageVisible}}"/>

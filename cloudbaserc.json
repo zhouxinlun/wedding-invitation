@@ -1,0 +1,18 @@
+{
+  "envId": "wanshifuyue-d4ghbtrbi0e9bd01b",
+  "functionRoot": "cloudfunctions",
+  "functions": [
+    {
+      "name": "weddingBlessings",
+      "runtime": "Nodejs20.19",
+      "handler": "index.main",
+      "timeout": 60,
+      "memorySize": 512,
+      "installDependency": true,
+      "envVariables": {
+        "BLESSING_APPID": "wx0d45570c72a490e7"
+      },
+      "description": "亲友祝福墙：投稿、照片、新人确认与撤回"
+    }
+  ]
+}

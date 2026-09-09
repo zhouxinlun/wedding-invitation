@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "良辰之约 · 婚礼邀请",
+  "disableScroll": false,
+  "usingComponents": {
+    "guest-blessings": "/components/blessings/index",
+    "couple-motion": "/components/couple-motion/index"
+  }
+}

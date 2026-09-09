@@ -1,0 +1,5 @@
+<view id="motion-frame" class="motion-frame">
+  <image class="motion-still" src="/assets/couple-white.jpg" mode="widthFix" bindtap="preview" aria-label="放大查看我们的白纱合照"/>
+  <video wx:if="{{mounted}}" id="us-motion-video" class="motion-video {{playing && hasFrame ? 'motion-visible' : ''}}" src="{{url}}" muted loop controls="{{false}}" show-center-play-btn="{{false}}" show-play-btn="{{false}}" show-fullscreen-btn="{{false}}" enable-progress-gesture="{{false}}" object-fit="contain" bindloadedmetadata="readyToPlay" bindplay="playing" bindpause="onPause" bindtimeupdate="timeUpdate" binderror="failed" bindtap="preview"/>
+  <button wx:if="{{error}}" class="motion-retry" bindtap="retry">轻触，继续招手 ↻</button>
+</view>
