@@ -1,6 +1,6 @@
 # 良辰之约 · 婚礼请柬
 
-> **当前更新（2026-09-09）**：已取消独立 AI 影像，菜单为“喜帖 / 我们 / 相册 / 祝福 / 流程 / 赴宴”；“我们”的合影动图保留。65 项检查通过，开发者工具实际编译与“我们”菜单跳转已验证。当前手机预览码为本机 `exports/正式账号-六项菜单-预览码.jpg`，正式发布仍按下文流程单独执行。
+> **当前更新（2026-09-09）**：同一仓库支持微信小程序与 H5，请柬内容、照片、祝福和云函数共用。H5 运行 `npm run dev:web`；域名注册、备案和部署步骤见 [H5.md](H5.md)。原封面与六项菜单保留。小程序 UGC 类目审核与 H5 上线分别处理。
 
 私有协作仓库：[zhouxinlun/wedding-invitation](https://github.com/zhouxinlun/wedding-invitation)。首次运行使用 Node.js 22+，执行 `npm run setup`、`npm test`，再用微信开发者工具导入仓库根目录。完整启动步骤、文件导航与分支协作见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
@@ -35,7 +35,7 @@ node scripts/check.js
 node scripts/check-albums-schedule.js
 node scripts/check-preview.js
 node scripts/check-vines.js
-python3 -m http.server 8765 --bind 127.0.0.1
+npm run dev:web
 ```
 
 访问 http://127.0.0.1:8765/web/index.html。开发者工具打开本项目，使用AppID wx0d45570c72a490e7；上传状态见PUBLISH.md，原会议翻译项目源码不变。公众名称、审核、正式发布及实际手机定位与分享仍待完成。

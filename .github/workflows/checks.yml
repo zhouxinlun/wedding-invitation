@@ -17,6 +17,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: cloudfunctions/weddingBlessings/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            cloudfunctions/weddingBlessings/package-lock.json
       - run: npm run setup
       - run: npm test

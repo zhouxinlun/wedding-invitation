@@ -7,8 +7,11 @@ class GuestError extends Error { constructor(code,message){super(message);this.c
 const fail=(code,message)=>{throw new GuestError(code,message);};
 const digest=value=>crypto.createHash('sha256').update(value).digest('hex');
 function identity(context){
-  if(!context || !context.OPENID || !context.APPID) fail('LOGIN_REQUIRED','请在微信小程序中打开后留下祝福');
-  return {openid:context.OPENID,key:digest(context.OPENID).slice(0,32)};
+  if(context&&context.OPENID&&context.APPID)return {platform:'wechat',openid:context.OPENID,key:digest(context.OPENID).slice(0,32)};
+  // CloudBase Web invocations may also carry the environment's WX_APPID.
+  // Only an invocation OPENID establishes a native WeChat identity.
+  if(context&&context.WEB_UID&&context.ENV&&!context.OPENID)return {platform:'web',openid:'',key:digest('cloudbase:'+context.ENV+':'+context.WEB_UID).slice(0,32)};
+  fail('LOGIN_REQUIRED','未能确认你的身份，请刷新页面后重试');
 }
 function validate(event,owner){
   const clean=value=>typeof value==='string'?value.trim():'';
@@ -27,8 +30,13 @@ function validate(event,owner){
   });
   return {name,text,emoji,files,nonce:event.nonce};
 }
-function createService({repo,media,albums={},motion={},admins=[],appid,now=Date.now,token=()=>crypto.randomBytes(12).toString('hex')}){
-  function authorize(context){const owner=identity(context);if(!appid||context.APPID!==appid)fail('APP_MISMATCH','投稿服务尚未正确连接');return {...owner,admin:admins.includes(owner.openid)};}
+function createService({repo,media,albums={},motion={},admins=[],appid,webEnv,now=Date.now,token=()=>crypto.randomBytes(12).toString('hex')}){
+  function authorize(context){
+    const owner=identity(context);
+    if(owner.platform==='wechat'&&(!appid||context.APPID!==appid))fail('APP_MISMATCH','投稿服务尚未正确连接');
+    if(owner.platform==='web'&&(!webEnv||context.ENV!==webEnv))fail('APP_MISMATCH','网页投稿服务尚未正确连接');
+    return {...owner,admin:owner.platform==='wechat'&&admins.includes(owner.openid)};
+  }
   async function present(docs,owner){
     // Only call this with already authorized rows; private/pending file IDs never enter a public response.
     const ids=[...new Set(docs.flatMap(doc=>doc.photos||[]))];

@@ -2,12 +2,19 @@
   "name": "wedding-invitation",
   "version": "1.0.0",
   "private": true,
-  "description": "周新沦与李小妮的婚礼请柬：微信小程序、网页预览与祝福云函数",
+  "description": "周新沦与李小妮的婚礼请柬：微信小程序、H5 与共享祝福云函数",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "setup": "npm ci --prefix cloudfunctions/weddingBlessings --ignore-scripts",
-    "test": "node scripts/check.js && node scripts/check-albums-schedule.js && node scripts/check-preview.js && node scripts/check-vines.js && node scripts/check-blessings.js && node scripts/check-blessing-snow.js && node scripts/check-cloud-media.js && node scripts/check-blessing-editor.js && node scripts/check-couple-motion.js"
+    "setup": "npm ci --ignore-scripts && npm ci --prefix cloudfunctions/weddingBlessings --ignore-scripts && npm run build:web",
+    "build:web": "node scripts/build-web.js",
+    "dev:web": "npm run build:web && node scripts/serve-web.js",
+    "test": "node scripts/check.js && node scripts/check-albums-schedule.js && node scripts/check-preview.js && node scripts/check-vines.js && node scripts/check-blessings.js && node scripts/check-blessing-snow.js && node scripts/check-cloud-media.js && node scripts/check-blessing-editor.js && node scripts/check-couple-motion.js && node scripts/check-h5.js"
+  },
+  "devDependencies": {
+    "@cloudbase/js-sdk": "3.8.2",
+    "esbuild": "0.28.2",
+    "jsdom": "26.1.0"
   }
 }

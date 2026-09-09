@@ -1,1 +1,1 @@
-{"name":"wedding-blessings","version":"1.0.0","private":true,"main":"index.js","engines":{"node":">=18"},"dependencies":{"wx-server-sdk":"4.0.2","jpeg-js":"0.4.4","pngjs":"7.0.0"}}
+{"name":"wedding-blessings","version":"1.0.0","private":true,"main":"index.js","engines":{"node":">=18"},"dependencies":{"@cloudbase/node-sdk":"3.17.2","jpeg-js":"0.4.4","pngjs":"7.0.0","wx-server-sdk":"4.0.2"}}

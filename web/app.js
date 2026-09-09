@@ -5,7 +5,6 @@
   document.querySelectorAll('[data-field]').forEach(el => {el.textContent = fields[el.dataset.field] || '';});
   const asset = file => '../miniprogram/assets/' + file;
   const grid = document.querySelector('#photo-grid');
-  const photoAsset = photo => photo.package ? '../miniprogram/' + photo.package + '/images/' + photo.file : asset(photo.file);
   document.querySelector('#album-count').textContent = `${w.albums.length}本相册 · ${w.photos.length}个心动瞬间 · 轻触翻开`;
   const coverVines = window.WEDDING_VINES.plan('album-covers', Math.max(0, w.albums.length - 2));
   w.albums.forEach((album, index) => {
@@ -91,12 +90,25 @@
     sparkTimer=setTimeout(()=>sparks.replaceChildren(),1300);
   });
   const photoDialog = document.querySelector('#photo-dialog');
-  let selectedPhoto = 0, previewPhotos = w.photos.filter(photo => !photo.package);
-  function showPhoto(index) {
+  let selectedPhoto = 0, previewPhotos = w.photos.filter(photo => !photo.package),photoRequest=0;
+  const photoState=make('div','photo-state'),photoMessage=make('p','','正在展开这一帧…'),photoRetry=make('button','outline-btn','重新加载');
+  photoState.setAttribute('role','status');photoRetry.type='button';photoState.append(photoMessage,photoRetry);photoDialog.querySelector('figure').append(photoState);
+  function photoFailed(){photoState.hidden=false;photoRetry.hidden=false;photoMessage.textContent='这张照片暂时未能打开';document.querySelector('#lightbox-image').hidden=true;}
+  async function showPhoto(index,force=false) {
     selectedPhoto = (index + previewPhotos.length) % previewPhotos.length;
     const photo = previewPhotos[selectedPhoto]; const img = document.querySelector('#lightbox-image');
-    img.classList.remove('photo-enter'); void img.offsetWidth; img.src = photoAsset(photo); img.alt = photo.title; img.classList.add('photo-enter'); document.querySelector('#lightbox-caption').textContent = `${selectedPhoto + 1} / ${previewPhotos.length}　${photo.title}`;
+    const request=++photoRequest;img.hidden=true;img.removeAttribute('src');photoState.hidden=false;photoRetry.hidden=true;photoMessage.textContent='正在展开这一帧…';
+    document.querySelector('#lightbox-caption').textContent = `${selectedPhoto + 1} / ${previewPhotos.length}　${photo.title}`;
+    try{
+      const result=await window.WeddingCloud.album(photo.group,force);
+      if(request!==photoRequest)return;
+      const media=result.photos.find(item=>item.file===photo.file);if(!media)throw Error('PHOTO_MISSING');
+      img.onload=()=>{if(request!==photoRequest)return;photoState.hidden=true;img.hidden=false;img.classList.remove('photo-enter');void img.offsetWidth;img.classList.add('photo-enter');};
+      img.onerror=()=>{if(request===photoRequest)photoFailed();};img.alt=photo.title;img.src=media.url;
+    }catch(_){if(request===photoRequest)photoFailed();}
   }
+  photoRetry.onclick=()=>showPhoto(selectedPhoto,true);
+  photoDialog.addEventListener('close',()=>{photoRequest++;});
   document.querySelectorAll('[data-photo]').forEach(button => button.addEventListener('click', () => {previewPhotos=w.photos.filter(photo=>!photo.package);showPhoto(Number(button.dataset.photo)); photoDialog.showModal();}));
   document.querySelectorAll('[data-album]').forEach(button => button.addEventListener('click', () => {previewPhotos=w.photos.filter(photo=>photo.group===button.dataset.album);showPhoto(0);photoDialog.showModal();}));
   document.querySelector('.photo-prev').addEventListener('click', () => showPhoto(selectedPhoto - 1));
@@ -136,7 +148,7 @@
       url.search = new URLSearchParams({position:selectedPlace.longitude+','+selectedPlace.latitude,name:selectedPlace.fullName||selectedPlace.name,coordinate:'gaode',callnative:'0'}).toString();
       mapLink.href = url.toString();
     } else mapLink.removeAttribute('href');
-    document.querySelector('#map-note').textContent = selectedPlace.canNavigate ? '微信小程序内支持定位授权、小地图与直线距离；这里可直接打开所选地点导航。' : '复制完整店名，可在地图中搜索路线。';
+    document.querySelector('#map-note').textContent = selectedPlace.canNavigate ? '打开地图后，可选择当前位置并规划路线。两家集合入口以新人通知为准。' : '复制完整店名，可在地图中搜索路线。';
   }
   places.forEach((place,index)=>{const button=document.createElement('button');button.textContent=place.label;button.addEventListener('click',()=>selectPlace(index));tabs.append(button);});
   tabs.hidden = places.length < 2; selectPlace(0);
@@ -145,4 +157,7 @@
   document.querySelector('#share-invite').addEventListener('click',()=>document.querySelector('#share-dialog').showModal());
   const caption=`我们结婚啦！\n${w.groom} & ${w.bride}\n诚邀你在${w.dateLabel} ${w.ceremonyTime}，来见证我们的婚礼。\n${w.venue.district} · ${w.venue.fullName} · ${w.venue.room}\n请于${w.guestArrivalTime}前到场。\n带着祝福来，就很好。`;
   document.querySelector('#copy-caption').addEventListener('click',()=>copy(caption,'邀请文案已复制'));
+  const shareLink=document.createElement('button');shareLink.className='outline-btn';shareLink.textContent='复制请柬链接';shareLink.type='button';
+  document.querySelector('#share-dialog').append(shareLink);
+  shareLink.onclick=()=>{if(!/^https?:$/.test(location.protocol)){notify('正式链接正在准备中。');return;}const url=new URL(location.href);url.hash='';url.search='';copy(url.href,'请柬链接已复制，可发送给亲友');};
 })();

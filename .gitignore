@@ -14,6 +14,8 @@ project.private.config.json
 *.key
 .cloudbase/
 /work/
+/dist/
+/web/vendor/
 
 # Preview QR codes, screenshots and duplicated render exports stay local.
 # Keep the web invitation, calendar and asset provenance needed by the project.

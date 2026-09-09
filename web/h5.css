@@ -1,0 +1,5 @@
+.b-feed-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:12px 14px;border:1px solid #c6aa7538;border-radius:8px;color:#d3c5ab;font-size:13px;line-height:1.7}
+.b-feed-status.has-error{background:#8b403322;border-color:#bd906e66}.b-feed-retry{border:0;border-bottom:1px solid currentColor;background:transparent;padding:5px 0;color:#f1d09b;font:inherit;white-space:nowrap}.photo-state{padding:36px 18px;color:#edce9b;text-align:center;min-height:160px}.photo-state button{margin-top:20px}.photo-state[hidden]{display:none}.photo-dialog figure{position:relative;min-width:180px}.motion-retry{position:absolute;z-index:3;bottom:16px;left:50%;transform:translateX(-50%);background:#fbefdadb;color:#6d4030;border:1px solid #bd9966;border-radius:20px;padding:8px 14px;white-space:nowrap;font:inherit;font-size:12px}.motion-retry[hidden]{display:none}.b-web-dialog .b-input{font-size:16px}.b-web-dialog form{padding-bottom:env(safe-area-inset-bottom,0)}
+
+.us-photo>.image-button{display:block;width:100%;padding:0;background:transparent}
+.b-identity-note{font-size:11px;line-height:1.8;color:#c4d0c0;margin-top:14px}

@@ -3,6 +3,7 @@ const cloud=require('wx-server-sdk');
 const jpeg=require('jpeg-js');
 const {PNG}=require('pngjs');
 const {createService,GuestError,digest}=require('./core');
+const {requestIdentity}=require('./request-identity');
 const albums=require('./albums.json');
 const motion=require('./motion.json');
 cloud.init({env:cloud.DYNAMIC_CURRENT_ENV});
@@ -142,11 +143,11 @@ const media={
     return map;
   }
 };
-exports.main=async event=>{
+exports.main=async (event,context)=>{
   try{
     const admins=(process.env.BLESSING_ADMIN_OPENIDS||'').split(',').map(s=>s.trim()).filter(Boolean);
-    const service=createService({repo,media,albums,motion,admins,appid:process.env.BLESSING_APPID});
-    const result=await service(event||{},cloud.getWXContext());
+    const service=createService({repo,media,albums,motion,admins,appid:process.env.BLESSING_APPID,webEnv:process.env.TCB_ENV||process.env.SCF_NAMESPACE});
+    const result=await service(event||{},requestIdentity(context));
     return {ok:true,...result};
   }catch(e){
     if(e instanceof GuestError)return {ok:false,code:e.code,message:e.message};

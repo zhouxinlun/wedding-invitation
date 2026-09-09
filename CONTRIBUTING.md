@@ -4,7 +4,7 @@
 
 ## 第一次启动
 
-安装 Git、Node.js 22 或更高版本，以及微信开发者工具。网页预览另需 Python 3。
+安装 Git、Node.js 22 或更高版本，以及微信开发者工具。H5 使用同一 Node.js 开发环境。
 
 ```sh
 git clone https://github.com/zhouxinlun/wedding-invitation.git
@@ -13,17 +13,17 @@ npm run setup
 npm test
 ```
 
-`setup` 按锁文件安装云函数依赖。`test` 运行现有的九组检查脚本，覆盖请柬、地图、相册、祝福回复与删除、飘雪、云素材和合影动图；不访问真实祝福数据库，也不部署任何代码。
+`setup` 按锁文件安装网页与云函数依赖，并构建 H5。`test` 运行十组检查脚本，覆盖请柬、地图、相册、祝福回复与删除、飘雪、云素材和合影动图；不访问真实祝福数据库，也不部署任何代码。
 
 在微信开发者工具中导入仓库根目录，工具会读取 `project.config.json`。AppID 为 `wx0d45570c72a490e7`，云环境为 `wanshifuyue-d4ghbtrbi0e9bd01b`。GitHub 协作者权限与小程序权限分别管理：需要由小程序管理员把协作者的微信账号添加为项目开发者，才能验证真实云功能和预览。
 
 查看网页版时，在仓库根目录执行：
 
 ```sh
-python3 -m http.server 8765 --bind 127.0.0.1
+npm run dev:web
 ```
 
-打开 http://127.0.0.1:8765/web/index.html 。相册和合影动图有随仓库保留的本地素材；网页祝福试览 `web/blessings-preview.html` 使用内存示例，真实投稿、回复和删除需要在小程序验证。
+打开 http://127.0.0.1:8765/ 。网页会使用真实云数据，投稿、回复和删除都会生效；自动测试中的模拟数据与生产分离。浏览器匿名身份与微信身份各自独立。H5 开通、部署和域名步骤见 [H5.md](H5.md)。
 
 ## 改哪里
 
@@ -59,7 +59,7 @@ git push -u origin feature/album-layout
 
 - 原红色封面和 64 张相册照片已保留；不要覆盖原图或重新拟合人物。新的照片可以另外增加文件。原片清单记录的历史本机路径仅用于追溯，克隆运行不依赖这些路径。
 - “我们”的双人招手动图已经接入，见 [COUPLE-MOTION.md](COUPLE-MOTION.md)；2026-09-09 已取消“一眼千年”的 AI 影像章节与菜单。
-- 小程序相册使用云端素材，网页版使用本地副本。新增素材按 [CLOUD-MEDIA.md](CLOUD-MEDIA.md) 同步，不要把有期限的签名链接写进代码。
+- 小程序与 H5 的相册和合影动图均使用同一份云端素材。新增素材按 [CLOUD-MEDIA.md](CLOUD-MEDIA.md) 同步，不要把有期限的签名链接写进代码。
 - 真实亲友祝福、上传照片、原始 AI 视频、预览码、测试截图和本机凭据未纳入仓库。旧文档中的 `work/` 证据路径与预览码指向维护者本地文件；需要手机预览时在开发者工具重新生成。
 - `project.private.config.json` 和 `.env` 留在本机。AppID、环境 ID 与固定云素材 ID 是项目配置，不是登录密钥。管理员身份配置保存在云端，不要复制到 Git。
 - 云函数沿用现有环境变量与权限；`cloudbaserc.json` 不是线上环境变量的完整备份，不能据此覆盖已有管理员配置。云函数发布与手机验收参考 [BLESSINGS.md](BLESSINGS.md)，小程序审核与发布见 [PUBLISH.md](PUBLISH.md)。当前 GitHub 仓库建立并不代表小程序已正式上线。

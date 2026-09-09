@@ -25,10 +25,11 @@ function harness(){
     async deleteFile({fileList}){if(failDelete)return {fileList:fileList.map(fileID=>({fileID,status:1}))};fileList.forEach(id=>files.delete(id));return {fileList:fileList.map(fileID=>({fileID,status:0}))};},
     async getTempFileURL({fileList}){assert(fileList.length<=50);fileList.forEach(item=>signed.push(item.fileID));return {fileList:fileList.map(item=>({fileID:item.fileID,tempFileURL:'https://media.invalid/'+encodeURIComponent(item.fileID)}))};}
   };
-  const env={BLESSING_APPID:'test-app',BLESSING_ADMIN_OPENIDS:'host'};
+  const env={BLESSING_APPID:'test-app',BLESSING_ADMIN_OPENIDS:'host',TCB_ENV:'fixture'};
   const sandbox={require:id=>id==='wx-server-sdk'?cloud:id==='./core'?{...core,createService:options=>core.createService({...options,now:()=>clock,token:()=>String(++serial)})}:realRequire(id),exports:{},process:{env},Buffer,console:{error:(...args)=>log.push(args)}};
   vm.runInNewContext(fs.readFileSync(path.join(functionRoot,'index.js'),'utf8'),sandbox);
-  return {files,stores,signed,log,env,run:event=>sandbox.exports.main(event),context:value=>{context=value;},user:name=>{context={OPENID:name,APPID:'test-app'};},advance:n=>clock+=n,failUpload:value=>failUpload=value,failDelete:value=>failDelete=value,decode:sandbox.exports.canonicalImage,
+  const invocation=()=>({namespace:'fixture',environment:JSON.stringify({WX_OPENID:context.OPENID,WX_APPID:context.APPID,TCB_UUID:context.WEB_UID,TCB_ENV:context.ENV||'fixture'})});
+  return {files,stores,signed,log,env,run:event=>sandbox.exports.main(event,invocation()),raw:(event,ctx)=>sandbox.exports.main(event,ctx),context:value=>{context=value;},user:name=>{context={OPENID:name,APPID:'test-app'};},web:name=>{context={WEB_UID:name,ENV:'fixture',APPID:'test-app'};},advance:n=>clock+=n,failUpload:value=>failUpload=value,failDelete:value=>failDelete=value,decode:sandbox.exports.canonicalImage,
     stage(owner,nonce,index=0){const id='cloud://fixture.bucket/guest-uploads/'+core.digest(owner).slice(0,32)+'/'+nonce+'/'+index+'.jpg';const raw={width:4,height:3,data:Buffer.alloc(4*3*4,230)};files.set(id,jpeg.encode(raw,80).data);return id;}};
 }
 const payload=(nonce,files=[])=>({action:'submit',nonce,name:'亲友测试',text:'愿你们一直幸福 ❤️',emoji:'🌹',files});
@@ -63,6 +64,29 @@ await check('照片删除按稳定键而非下标；并发删除不误删保留�
 });
 await check('纯照片祝福删除最后一张时移除空帖；存储故障不恢复已删除图片',async()=>{
  const h=harness(),nonce='delete-last-photo-01',source=h.stage('guest-a',nonce);const post=await h.run({...payload(nonce,[source]),text:'',emoji:''});const photo=(await h.run({action:'list'})).items[0].photoKeys[0];h.failDelete(true);assert.equal((await h.run({action:'removePhoto',postId:post.id,photoKey:photo})).status,'deleted');assert.equal((await h.run({action:'list'})).items.length,0);assert(h.log.some(e=>e[0]==='BLESSING_PHOTO_CLEANUP_PENDING'));assert.equal((await h.run({action:'removePhoto',postId:post.id,photoKey:photo})).status,'deleted');
+});
+await check('H5 与小程序共用祝福和回复，作者权限隔离，旧微信 owner 不变',async()=>{
+ const h=harness();h.user('guest-a');const old=await h.run(payload('cross-platform-wx-01'));const oldOwner=h.stores.get('wedding_blessings').get(old.id).owner;assert.equal(oldOwner,core.digest('guest-a').slice(0,32));
+ h.web('guest-a');const who=await h.run({action:'identity'});assert.notEqual(who.ownerKey,oldOwner);assert.equal(who.admin,false);assert.equal(who.identityCode,'');
+ let feed=await h.run({action:'list'});assert.equal(feed.items[0].own,false);assert.equal((await h.run({action:'remove',id:old.id,OPENID:'guest-a'})).code,'FORBIDDEN');
+ const post=await h.run({...payload('cross-platform-web-01'),name:'网页亲友'});const reply=await h.run({action:'reply',postId:old.id,nonce:'cross-platform-reply-01',name:'网页亲友',text:'来自网页的祝福'});assert.equal(reply.status,'approved');
+ h.user('guest-a');feed=await h.run({action:'list'});assert.equal(feed.items.length,2);assert.equal(feed.items.find(p=>p.id===old.id).replies[0].replyToName,'亲友测试');assert.equal((await h.run({action:'remove',id:post.id})).code,'FORBIDDEN');
+ h.web('guest-a');assert.equal((await h.run({action:'removeReply',postId:old.id,replyId:reply.id})).status,'deleted');assert.equal((await h.run({action:'remove',id:post.id})).status,'deleted');
+ h.web('host');assert.equal((await h.run({action:'list',mode:'manage'})).code,'FORBIDDEN');h.context({WEB_UID:'guest',ENV:'wrong'});assert.equal((await h.run({action:'list'})).code,'APP_MISMATCH');
+});
+await check('当前调用上下文独立解析，拒绝残留微信身份、伪造 event 和无身份 HTTP 调用',async()=>{
+ const h=harness();h.user('host');h.env.WX_OPENID='host';h.env.WX_APPID='test-app';h.env.TCB_UUID='old-web-guest';
+ for(const ctx of [undefined,{}, {environment:'bad json'}, {environment:'{}'}, {environment:JSON.stringify({TCB_ENV:'fixture'})}])assert.equal((await h.raw({action:'identity',OPENID:'host',APPID:'test-app',WEB_UID:'attacker',context:{WX_OPENID:'host'}},ctx)).code,'LOGIN_REQUIRED');
+ const wx=await h.raw({action:'identity'},{namespace:'fixture',environ:'WX_OPENID=guest-a;WX_APPID=test-app;TCB_ENV=fixture'});assert.equal(wx.ownerKey,core.digest('guest-a').slice(0,32));assert.equal(wx.admin,false);
+ const web=await h.raw({action:'identity'},{namespace:'fixture',environment:JSON.stringify({TCB_UUID:'web-current',TCB_ENV:'fixture'})});assert.equal(web.ownerKey,core.digest('cloudbase:fixture:web-current').slice(0,32));assert.equal(web.admin,false);
+ assert.equal((await h.raw({action:'identity'},{environment:'{}'})).code,'LOGIN_REQUIRED');
+});
+await check('H5 照片复用处理与删除链，任意签名及他人上传仍被拒绝',async()=>{
+ const h=harness();h.web('web-a');const nonce='cross-web-photo-01',who=await h.run({action:'identity'});const source='cloud://fixture.bucket/guest-uploads/'+who.ownerKey+'/'+nonce+'/0.jpg';h.files.set(source,jpeg.encode({width:4,height:3,data:Buffer.alloc(48,230)},80).data);
+ const post=await h.run(payload(nonce,[source]));assert.equal(post.status,'approved');assert(!h.files.has(source));const own=(await h.run({action:'list'})).items[0];assert.equal(own.own,true);
+ h.web('web-b');assert.equal((await h.run({action:'removePhoto',postId:post.id,photoKey:own.photoKeys[0]})).code,'FORBIDDEN');assert.equal((await h.run(payload('cross-web-photo-02',[source]))).code,'INVALID_FILE');
+ const media=await h.run({action:'album',group:'vows',files:['cloud://fixture.bucket/private.jpg']});assert.equal(media.ok,true);assert(!h.signed.includes('cloud://fixture.bucket/private.jpg'));
+ h.web('web-a');assert.equal((await h.run({action:'removePhoto',postId:post.id,photoKey:own.photoKeys[0]})).status,'approved');assert.equal((await h.run({action:'remove',id:post.id})).status,'deleted');
 });
 console.log('Blessing checks: '+checks.length+' groups; SDK mocked locally, real cloud verification is separate.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
