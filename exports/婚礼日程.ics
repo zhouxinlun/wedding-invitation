@@ -4,13 +4,17 @@ PRODID:-//Liangchen//Wedding Invitation//ZH
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:2026-10-06-wedding@liangchen.local
-DTSTAMP:20260908T000000Z
-DTSTART:20261006T025800Z
-SUMMARY:周新沦与李小妮的婚礼
+DTSTAMP:20260913T141720Z
+DTSTART:20261006T030800Z
+DTEND:20261006T033800Z
+SUMMARY:周新沦与李小妮的婚礼典礼
 LOCATION:北京市大兴区 兴丰街道黄村东里社区富强路4号
  时代·龙和大道 尚汇宴（时代-龙和大道店） 二层宴会
  大厅
-DESCRIPTION:请于10:30前到场，10:58婚礼典礼开始。二层宴会
- 大厅。期待与你，一起见证幸福。
+DESCRIPTION:请于10:40前到场，11:08婚礼典礼开始。二层宴会
+ 大厅。09:30左右 抵达婚宴大厅；09:30—10:00 换妆与礼服
+ ；10:00—10:30 把幸福定格；10:40 亲友到齐，静候良辰；11
+ :08—11:38 典礼开始；11:38 礼成，合影留念；11:40 喜宴开
+ 席；12:00之前 换装敬酒。期待与你，一起见证幸福。
 END:VEVENT
 END:VCALENDAR

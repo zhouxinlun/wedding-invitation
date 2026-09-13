@@ -215,9 +215,9 @@ Page({
     if (this._alive) this.setData({distance: '', distanceState: 'error', distanceNote: this.data.locationDenied ? '可开启定位，或复制地址赴约' : '暂时无法获取位置，可重试或复制地址'});
   },
   onShareAppMessage() {
-    return {title: `${wedding.groom} & ${wedding.bride}｜10月6日，邀你赴约`, path: '/pages/invitation/index', imageUrl: '/assets/share-card.png'};
+    return {title: `${wedding.groom} & ${wedding.bride}｜10月6日，邀你赴约`, path: '/pages/invitation/index', imageUrl: '/assets/couple-red-natural-v2.jpg'};
   },
   onShareTimeline() {
-    return {title: `${wedding.groom} & ${wedding.bride}的婚礼请柬｜2026.10.06`, query: '', imageUrl: '/assets/share-square.png'};
+    return {title: `${wedding.groom} & ${wedding.bride}的婚礼请柬｜2026.10.06`, query: '', imageUrl: '/assets/couple-red-natural-v2.jpg'};
   }
 });

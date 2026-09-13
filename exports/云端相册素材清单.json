@@ -1,12 +1,5 @@
 [
   {
-    "relativeFile": "assets/couple-red.jpg",
-    "bytes": 250750,
-    "sha256": "156621da9b617f770ae20e743ac9608b3c25401ce0a1105f8f2dad7c777ed4ac",
-    "cloudPath": "wedding-media/photos/156621da9b617f770ae20e743ac9608b3c25401ce0a1105f8f2dad7c777ed4ac.jpg",
-    "fileID": "cloud://wanshifuyue-d4ghbtrbi0e9bd01b.7761-wanshifuyue-d4ghbtrbi0e9bd01b-1483826843/wedding-media/photos/156621da9b617f770ae20e743ac9608b3c25401ce0a1105f8f2dad7c777ed4ac.jpg"
-  },
-  {
     "relativeFile": "assets/couple-white.jpg",
     "bytes": 120296,
     "sha256": "ca7a6a0e53cb9fdfcf0d838e753b5e2b518daa6a83b3fa892afcb02bdd9a0f19",

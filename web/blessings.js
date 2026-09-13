@@ -14,7 +14,7 @@ function mount(root,options){
   <button class="b-letter-card" aria-label="写一份祝福"><img class="b-letter-vine" src="../miniprogram/assets/rose-vines/vine-07.png" alt=""><div class="b-letter-to">致 小妮与新沦</div><div class="b-letter-title">这份欢喜，<span>就差你的一笔。</span></div><div class="b-letter-footer"><span>写祝福，也分享照片</span><span class="b-seal">寄 ♡</span></div></button>
   <div class="b-feed-heading"><span>亲友祝福</span><span class="b-feed-order">最新心意在前</span></div><div class="b-feed-frame"><div class="b-feed-scroll" role="region" aria-label="亲友祝福列表" tabindex="0"><div class="b-posts"></div><p class="b-list-end">每一句，都被好好珍藏 ♡</p></div></div><p class="b-footnote">祝福在这里相聚，良辰还在下方继续。</p>
   <div class="b-snow" aria-hidden="true"></div><button class="b-fab" aria-label="写祝福或分享照片"><span>♡</span>送祝福</button>
-  <dialog class="b-web-dialog" aria-labelledby="blessing-form-title"><div class="b-sheet"><div class="b-sheet-head"><div><span class="b-sheet-to">TO 小妮 & 新沦</span><h2 class="b-sheet-title" id="blessing-form-title">把欢喜，写给你们。</h2></div><button class="b-close" aria-label="关闭祝福窗口">×</button></div><form><div class="b-form-scroll"><div class="b-form-body"><label class="b-label b-name-label"><span>落款</span><input name="name" class="b-input" maxlength="20" placeholder="亲友熟悉的称呼" required autocomplete="nickname"></label><label class="b-label b-message-label"><span>想对你们说</span><textarea name="text" class="b-textarea" maxlength="160" placeholder="愿你们有说不完的话，也有看不完的风景。"></textarea><span class="b-counter">0 / 160</span></label><div class="b-emoji-row"></div><div class="b-photo-label"><span>附上你的独家收藏</span><span class="b-optional">0 / 3 张</span></div><p class="b-photo-note">新郎手机相册穷尽，请尽情上传新娘的丑照</p><div class="b-photo-picker"></div><input type="file" name="photos" accept="image/jpeg,image/png" multiple hidden><p class="b-error" role="status" aria-live="polite"></p><p class="b-identity-note">称呼、祝福和照片会展示给打开请柬的亲友。请在当前浏览器删除自己的内容；更换设备或清除浏览器数据后，原身份可能无法找回。</p></div></div><div class="b-send-footer"><div class="b-loading" role="status" aria-live="polite" hidden><div class="b-loading-spinner"></div><div><span class="b-progress"></span><span class="b-loading-hint">请稍候，完成后会自动显示</span></div></div><span class="b-send-note">${demo?'仅预览效果，本页操作不会发送给亲友':'写下称呼，把这份心意留给我们'}</span><button type="submit" class="b-send">寄出这份欢喜 ↗</button></div></form></div></dialog>`;
+  <dialog class="b-web-dialog" aria-labelledby="blessing-form-title"><div class="b-sheet"><div class="b-sheet-head"><div><span class="b-sheet-to">TO 小妮 & 新沦</span><h2 class="b-sheet-title" id="blessing-form-title">把欢喜，写给你们。</h2></div><button class="b-close" aria-label="关闭祝福窗口">×</button></div><form><div class="b-form-scroll"><div class="b-form-body"><label class="b-label b-name-label"><span>落款</span><input name="name" class="b-input" maxlength="20" placeholder="亲友熟悉的称呼" required autocomplete="nickname"></label><label class="b-label b-message-label"><span>想对你们说</span><textarea name="text" class="b-textarea" maxlength="160" placeholder="愿你们有说不完的话，也有看不完的风景。"></textarea><span class="b-counter">0 / 160</span></label><div class="b-emoji-row"></div><div class="b-photo-label"><span>附上你的独家收藏</span><span class="b-optional">0 / 3 张</span></div><p class="b-photo-note">新郎手机相册穷尽，请尽情上传新娘的丑照</p><div class="b-photo-picker"></div><input type="file" name="photos" accept="image/jpeg,image/png" multiple hidden><p class="b-error" role="status" aria-live="polite"></p><p class="b-identity-note">称呼、祝福和照片会展示给打开请柬的亲友。请在当前浏览器删除自己的内容；更换设备或清除浏览器数据后，原身份可能无法找回。</p></div></div><div class="b-send-footer"><div class="b-loading" role="status" aria-live="polite" hidden><div class="b-loading-spinner"></div><div><span class="b-progress"></span><span class="b-loading-hint">请稍候，完成后会自动显示</span></div></div><span class="b-send-note">${demo?'仅预览效果，本页操作不会发送给亲友':'称呼只需留一次，心意可以有很多次'}</span><button type="submit" class="b-send">寄出这份欢喜 ↗</button></div></form></div></dialog>`;
   const q=s=>root.querySelector(s),dialog=q('dialog'),form=q('form'),feed=q('.b-posts'),layer=q('.b-snow');
   q('.b-send').disabled=false;
   const status=el('div','b-feed-status'),statusText=el('span',''),retry=el('button','b-feed-retry','重新连接');
@@ -47,10 +47,24 @@ function mount(root,options){
   function visibility(){sync();if(!document.hidden&&!mutating)refresh();poll();}
   retry.onclick=()=>{message('正在连接亲友来信…');refresh();};
   try{if(!demo)q('[name=name]').value=localStorage.getItem('wedding-guest-name')||'';}catch(_){}
-  function remember(name){q('[name=name]').value=name;try{if(!demo)localStorage.setItem('wedding-guest-name',name);}catch(_){}}
+  const nameFields=[];
+  function remember(name){
+    nameFields.forEach(({input,label,row,value})=>{input.value=name;value.textContent=name;label.hidden=!!name;row.hidden=!name;});
+    try{if(!demo)localStorage.setItem('wedding-guest-name',name);}catch(_){}
+  }
+  function bindName(container){
+    const input=container.querySelector('[name=name]'),label=input.closest('label'),row=el('div','b-saved-name');
+    const value=el('strong','',input.value),change=el('button','','修改称呼');change.type='button';
+    row.append(el('span','','落款'),value,change);label.before(row);row.hidden=!input.value;label.hidden=!!input.value;
+    nameFields.push({input,label,row,value});
+    change.onclick=()=>{row.hidden=true;label.hidden=false;input.focus();input.select();};
+    input.addEventListener('change',()=>remember(input.value.trim()));
+    input.addEventListener('blur',()=>remember(input.value.trim()));
+  }
+  bindName(form);
   form.querySelectorAll('button:not([type])').forEach(button=>button.type='button');
   function wait(fn,ms){const id=setTimeout(()=>{timers.delete(id);fn();},ms);timers.add(id);return id;}
-  function blocked(){return document.hidden||!!document.querySelector('dialog[open]')||reduced.matches;}
+  function blocked(){return document.hidden||!!document.querySelector('dialog[open]:not(#photo-dialog)')||reduced.matches;}
   function stopSnow(){scheduled.forEach(clearTimeout);scheduled.clear();flakes.forEach(node=>node.remove());flakes.clear();}
   function spawn(slot,preferred){
     if(blocked()||flakes.has(slot))return;
@@ -62,7 +76,14 @@ function mount(root,options){
     const end=el('span','b-thread-end',f.emoji);Object.assign(end.style,{left:(f.width-25)/2+'px',top:(f.height-24)/2+'px'});thread.append(end);node.append(thread);layer.append(node);flakes.set(slot,node);
     node.addEventListener('animationend',event=>{if(event.target!==node)return;node.remove();flakes.delete(slot);if(!blocked())scheduled.set(slot,wait(()=>{scheduled.delete(slot);spawn(slot);},1800));},{once:true});
   }
-  function sync(){root.classList.toggle('b-paused',blocked());if(blocked()){stopSnow();return;}for(let i=0;i<snow.slots;i++)if(!flakes.has(i)&&!scheduled.has(i))scheduled.set(i,wait(()=>{scheduled.delete(i);spawn(i);},120+i*1250));}
+  function sync(){
+    // Native dialogs are in the browser top layer. Reuse the same blessing snow
+    // there so viewing the album doesn't hide or duplicate the guests' wishes.
+    const destination=document.querySelector('#photo-dialog[open]')||root;
+    if(layer.parentElement!==destination)destination.append(layer);
+    root.classList.toggle('b-paused',blocked());if(blocked()){stopSnow();return;}
+    for(let i=0;i<snow.slots;i++)if(!flakes.has(i)&&!scheduled.has(i))scheduled.set(i,wait(()=>{scheduled.delete(i);spawn(i);},120+i*1250));
+  }
   const modalObserver=new MutationObserver(sync);modalObserver.observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
   document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',sync);
   let previousOverflow='';
@@ -138,7 +159,8 @@ function mount(root,options){
   };
   const replyDialog=el('dialog','b-web-dialog b-web-reply-dialog');replyDialog.innerHTML=`<div class="b-sheet b-reply-sheet"><div class="b-sheet-head"><div><span class="b-sheet-to">一来一往，都是欢喜</span><h2 class="b-sheet-title">回复</h2></div><button type="button" class="b-close" aria-label="关闭回复窗口">×</button></div><form><div class="b-form-scroll b-reply-form-scroll"><div class="b-form-body"><label class="b-label b-name-label"><span>落款</span><input class="b-input" name="name" autocomplete="nickname" maxlength="20" placeholder="亲友熟悉的称呼" required></label><label class="b-label b-message-label"><span>回复内容</span><textarea class="b-textarea" name="text" maxlength="160" placeholder="接住这份心意，也说说你的欢喜…" required></textarea><span class="b-counter">0 / 160</span></label><div class="b-emoji-row"></div></div></div><div class="b-send-footer"><p class="b-error" role="alert"></p><div class="b-loading" role="status" hidden><div class="b-loading-spinner"></div><span>正在送出回复</span></div><span class="b-send-note">${demo?'示例回复只保留在本页':'一来一往，把欢喜接下去'}</span><button class="b-send" type="submit">送出回复 ↗</button></div></form></div>`;root.append(replyDialog);
   const rq=selector=>replyDialog.querySelector(selector);let replyTarget=null,replyBusy=false,replyOverflow='';
-  function openReply(post,reply){if(mutating||busy)return;replyTarget={post,reply};rq('.b-sheet-title').textContent='回复 '+(reply||post).name;rq('[name=name]').value=q('[name=name]').value;rq('[name=text]').value='';rq('.b-counter').textContent='0 / 160';rq('.b-error').textContent='';rq('.b-send').disabled=false;replyOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';replyDialog.showModal();sync();}
+  bindName(replyDialog);
+  function openReply(post,reply){if(mutating||busy)return;replyTarget={post,reply};rq('.b-sheet-title').textContent='回复 '+(reply||post).name;remember(q('[name=name]').value.trim());rq('[name=text]').value='';rq('.b-counter').textContent='0 / 160';rq('.b-error').textContent='';rq('.b-send').disabled=false;replyOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';replyDialog.showModal();sync();}
   rq('.b-close').onclick=()=>{if(!replyBusy)replyDialog.close();};replyDialog.addEventListener('cancel',event=>{if(replyBusy)event.preventDefault();});replyDialog.addEventListener('close',()=>{document.documentElement.style.overflow=replyOverflow;sync();});
   EMOJIS.forEach(emoji=>{const button=el('button','',emoji);button.type='button';button.ariaLabel='加入回复 '+emoji;button.onclick=()=>{if(replyBusy)return;const value=editor.append(rq('[name=text]').value,emoji);if(value===null){rq('.b-error').textContent='回复最多160字';return;}rq('[name=text]').value=value;rq('.b-counter').textContent=Array.from(value).length+' / 160';};rq('.b-emoji-row').append(button);});
   rq('[name=text]').oninput=event=>rq('.b-counter').textContent=Array.from(event.target.value).length+' / 160';

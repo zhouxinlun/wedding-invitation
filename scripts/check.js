@@ -22,17 +22,17 @@ verify('分享路径及两种封面文件存在',()=>{
   [share.imageUrl,timeline.imageUrl].forEach(file=>assert(fs.existsSync(path.join(root,'miniprogram',file))));
   assert(share.title.includes(config.groom)&&share.title.includes(config.bride));
 });
-verify('六个菜单均有真实章节，移除影像后导航与后台暂停仍正常',()=>{
+verify('小程序六章与 H5 五章均可导航，后台暂停仍正常',()=>{
  const {page,calls,timers}=setup();page.onLoad();
  const expected=['invitation','us','album','blessings','schedule','journey'];
  const native=fs.readFileSync(path.join(root,'miniprogram/pages/invitation/index.wxml'),'utf8');
  const web=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
  assert.deepEqual(Array.from(page.data.chapters,c=>c.id),expected);
  const nav=web.match(/<nav class="bottom-nav"[\s\S]*?<\/nav>/)[0];
- assert.deepEqual(Array.from(nav.matchAll(/href="#([^"]+)"/g),m=>m[1]),expected);
- assert.deepEqual(Array.from(nav.matchAll(/class="nav-number"[^>]*>([^<]+)/g),m=>m[1]),['01','02','03','04','05','06']);
+ assert.deepEqual(Array.from(nav.matchAll(/href="#([^"]+)"/g),m=>m[1]),expected.slice(1));
+ assert.deepEqual(Array.from(nav.matchAll(/class="nav-number"[^>]*>([^<]+)/g),m=>m[1]),['01','02','03','04','05']);
  for(const [index,id] of expected.entries()){
-  assert(native.includes('id="'+id+'"'));assert(web.includes('id="'+id+'"'));
+  assert(native.includes('id="'+id+'"'));if(id!=='invitation')assert(web.includes('id="'+id+'"'));
   page.navigate({currentTarget:{dataset:{target:id}}});
   assert.equal(page.data.active,id);assert.equal(page.data.activeIndex,index);
   assert.equal(calls.filter(c=>c.name==='pageScrollTo').at(-1).options.selector,'#'+id);
@@ -48,8 +48,8 @@ verify('六个菜单均有真实章节，移除影像后导航与后台暂停仍
 verify('未确认地图坐标时不调用导航',()=>{const {page,calls}=setup(withoutLocations());assert.equal(page.data.canNavigate,false);page.navigateVenue();assert(!calls.some(c=>c.name==='openLocation'));assert(!calls.some(c=>c.name==='getLocation'||c.name==='getPrivacySetting'));});
 verify('有效坐标原样传给地图，失败提供复制地址',()=>{const w=structuredClone(config);w.venue.latitude=39.9;w.venue.longitude=116.4;const {page,calls}=setup(w);assert.equal(page.data.canNavigate,true);page.openMap(page.data.selectedPlace);const map=calls.find(c=>c.name==='openLocation');assert.equal(map.options.latitude,39.9);assert.equal(map.options.name,w.venue.fullName);map.options.fail();assert(calls.some(c=>c.name==='showModal'));});
 verify('相册预览涵盖四张合照',()=>{const {page,calls}=setup();page.previewPhoto({currentTarget:{dataset:{src:'/assets/couple-smile.jpg'}}});const preview=calls.find(c=>c.name==='previewImage').options;assert.equal(preview.current,'/assets/couple-smile.jpg');assert.equal(preview.urls.length,4);preview.urls.forEach(file=>assert(fs.existsSync(path.join(root,'miniprogram',file))));});
-verify('日期日历以 UTC 表达北京时间10:58且未虚构结束时间',()=>{const ics=fs.readFileSync(path.join(root,'exports/婚礼日程.ics'),'utf8');assert(ics.includes('DTSTART:20261006T025800Z'));assert(ics.includes('\r\n'));assert(!ics.includes('DTEND'));for(const line of ics.split('\r\n')) assert(Buffer.byteLength(line)<=75);});
-verify('邀请信息中的姓名、日期与饭店一致',()=>{assert.equal(config.groom,'周新沦');assert.equal(config.bride,'李小妮');assert.equal(config.date,'2026-10-06');assert.equal(config.ceremonyTime,'10:58');assert.equal(config.venue.fullName,'尚汇宴（时代-龙和大道店）');});
+verify('日历以 UTC 表达北京时间11:08—11:38典礼，保留中文折行',()=>{const ics=fs.readFileSync(path.join(root,'exports/婚礼日程.ics'),'utf8');assert(ics.includes('DTSTART:20261006T030800Z'));assert(ics.includes('DTEND:20261006T033800Z'));assert(ics.includes('\r\n'));for(const line of ics.split('\r\n')) assert(Buffer.byteLength(line)<=75);});
+verify('邀请信息中的姓名、日期与饭店一致',()=>{assert.equal(config.groom,'周新沦');assert.equal(config.bride,'李小妮');assert.equal(config.date,'2026-10-06');assert.equal(config.ceremonyTime,'11:08');assert.equal(config.venue.fullName,'尚汇宴（时代-龙和大道店）');});
 verify('所有 JSON 配置可读取且页面路径有效',()=>{for(const file of ['project.config.json','miniprogram/app.json','miniprogram/sitemap.json','miniprogram/pages/invitation/index.json']) JSON.parse(fs.readFileSync(path.join(root,file),'utf8'));const app=JSON.parse(fs.readFileSync(path.join(root,'miniprogram/app.json'),'utf8'));app.pages.forEach(page=>['js','json','wxml','wxss'].forEach(ext=>assert(fs.existsSync(path.join(root,'miniprogram',page+'.'+ext)))));});
 verify('距离计算使用球面距离并明确单位，空坐标与越界坐标不参与',()=>{
   assert.equal(journey.distanceKm({latitude:0,longitude:0},{latitude:0,longitude:0}),0);

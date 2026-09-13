@@ -3,7 +3,7 @@
 (async () => {
   if (new URLSearchParams(location.search).has('format')) return;
   const w = window.WEDDING;
-  const photo = new Image(); photo.src = '../miniprogram/assets/couple-red.jpg'; await photo.decode();
+  const photo = new Image(); photo.src = '../miniprogram/assets/couple-red-natural-v2.jpg'; await photo.decode();
   await document.fonts.ready;
   const canvas = document.createElement('canvas'); canvas.width=1080;canvas.height=1920;
   const c=canvas.getContext('2d');const gold='#e8c996';const serif='"Songti SC", "STSong", serif';

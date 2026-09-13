@@ -1,0 +1,13 @@
+{
+  "description": "Manually reviewed garment/background regions in the 8-second carry asset. Acceptance evidence only; never used by the player or the matting pipeline. Frame numbers are one-based.",
+  "size": [480, 720],
+  "frames": 192,
+  "regions": [
+    {"name":"veil before popout", "frames":[1,29], "rect":[163,181,12,20], "minMean":0.85},
+    {"name":"standing dress", "frames":[1,64], "rect":[150,390,130,120], "minMean":0.98},
+    {"name":"lifted dress including the former holes", "frames":[79,115], "rect":[150,390,130,120], "minMean":0.98},
+    {"name":"dress after landing", "frames":[145,192], "rect":[200,440,80,70], "minMean":0.98},
+    {"name":"empty background across entire clip", "frames":[1,192], "rect":[10,10,100,100], "maxMean":0.02},
+    {"name":"floor below lifted dress", "frames":[85,133], "rect":[40,650,120,50], "maxMean":0.02}
+  ]
+}

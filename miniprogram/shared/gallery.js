@@ -71,6 +71,6 @@ module.exports = packageName => ({
     const album = this.data.album;
     return album ? {title: wedding.groom + '与' + wedding.bride + ' · ' + album.title,
       path: '/' + packageName + '/pages/gallery/index?group=' + album.id, imageUrl: '/assets/' + album.cover} :
-      {title: wedding.groom + '与' + wedding.bride + '的婚礼', path: '/pages/invitation/index', imageUrl: '/assets/share-card.png'};
+      {title: wedding.groom + '与' + wedding.bride + '的婚礼', path: '/pages/invitation/index', imageUrl: '/assets/couple-red-natural-v2.jpg'};
   }
 });

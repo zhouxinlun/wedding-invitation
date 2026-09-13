@@ -1,5 +1,336 @@
 .b-feed-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:12px 14px;border:1px solid #c6aa7538;border-radius:8px;color:#d3c5ab;font-size:13px;line-height:1.7}
-.b-feed-status.has-error{background:#8b403322;border-color:#bd906e66}.b-feed-retry{border:0;border-bottom:1px solid currentColor;background:transparent;padding:5px 0;color:#f1d09b;font:inherit;white-space:nowrap}.photo-state{padding:36px 18px;color:#edce9b;text-align:center;min-height:160px}.photo-state button{margin-top:20px}.photo-state[hidden]{display:none}.photo-dialog figure{position:relative;min-width:180px}.motion-retry{position:absolute;z-index:3;bottom:16px;left:50%;transform:translateX(-50%);background:#fbefdadb;color:#6d4030;border:1px solid #bd9966;border-radius:20px;padding:8px 14px;white-space:nowrap;font:inherit;font-size:12px}.motion-retry[hidden]{display:none}.b-web-dialog .b-input{font-size:16px}.b-web-dialog form{padding-bottom:env(safe-area-inset-bottom,0)}
+.b-feed-status.has-error{background:#8b403322;border-color:#bd906e66}.b-feed-retry{border:0;border-bottom:1px solid currentColor;background:transparent;padding:5px 0;color:#f1d09b;font:inherit;white-space:nowrap}.photo-state{padding:36px 18px;color:#edce9b;text-align:center;min-height:160px}.photo-state button{margin-top:20px}.photo-state[hidden]{display:none}.photo-dialog figure{position:relative;min-width:180px}.b-web-dialog .b-input{font-size:16px}.b-web-dialog form{padding-bottom:env(safe-area-inset-bottom,0)}
 
 .us-photo>.image-button{display:block;width:100%;padding:0;background:transparent}
-.b-identity-note{font-size:11px;line-height:1.8;color:#c4d0c0;margin-top:14px}
+/* The portrait stays in its arch; only the matted couple can cross the vines. */
+.popout-source{position:absolute;width:1px;height:1px;left:50%;top:50%;opacity:0;pointer-events:none}
+.popout-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;opacity:0;pointer-events:none;transform-origin:50% 48%}
+.popout-playing .popout-canvas{opacity:1}
+.popout-playing .us-photo{background:radial-gradient(ellipse at 47% 40%,#7a8372 0%,#687461 64%,#4f5e4d 100%)}
+.popout-playing .us-photo>.image-button,.popout-playing .us-motion{opacity:0!important}
+.wedding-music{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(90px + env(safe-area-inset-top,0px));z-index:35;display:flex;align-items:center;gap:8px;min-height:44px;padding:5px 10px 5px 5px;border:1px solid #c4a26e66;border-radius:30px;background:#123b3de8;color:#e8c994;box-shadow:0 3px 14px #082a3038;backdrop-filter:blur(10px);font:inherit;font-size:11px;line-height:1.3}
+.music-record{position:relative;display:grid;place-items:center;width:31px;height:31px;flex:none;border-radius:50%;background:repeating-radial-gradient(circle,#2e4e46 0 2px,#183932 3px 4px);border:1px solid #c4a26e77}
+.music-record::before{content:"";width:11px;height:11px;border:1px solid #e3b678;border-radius:50%;background:#944b3b;box-shadow:inset 0 0 0 3px #b77755}
+.music-record::after{content:"";position:absolute;top:3px;width:2px;height:4px;border-radius:2px;background:#d7ba83}
+.wedding-music.is-playing .music-record{animation:music-record-spin 5s linear infinite}
+.wedding-music:focus-visible{outline:2px solid #f2d29a;outline-offset:4px}
+@keyframes music-record-spin{to{transform:rotate(360deg)}}
+@media(max-width:700px){.wedding-music{right:12px;top:calc(74px + env(safe-area-inset-top,0px))}.music-label{max-width:2em;line-height:1.3;font-size:10px}}
+@media(prefers-reduced-motion:reduce){.wedding-music.is-playing .music-record{animation:none}}
+.b-identity-note{font-size:11px;line-height:1.8;color:#80685b;margin-top:14px}
+.b-web-dialog .b-sheet-title{color:#65463d}
+
+/* Travel details need a full column until there is room for two readable cards. */
+.journey{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);column-gap:clamp(28px,5vw,64px)}
+.journey>.section-copy,.journey-card,.journey-greeting>div,.timeline>div{min-width:0}
+.journey-card{width:100%}
+.journey h2>span,.journey .greeting-title>span{display:inline-block}
+.timeline .muted time{white-space:nowrap}
+@media(max-width:900px){
+ .journey{display:flex;flex-direction:column;align-items:stretch;gap:28px;padding-top:64px}
+ .journey h2{font-size:clamp(28px,4.5vw,36px);letter-spacing:1px}
+ .journey .event-date{font-size:22px;padding:15px 0 20px}
+ .journey .timeline{gap:20px;padding:20px 0 5px}
+ .journey .timeline>div>time{font-size:43px}
+ .journey-greeting{padding:22px}
+ .journey .greeting-title{font-size:21px;letter-spacing:0}
+ .journey-card .venue-name{font-size:34px}
+ .journey>.chapter-brand{margin-bottom:0}
+}
+@media(max-width:380px){.journey .greeting-title{font-size:19px}.journey-card .venue-name{font-size:30px}}
+
+/* H5 opens on the moving portrait; the red invitation remains the share cover. */
+.h5-opening{max-width:1050px;padding:34px 40px 65px;gap:0 80px;grid-template-columns:1fr 1fr;align-items:center}
+.opening-intro{align-self:end}
+.h5-opening .story-title{font-family:"Wedding Display","Songti SC","STSong",serif;font-weight:400;margin:18px 0 0;line-height:1.5}
+.h5-opening .opening-portrait{position:relative;grid-column:2;grid-row:1/3;width:100%;max-width:370px;justify-self:center;aspect-ratio:2/3;isolation:isolate}
+.h5-opening .us-photo{width:100%;aspect-ratio:2/3;box-shadow:0 0 0 5px #123d40,0 0 0 6px #be9c6366,0 20px 55px #082c3055}
+.opening-details{align-self:start}
+.h5-opening .names-details{padding:25px 0 20px;margin-top:10px;max-width:340px}
+.h5-opening .names-details::after{transform:scaleX(1)}
+.opening-date{display:block;margin-top:23px;color:#ecd2a6;font-size:13px;line-height:1.8}
+.opening-date-line{display:flex;align-items:center;gap:10px;letter-spacing:1px}
+.opening-date-dot{color:#b79560}
+.opening-venue{display:block;margin-top:5px;color:#c0cfbc;font-size:12px}
+.opening-welcome{margin:22px 0 0;color:#bdcbb8;font-size:12px;letter-spacing:2px}
+.share-preview{display:flex;align-items:center;gap:20px;padding:15px;border:1px solid #b69a6555;border-radius:8px;background:#214b45}
+.share-preview>img{display:block;flex:0 0 104px;width:104px;height:auto;border-radius:3px}
+.share-preview>div{display:flex;flex-direction:column;min-width:0}
+.share-preview-label{font-size:8px;color:#c6be9d;letter-spacing:1px;white-space:nowrap}
+.share-preview strong{font-size:28px;font-weight:400;letter-spacing:4px;color:#f0d7ae;margin:9px 0 12px}
+.share-preview-names{font-size:12px;color:#e7d6b6;white-space:nowrap}
+.share-preview-date{font:11px/1.7 Georgia,serif;color:#cbb995;margin-top:8px;letter-spacing:1px}
+.share-dialog p.share-hint{margin:16px 0;font-size:12px}
+.share-url-label{display:block;font-size:11px;color:#bcccbd;margin-bottom:7px;letter-spacing:1px}
+.share-url{display:block;width:100%;padding:12px;border:1px solid #7e917255;border-radius:6px;background:#133b38;color:#efdbb7;font:14px/1.5 Georgia,serif}
+.share-secondary{display:flex;gap:10px}
+.share-secondary>*{flex:1;min-width:0;padding-left:5px;padding-right:5px;font-size:12px}
+@media(max-width:700px){
+ .opening-active .b-fab{visibility:hidden}
+ .h5-opening{display:flex;flex-direction:column;align-items:center;padding:8px 24px 12px;gap:12px}
+ .opening-intro{align-self:center;text-align:center}
+ .opening-intro .section-kicker{justify-content:center;gap:9px;margin:0;font-size:8px;letter-spacing:2px}
+ .opening-intro .section-kicker::after{display:none}
+ .opening-intro .chapter-number{width:19px;height:19px;font-size:10px}
+ .h5-opening .story-title{margin-top:11px;line-height:1.4;letter-spacing:2px;display:flex;align-items:baseline;gap:4px}
+ .h5-opening .story-first{font-size:24px}
+ .h5-opening .story-last{font-size:28px;margin:0;padding:0}
+ .h5-opening .story-last::before{display:none}
+ /* Reserve space for the logo, title, details and bottom navigation on short screens. */
+ .h5-opening .opening-portrait{order:0;flex-shrink:0;width:min(300px,100%);width:min(300px,100%,calc((100svh - 480px)*2/3));min-width:180px}
+ .opening-details{align-self:center;text-align:center;width:min(100%,320px)}
+ .h5-opening .names-details{padding:0 10px 11px;margin:0;max-width:none}
+ .h5-opening .names-details strong{font-size:21px;letter-spacing:3px;margin-top:3px}
+ .h5-opening .names-details span{font-size:9px;letter-spacing:2px}
+ .h5-opening .heart-seal{font-size:22px}
+ .opening-date{margin-top:12px;font-size:12px}
+ .opening-date-line{justify-content:center;gap:8px;letter-spacing:.5px}
+ .opening-venue{font-size:10px;margin-top:3px}
+ .opening-welcome{font-size:10px;margin-top:10px;letter-spacing:2px}
+ .share-dialog{padding:55px 22px 24px;max-height:calc(100svh - 32px);overflow-y:auto}
+}
+@media(max-width:360px){
+ .h5-opening .story-first{font-size:21px}
+ .h5-opening .story-last{font-size:24px}
+ .share-preview{gap:12px;padding:12px}
+ .share-preview>img{width:85px;flex-basis:85px}
+ .share-preview-names{font-size:11px}
+ .share-preview strong{font-size:25px}
+}
+
+/* The existing engraved roses frame the portrait without entering its face area.
+   DESIGN_VARIANCE 6 / MOTION_INTENSITY 5 / VISUAL_DENSITY 4: preserve the
+   wedding palette, add asymmetric botanical detail and a gently hanging charm. */
+.h5-opening{position:relative}
+.portrait-halo{position:absolute;inset:-15px -17px -12px;border:1px solid #c6a46d4d;border-radius:52% 52% 2px 2px / 34% 34% 2px 2px;pointer-events:none;z-index:-1}
+.portrait-halo::before{content:"";position:absolute;inset:7px;border:1px dashed #c3a26b38;border-radius:inherit}
+.portrait-botanicals{position:absolute;inset:0;pointer-events:none;z-index:1;user-select:none}
+.portrait-botanicals img{display:block;width:100%;height:auto}
+.portrait-vine{position:absolute;filter:drop-shadow(0 3px 2px #0a282c66)}
+.portrait-vine-left{width:123%;left:-55%;top:51%;transform:translateY(-50%) rotate(-87deg)}
+.portrait-vine-right{width:93%;right:-42%;top:63%;transform:translateY(-50%) rotate(88deg)}
+.portrait-crown{position:absolute;width:66%;left:10%;top:-2%;transform:rotate(156deg);opacity:.95}
+.portrait-charm{position:absolute;top:8%;right:-27px;width:38px;display:flex;align-items:center;flex-direction:column;transform-origin:50% 0;transform:rotate(-5deg)}
+.charm-thread{width:1px;height:45px;background:linear-gradient(#cbb08033,#d2b075)}
+.charm-seal{position:relative;display:grid;place-items:center;width:35px;height:40px;background:#8d3c36;color:#f5d399;font-size:27px;line-height:1;border:1px solid #d7ad6e;border-radius:5px 2px 6px 2px;box-shadow:0 4px 6px #0a252b40}
+.charm-seal::before{content:"";position:absolute;inset:3px;border:1px solid #e0b77880;border-radius:2px;pointer-events:none}
+.charm-tassel{position:relative;width:15px;height:30px;margin-top:5px;background:repeating-linear-gradient(90deg,#b38355 0 1px,transparent 1px 3px);border-top:4px solid #c8a16b;border-radius:2px 2px 5px 5px;transform-origin:50% 0}
+.charm-tassel::before{content:"";position:absolute;top:-10px;left:7px;width:1px;height:7px;background:#c8a16b}
+.portrait-petal{position:absolute;width:9px;height:15px;border-radius:80% 15% 75% 25%;background:linear-gradient(135deg,#c88773,#8c343c 65%);opacity:.65}
+.petal-one{left:-11%;top:20%;transform:rotate(22deg)}
+.petal-two{right:-13%;top:73%;transform:rotate(-37deg);width:6px;height:11px;opacity:.55}
+.petal-three{left:-7%;top:91%;transform:rotate(60deg);width:7px;height:12px}
+.h5-opening .heart-seal{position:relative;display:grid;place-items:center;width:32px;height:35px;border:1px solid #b8956677;border-radius:4px 2px 4px 2px;background:#843b356b;color:#e6bf87;transform:rotate(-6deg);font-size:24px}
+.opening-flourish{display:block;width:230px;height:auto;max-width:85%;margin:5px 0 -25px;pointer-events:none;opacity:.85}
+@media(prefers-reduced-motion:no-preference){
+ .portrait-vine img{animation:portrait-leaves 7s ease-in-out infinite alternate;transform-origin:50% 60%}
+ .portrait-vine-right img{animation-delay:-3s;animation-duration:9s}
+ .portrait-charm{animation:portrait-charm-sway 5.5s ease-in-out infinite}
+ .charm-tassel{animation:portrait-tassel-sway 3.7s ease-in-out infinite}
+ .portrait-petal{animation:portrait-petal-float 8s ease-in-out infinite}
+ .petal-two{animation-delay:-3s}.petal-three{animation-delay:-5s}
+}
+@keyframes portrait-leaves{from{transform:rotate(-1deg)}to{transform:rotate(1deg)}}
+@keyframes portrait-charm-sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(4deg)}}
+@keyframes portrait-tassel-sway{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-4deg)}}
+@keyframes portrait-petal-float{0%,100%{translate:0 0;opacity:.5}50%{translate:3px 9px;opacity:.75}}
+@media(max-width:700px){
+ .portrait-halo{inset:-12px -13px -9px}
+ .portrait-charm{right:-22px;top:9%;width:32px}
+ .charm-thread{height:30px}.charm-seal{width:29px;height:34px;font-size:23px}.charm-tassel{height:23px;width:13px}
+ .portrait-petal{width:7px;height:11px}.petal-one{left:-9%}.petal-two{right:-10%}.petal-three{left:-6%}
+ .opening-flourish{width:190px;margin:-3px auto -27px}
+}
+@media(max-width:360px){.portrait-charm{right:-20px}.portrait-halo{inset:-10px -11px -8px}}
+
+/* Peripheral decoration sits behind content; dialogs use the browser top layer.
+   DESIGN_VARIANCE 6 / MOTION_INTENSITY 5 / VISUAL_DENSITY 5: a fuller floral
+   border using the existing artwork, with clear central space for guests. */
+body{isolation:isolate}
+.page-botanicals{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;user-select:none;contain:strict}
+.page-botanicals::before{content:"";position:absolute;inset:95px 22px 90px;border-inline:1px solid #c7a56a35;mask-image:linear-gradient(transparent,#000 18%,#000 80%,transparent)}
+.edge-vine{position:absolute;width:clamp(200px,25vw,370px);opacity:.62}
+.edge-vine img{display:block;width:100%;height:auto}
+.edge-vine-nw{top:19%;left:-130px;transform:rotate(65deg)}
+.edge-vine-ne{top:26%;right:-125px;transform:rotate(-68deg)}
+.edge-vine-sw{bottom:22%;left:-115px;transform:rotate(-58deg)}
+.edge-vine-se{bottom:16%;right:-125px;transform:rotate(58deg)}
+.edge-keepsake{position:absolute;display:flex;flex-direction:column;align-items:center;gap:18px;color:#d3b67e99;font-size:13px;line-height:1.5}
+.edge-keepsake-left{left:45px;top:47%}.edge-keepsake-right{right:45px;top:51%}
+.edge-keepsake i{font-style:normal;width:30px;height:34px;display:grid;place-items:center;border:1px solid #bf9c6566;border-radius:3px;background:#823c3545;font-size:23px;transform:rotate(-7deg)}
+.edge-keepsake>span{writing-mode:vertical-rl;letter-spacing:7px}
+.edge-keepsake::after{content:"";width:1px;height:50px;background:linear-gradient(#c2a27466,transparent)}
+@media(prefers-reduced-motion:no-preference){
+ .edge-vine img{animation:edge-leaf-sway 10s ease-in-out infinite alternate;transform-origin:50% 70%}
+ .edge-vine-ne img,.edge-vine-sw img{animation-delay:-5s;animation-duration:13s}
+}
+@keyframes edge-leaf-sway{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
+.paused .edge-vine img{animation-play-state:paused}
+@media(max-width:1100px){
+ .edge-keepsake-left{left:15px}.edge-keepsake-right{right:15px}
+ .edge-keepsake{opacity:.65;font-size:11px}
+ .edge-keepsake i{width:23px;height:28px;font-size:20px}
+ .edge-vine{opacity:.43}
+}
+@media(max-width:700px){
+ .page-botanicals::before{inset:105px 10px 90px;border-color:#c7a56a22}
+ .edge-vine{width:230px;opacity:.56}
+ .edge-vine-nw{top:23%;left:-144px;transform:rotate(69deg)}
+ .edge-vine-ne{top:31%;right:-141px;transform:rotate(-72deg)}
+ .edge-vine-sw{bottom:24%;left:-138px;transform:rotate(-64deg)}
+ .edge-vine-se{bottom:15%;right:-141px;transform:rotate(66deg)}
+ .edge-keepsake{font-size:10px;opacity:.55;gap:12px}
+ .edge-keepsake-left{left:7px;top:51%}.edge-keepsake-right{right:7px;top:58%}
+ .edge-keepsake i{width:18px;height:22px;font-size:16px;border-color:#c0a16855}
+ .edge-keepsake>span{letter-spacing:5px}.edge-keepsake::after{height:25px}
+}
+@media(max-width:380px){.edge-keepsake>span,.edge-keepsake::after{display:none}}
+@media print{.page-botanicals{display:none}}
+
+/* Floral notes live in the opening gutters, behind the out-of-frame couple. */
+.opening-intro,.opening-details{position:relative;z-index:1}
+.h5-opening .opening-portrait{z-index:1}
+.opening-garden{position:absolute;inset:0 auto 0 50%;width:100vw;max-width:1440px;translate:-50% 0;overflow:hidden;pointer-events:none;user-select:none;z-index:0}
+.garden-note{position:absolute;top:88px;bottom:110px;width:88px;color:#dabb87;text-align:center}
+.garden-note-left{left:22px}
+.garden-note-right{right:22px;top:110px}
+.garden-note::before{content:"";position:absolute;inset:35px 16% 45px;border:1px solid #c7a76e30;border-radius:50% 50% 46% 46% / 14% 14% 25% 25%;mask-image:linear-gradient(transparent,#000 18%,#000 75%,transparent)}
+.garden-note::after{content:"";position:absolute;left:50%;bottom:5%;width:1px;height:52px;background:linear-gradient(#d2ad7166,transparent)}
+.garden-stem{position:absolute;left:50%;width:240px;transform:translate(-50%,-50%) rotate(79deg);opacity:.8}
+.garden-stem img{width:100%;max-width:none;height:auto}
+.garden-stem-upper{top:20%}
+.garden-stem-lower{top:82%;width:205px;transform:translate(-50%,-50%) rotate(-78deg);opacity:.68}
+.garden-note-right .garden-stem-upper{top:21%;transform:translate(-50%,-50%) rotate(-79deg)}
+.garden-note-right .garden-stem-lower{top:84%;width:180px;transform:translate(-50%,-50%) rotate(82deg)}
+.garden-monogram{position:absolute;top:9%;left:50%;width:47px;padding:3px;transform:translateX(-50%) rotate(-8deg);border:1px solid #d3af7077;border-radius:50%;background:#71332e;box-shadow:0 0 0 4px #d2b17a0c;pointer-events:auto;z-index:2}
+.garden-monogram img{width:100%;height:auto;border-radius:50%}
+.garden-monogram:active{transform:translateX(-50%) rotate(-8deg) scale(.96)}
+.garden-monogram:focus-visible{outline:2px solid #f2d29a;outline-offset:5px}
+.garden-music-label{position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%) rotate(8deg);white-space:nowrap;color:#e8c994;font-size:8px;letter-spacing:1px;line-height:1.5}
+.garden-lantern{position:absolute;left:50%;top:22%;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%) rotate(4deg);transform-origin:50% 0;filter:drop-shadow(0 3px 7px #29180d44)}
+.lantern-thread{width:1px;height:25px;background:#d0a26099}
+.lantern-body{position:relative;display:grid;place-items:center;width:50px;height:45px;line-height:1;font-size:23px;color:#f6dca1;border:1px solid #c99855;border-radius:45%;background:radial-gradient(ellipse at 46% 35%,#d46b45,#b43831 55%,#7e292a);box-shadow:inset 0 0 10px #6a202555}
+.lantern-body::before{content:"";position:absolute;inset:0 11px;border-inline:1px solid #efc78470;border-radius:50%}
+.lantern-body::after{content:"";position:absolute;top:-3px;left:15px;width:18px;height:4px;border-radius:2px;background:#cc9c58;box-shadow:0 44px #cc9c58}
+.lantern-tassel{width:13px;height:26px;margin-top:7px;border-top:4px solid #cea66c;border-radius:2px 2px 4px 4px;background:repeating-linear-gradient(90deg,#bd805b 0 1px,transparent 1px 3px)}
+@media(min-width:520px) and (max-width:700px),(min-width:1240px){.opening-active.has-music .wedding-music{display:none}}
+.garden-poem{position:absolute;top:42%;left:50%;transform:translateX(-50%);display:flex;flex-direction:row-reverse;gap:12px;white-space:nowrap;font-size:16px;line-height:1.5;letter-spacing:7px;text-shadow:0 1px 5px #123d40}
+.garden-poem>span{writing-mode:vertical-rl}
+.garden-poem>span+span{padding-top:32px;color:#c5b28d}
+.garden-note-right .garden-poem{top:45%}
+.garden-sign{position:absolute;bottom:0;left:0;width:100%;font-size:10px;letter-spacing:2px;color:#bba47d}
+.garden-date{position:absolute;left:50%;top:3%;width:57px;padding:13px 5px 11px;transform:translateX(-50%) rotate(4deg);border:1px solid #c59f6b88;border-radius:29px 29px 3px 3px;background:#244a46;box-shadow:inset 0 0 0 4px #123d40,0 4px 12px #092d3029}
+.garden-date>span{display:block;font-size:9px;letter-spacing:1px;color:#c7b38e}
+.garden-date strong{display:block;margin-top:9px;font-size:19px;font-weight:400;line-height:1.5;letter-spacing:3px}
+.garden-date strong>span{display:block;font-size:15px}
+.garden-date i{display:block;width:24px;height:27px;margin:10px auto 0;border:1px solid #d6ac7355;background:#8d4038;color:#efd09b;font-style:normal;font-size:20px;line-height:25px}
+.garden-glint{position:absolute;width:3px;height:3px;border-radius:50%;background:#efd19b;box-shadow:0 0 8px #f1cf95aa;opacity:.5}
+.garden-glint-one{left:18%;top:32%}.garden-glint-two{right:20%;top:78%}
+.opening-active .page-botanicals{opacity:.28}
+@media(prefers-reduced-motion:no-preference){
+ .garden-stem img{animation:garden-branch-sway 9s ease-in-out infinite alternate;transform-origin:50% 50%}
+ .garden-stem-lower img{animation-duration:12s;animation-delay:-5s}
+ .garden-note-right .garden-stem img{animation-delay:-4s}
+ .garden-date{animation:garden-date-sway 8s ease-in-out infinite;transform-origin:50% 0}
+ .garden-lantern{animation:garden-date-sway 5.5s ease-in-out infinite}
+ .garden-monogram.is-playing img{animation:music-record-spin 12s linear infinite}
+ .garden-glint{animation:garden-light 6s ease-in-out infinite}
+ .garden-glint-two{animation-delay:-3s}
+}
+@keyframes garden-branch-sway{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
+@keyframes garden-date-sway{0%,100%{transform:translateX(-50%) rotate(4deg)}50%{transform:translateX(-50%) rotate(-2deg)}}
+@keyframes garden-light{0%,100%{opacity:.18;translate:0 0}50%{opacity:.8;translate:0 -12px}}
+/* Between the two-column desktop layout and the phone layout, keep only fine sprigs. */
+@media(min-width:701px) and (max-width:1239px){
+ .h5-opening .opening-portrait{width:calc(100% - 44px)}
+ .h5-opening .story-last{font-size:clamp(38px,5.2vw,55px);padding-left:clamp(28px,3vw,42px)}
+ .garden-note{width:24px;opacity:.4;top:120px;bottom:95px}
+ .garden-note-left{left:8px}.garden-note-right{right:8px}
+ .garden-note::before,.garden-note::after,.garden-monogram,.garden-poem,.garden-sign,.garden-date{display:none}
+ .garden-stem{width:210px}.garden-stem-lower,.garden-note-right .garden-stem-lower{width:180px}
+}
+@media(max-width:700px){
+ .garden-note{width:clamp(26px,calc((100% - 420px)/2),124px);top:80px;bottom:120px}
+ .garden-note-left{left:3%}.garden-note-right{right:3%;top:95px}
+}
+@media(max-width:519px){
+ .garden-note{width:26px;top:115px;bottom:150px;opacity:.65}
+ .garden-note-left{left:5px}.garden-note-right{right:5px;top:150px}
+ .garden-note::before,.garden-note::after,.garden-monogram,.garden-poem,.garden-sign,.garden-date{display:none}
+ .garden-stem{width:180px;transform:translate(-50%,-50%) rotate(86deg)}
+ .garden-stem-lower{width:155px;transform:translate(-50%,-50%) rotate(-86deg)}
+ .garden-note-right .garden-stem-upper{transform:translate(-50%,-50%) rotate(-86deg)}
+ .garden-note-right .garden-stem-lower{width:150px;transform:translate(-50%,-50%) rotate(86deg)}
+}
+@media(max-width:380px){.h5-opening .opening-portrait{max-width:calc(100% - 28px)}}
+@media(max-width:519px),(min-width:701px) and (max-width:1239px){
+ .garden-lantern{top:26%}
+ .lantern-thread{height:17px}.lantern-body{width:27px;height:30px;font-size:16px}
+ .lantern-body::before{inset:0 6px}.lantern-body::after{left:7px;width:11px;box-shadow:0 29px #cc9c58}
+ .lantern-tassel{width:9px;height:18px;margin-top:5px}
+}
+@media print{.opening-garden{display:none}}
+
+/* A quiet signature at the start of every chapter. */
+main > .nav-section{position:relative}
+.chapter-brand{display:flex;align-items:center;justify-content:center;gap:15px;grid-column:1/-1;width:100%;margin:0 0 28px;pointer-events:none}
+.chapter-brand::before,.chapter-brand::after{content:"";height:1px;width:48px;background:linear-gradient(90deg,transparent,#bb97666b)}
+.chapter-brand::after{transform:rotate(180deg)}
+.chapter-brand img{width:62px;height:62px;object-fit:contain;border:1px solid #c7a46985;border-radius:50%;padding:3px;background:#78312e;box-shadow:0 0 0 4px #bb976614}
+.h5-opening .opening-portrait{grid-row:2/4}
+.h5-opening .chapter-brand{justify-content:flex-start;margin-bottom:22px}
+.h5-opening .chapter-brand::before{display:none}
+@media(min-width:901px){.journey>.chapter-brand{margin-bottom:-18px}}
+
+/* The frame follows the actual photograph, including landscape originals. */
+.photo-dialog{padding:calc(82px + env(safe-area-inset-top,0px)) 70px calc(28px + env(safe-area-inset-bottom,0px));background:#102f32;overflow:hidden}
+.photo-dialog-heading{position:absolute;top:calc(26px + env(safe-area-inset-top,0px));left:28px;color:#c9b184;font-size:19px;letter-spacing:3px}
+.photo-dialog .photo-close{display:block;top:calc(17px + env(safe-area-inset-top,0px));right:22px;min-height:44px;min-width:64px;padding:8px 10px;border:0;border-radius:0;background:transparent;color:#f1dec0;font-size:14px;letter-spacing:1px;box-shadow:none;z-index:6}
+.photo-dialog .photo-close:hover{color:#fff}
+.photo-dialog .photo-close:focus-visible,.photo-dialog .photo-prev:focus-visible,.photo-dialog .photo-next:focus-visible{outline:2px solid #edcf96;outline-offset:4px}
+.photo-dialog figure{width:100%;min-width:0;margin:0;gap:58px}
+.lightbox-frame{position:relative;flex-shrink:0;max-width:100%;line-height:0}
+.photo-dialog #lightbox-image{display:block;max-width:100%;width:auto;height:auto;max-height:calc(100dvh - 194px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));border-radius:3px}
+.lightbox-vines{position:absolute;inset:-8px;pointer-events:none;visibility:hidden}
+.photo-ready .lightbox-vines{visibility:visible}
+.lightbox-vines::before{content:"";position:absolute;inset:0;border:1px solid #c5a77155;border-radius:4px}
+.lightbox-vine{position:absolute;width:clamp(140px,48%,310px);aspect-ratio:3/1;line-height:0;opacity:.9;transform-origin:left center}
+.photo-dialog .lightbox-vine img{display:block;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;border-radius:0}
+.vine-side-0{top:0;left:-12px;transform:translateY(-40%) rotate(-4deg)}
+.vine-side-1{top:0;left:100%;transform:translate(-3px,-45%) rotate(90deg)}
+.vine-side-2{top:100%;left:100%;transform:translate(12px,-50%) rotate(177deg)}
+.vine-side-3{top:100%;left:0;transform:translate(0,-45%) rotate(-88deg)}
+.photo-dialog figcaption{font-size:12px;letter-spacing:1px;color:#cfc19f;position:relative;z-index:4}
+.photo-dialog .photo-prev,.photo-dialog .photo-next{display:grid;place-items:center;width:44px;height:44px;min-width:44px;padding:0;border:1px solid #bb9c6155;border-radius:50%;background:#234447d9;color:#efdbb5;line-height:1;transform:translateY(-50%);z-index:6}
+.photo-dialog .photo-prev{left:12px}.photo-dialog .photo-next{right:12px}
+.photo-dialog .photo-snow{z-index:3;opacity:.65}
+.photo-dialog>.b-snow{z-index:4;opacity:.65}
+.photo-dialog:not([open]) .snow-piece{animation-play-state:paused}
+@media(prefers-reduced-motion:no-preference){
+ .photo-ready .lightbox-vine img{animation:vine-unfurl 2.4s cubic-bezier(.25,.1,.35,1) both}
+ .photo-ready .vine-side-1 img{animation-delay:.2s}.photo-ready .vine-side-2 img{animation-delay:.4s}.photo-ready .vine-side-3 img{animation-delay:.6s}
+}
+@keyframes vine-unfurl{from{clip-path:inset(0 100% 0 0);opacity:.15}to{clip-path:inset(0 0 0 0);opacity:1}}
+.still .lightbox-vine img{animation:none}
+.paused .lightbox-vine img{animation-play-state:paused}
+#share-status{min-height:24px;font-size:12px;color:#dfc79f}
+.share-preview>img{flex-basis:150px;width:150px}
+.b-saved-name{display:flex;align-items:center;gap:10px;padding:10px 0 18px;margin-bottom:8px;border-bottom:1px solid #bf9e6740;color:#80685b;font-size:12px}
+.b-saved-name::before{content:"♡";display:grid;place-items:center;flex:0 0 29px;height:29px;border-radius:50%;background:#8c44443d;color:#debb91;font-size:16px}
+.b-saved-name strong{font-size:14px;font-weight:500;color:#65463d;overflow-wrap:anywhere}
+.b-saved-name button{margin-left:auto;min-height:44px;padding:6px 4px;color:#80604c;font-size:12px;background:transparent;white-space:nowrap}
+@media(max-width:700px){
+ .chapter-brand{margin-bottom:24px;gap:12px}.chapter-brand img{width:54px;height:54px}.chapter-brand::before,.chapter-brand::after{width:34px}
+ .h5-opening .chapter-brand{justify-content:center;margin-bottom:12px}.h5-opening .chapter-brand::before{display:block}
+ .h5-opening .opening-portrait{grid-row:auto}
+ .journey>.chapter-brand{margin-bottom:0}
+ .photo-dialog{padding-inline:29px;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+ .photo-dialog-heading{left:22px;font-size:17px;top:calc(27px + env(safe-area-inset-top,0px))}
+ .photo-dialog .photo-close{right:12px}
+ .photo-dialog #lightbox-image{max-height:calc(100dvh - 248px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+ .photo-dialog .photo-prev,.photo-dialog .photo-next{top:auto;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:none;background:#26484a}
+ .photo-dialog .photo-prev{left:calc(50% - 60px)}.photo-dialog .photo-next{right:calc(50% - 60px)}
+ .lightbox-vines{inset:-5px}.lightbox-vine{width:clamp(115px,48%,210px)}
+ .share-preview{gap:14px;padding:12px}.share-preview>img{width:125px;flex-basis:125px}.share-preview strong{font-size:24px}
+}
+@media(max-width:360px){.share-preview>img{width:105px;flex-basis:105px}.share-preview-label{font-size:7px}}

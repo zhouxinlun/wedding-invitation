@@ -13,7 +13,7 @@ const {createService}=require('../cloudfunctions/weddingBlessings/core');
  await assert.rejects(broken({action:'album',group:'sample'},{APPID:'app',OPENID:'guest'}),e=>e.code==='MEDIA_UNAVAILABLE');
  const catalogue=require('../cloudfunctions/weddingBlessings/albums.json'),wedding=require('../miniprogram/wedding');
  assert.deepEqual(Object.keys(catalogue).sort(),wedding.albums.map(a=>a.id).sort());
- for(const album of wedding.albums){assert.deepEqual(catalogue[album.id].map(p=>p.file),wedding.photos.filter(p=>p.group===album.id).map(p=>p.file));assert(catalogue[album.id].every(p=>/^cloud:\/\/[^/]+\/wedding-media\/photos\/[a-f0-9]{64}\.jpg$/.test(p.fileID)));}
+ for(const album of wedding.albums){assert.deepEqual(catalogue[album.id].map(p=>p.file),wedding.photos.filter(p=>p.group===album.id&&p.cloud).map(p=>p.file));assert(catalogue[album.id].every(p=>/^cloud:\/\/[^/]+\/wedding-media\/photos\/[a-f0-9]{64}\.jpg$/.test(p.fileID)));}
  let requestCount=0,respond,reject,opened=[];
  const fakeWedding={albums:[{id:'sample',package:'album-one',title:'样本'}],photos:[{file:'a.jpg',group:'sample',package:'album-one',cloud:true}]};
  const sandbox={module:{exports:{}},require:id=>id==='../wedding'?fakeWedding:id==='./rose-vines'?{plan:()=>[]}:id==='./blessing-client'?{invoke:()=>{requestCount++;return new Promise((yes,no)=>{respond=yes;reject=no;});}}:((page,current,urls)=>opened.push({current,urls})),wx:{setNavigationBarTitle(){},showShareMenu(){},showToast(){}},Date};

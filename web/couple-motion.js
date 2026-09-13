@@ -2,31 +2,92 @@
   const config=window.WEDDING.coupleMotion,frame=document.querySelector('.us-photo'),video=frame?.querySelector('video');
   if(!config?.enabled||!video||!window.IntersectionObserver)return;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let visible=false,pending=false,failed=false,expiresAt=0;
-  const retry=document.createElement('button');retry.type='button';retry.className='motion-retry';retry.textContent='再看一次微笑 ↻';retry.hidden=true;frame.append(retry);
-  const wanted=()=>visible&&!document.hidden&&!reduced.matches&&!document.querySelector('dialog[open]');
-  async function sync(){
-    if(!wanted()){video.pause();frame.classList.remove('motion-playing');return;}
-    if(pending||failed||!video.paused)return;
-    pending=true;
-    try{
-      if(!video.getAttribute('src')||expiresAt<Date.now()+15000){const media=await window.WeddingCloud.motion();if(!wanted())return;video.src=media.url;expiresAt=media.expiresAt;}
-      if(wanted())await video.play();
-    }catch(_){frame.classList.remove('motion-playing');retry.hidden=false;}
-    finally{pending=false;if(!wanted())video.pause();}
+  let visible=false,pending=false,failed=false,expiresAt=0,pageActive=true,retries=0,retryTimer;
+  const portrait=frame.closest('.opening-portrait');
+  let popout,canvas,compositor,popoutTurn=false,animation;
+  if(config.webPopoutFile&&portrait&&window.createWeddingPopout){
+    popout=document.createElement('video');popout.className='popout-source';popout.preload='none';
+    popout.muted=true;popout.playsInline=true;popout.setAttribute('muted','');popout.setAttribute('playsinline','');popout.setAttribute('aria-hidden','true');
+    canvas=document.createElement('canvas');canvas.className='popout-canvas';canvas.setAttribute('aria-hidden','true');
+    compositor=window.createWeddingPopout(popout,canvas);
+    if(compositor){portrait.append(popout,canvas);popoutTurn=true;}
   }
-  video.addEventListener('timeupdate',()=>frame.classList.toggle('motion-playing',wanted()&&!video.paused&&video.currentTime>0));
+  video.loop=true;video.muted=true;video.playsInline=true;
+  if(compositor)video.loop=false;
+  const active=()=>popoutTurn?popout:video;
+  const wanted=()=>pageActive&&visible&&!document.hidden&&!reduced.matches&&!document.querySelector('dialog[open]');
+  function stopDrawing(){
+    if(popout?.cancelVideoFrameCallback)popout.cancelVideoFrameCallback(animation);else cancelAnimationFrame(animation);
+    animation=null;portrait?.classList.remove('popout-playing');
+  }
+  function disablePopout(){
+    stopDrawing();popout?.pause();popoutTurn=false;compositor?.dispose();compositor=null;
+    popout?.remove();canvas?.remove();video.loop=true;
+  }
+  function draw(){
+    animation=null;if(!wanted()||!popoutTurn||popout.paused)return;
+    try{
+      if(compositor.draw()){
+        // Hold the frame still. Only the extracted people step across its edge.
+        const ease=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
+        const lift=ease((popout.currentTime-1.2)/1.5)*(1-ease((popout.currentTime-5.5)/2));
+        canvas.style.transform=`translateY(${-3*lift}%) scale(${1+.24*lift})`;
+        portrait.classList.add('popout-playing');
+      }
+      animation=popout.requestVideoFrameCallback?popout.requestVideoFrameCallback(draw):requestAnimationFrame(draw);
+    }catch(_){disablePopout();sync();}
+  }
+  if(compositor){
+    popout.addEventListener('playing',()=>{stopDrawing();draw();});
+    popout.addEventListener('pause',stopDrawing);
+    popout.addEventListener('ended',()=>{stopDrawing();popoutTurn=false;video.currentTime=0;sync();});
+    popout.addEventListener('error',()=>{disablePopout();sync();});
+    canvas.addEventListener('webglcontextlost',()=>{disablePopout();sync();});
+    video.addEventListener('ended',()=>{
+      if(!compositor)return;popoutTurn=true;popout.currentTime=0;sync();
+    });
+  }
+  function clearRetry(){clearTimeout(retryTimer);retryTimer=null;}
+  function retrySoon(){
+    if(!wanted()||retryTimer||retries>=3)return;
+    retryTimer=setTimeout(()=>{retryTimer=null;sync();},[1000,3000,8000][retries++]);
+  }
+  async function sync(){
+    if(!wanted()){clearRetry();video.pause();popout?.pause();stopDrawing();frame.classList.remove('motion-playing');return;}
+    if(pending||(!failed&&!active().paused))return;
+    pending=true;let fallback=false;const selected=active();
+    try{
+      if(popoutTurn){
+        if(!popout.getAttribute('src'))popout.src=config.webPopoutFile;
+      }else if(failed||!video.getAttribute('src')||expiresAt<Date.now()+15000){const media=await window.WeddingCloud.motion(failed);if(!wanted())return;failed=false;video.src=media.url;expiresAt=media.expiresAt;}
+      if(wanted())await active().play();
+    }catch(error){
+      frame.classList.remove('motion-playing');
+      // A browser gesture restriction needs the next real interaction. Network
+      // failures get a small, bounded retry window while the portrait is visible.
+      if(error.name!=='NotAllowedError'){
+        if(popoutTurn){disablePopout();fallback=true;}else retrySoon();
+      }
+    }
+    finally{pending=false;if(!wanted()){video.pause();popout?.pause();}else if(fallback||selected!==active())sync();}
+  }
+  video.addEventListener('playing',()=>{retries=0;clearRetry();});
+  video.addEventListener('timeupdate',()=>frame.classList.toggle('motion-playing',wanted()&&!popoutTurn&&!video.paused&&video.currentTime>0));
   video.addEventListener('pause',()=>frame.classList.remove('motion-playing'));
-  video.addEventListener('error',()=>{failed=true;expiresAt=0;frame.classList.remove('motion-playing');retry.hidden=false;});
-  retry.onclick=async event=>{event.stopPropagation();failed=false;retry.hidden=true;try{const media=await window.WeddingCloud.motion(true);video.src=media.url;expiresAt=media.expiresAt;sync();}catch(_){retry.hidden=false;}};
-  const observer=new IntersectionObserver(entries=>{visible=entries[0].intersectionRatio>.08;sync();},{threshold:[0,.08]});
+  video.addEventListener('error',()=>{failed=true;expiresAt=0;frame.classList.remove('motion-playing');retrySoon();});
+  const observer=new IntersectionObserver(entries=>{const next=entries[0].intersectionRatio>.08;if(next&&!visible)retries=0;visible=next;sync();},{threshold:[0,.08]});
   observer.observe(frame);
   document.addEventListener('visibilitychange',sync);
   reduced.addEventListener('change',sync);
+  // No overlay control: a real gesture can resume muted playback on browsers
+  // that disallow initial autoplay, without consuming the guest's interaction.
+  document.addEventListener('pointerdown',sync,{passive:true});
+  document.addEventListener('keydown',sync);
+  window.addEventListener('online',()=>{retries=0;clearRetry();sync();});
   // Blessing dialogs are created by the following deferred script.
   document.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('dialog').forEach(dialog=>new MutationObserver(sync).observe(dialog,{attributes:true,attributeFilter:['open']}));
   });
-  window.addEventListener('pagehide',()=>video.pause());
-  window.addEventListener('pageshow',sync);
+  window.addEventListener('pagehide',()=>{pageActive=false;clearRetry();video.pause();popout?.pause();stopDrawing();});
+  window.addEventListener('pageshow',()=>{pageActive=true;retries=0;sync();});
 })();

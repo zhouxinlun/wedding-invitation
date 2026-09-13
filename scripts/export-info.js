@@ -3,8 +3,12 @@ const path = require('node:path');
 const w = require('../miniprogram/wedding');
 const out = path.join(__dirname, '../exports'); fs.mkdirSync(out,{recursive:true});
 const escape = text => text.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
-const start = new Date(`${w.date}T${w.ceremonyTime}:00+08:00`).toISOString().replace(/[-:]/g,'').replace('.000Z','Z');
-const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Liangchen//Wedding Invitation//ZH','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:${w.date}-wedding@liangchen.local`,'DTSTAMP:20260908T000000Z',`DTSTART:${start}`,`SUMMARY:${escape(`${w.groom}与${w.bride}的婚礼`)}`,`LOCATION:${escape([w.venue.district,w.venue.address,w.venue.fullName,w.venue.room].join(' '))}`,`DESCRIPTION:${escape(`请于${w.guestArrivalTime}前到场，${w.ceremonyTime}婚礼典礼开始。${w.venue.room}。期待与你，一起见证幸福。`)}`,'END:VEVENT','END:VCALENDAR'];
+const utc = time => new Date(`${w.date}T${time}:00+08:00`).toISOString().replace(/[-:]/g,'').replace('.000Z','Z');
+const ceremony = w.schedule.flatMap(phase => phase.events).find(event => event.time === w.ceremonyTime);
+const venueSchedule = w.schedule.filter(phase => phase.destination === 'venue').flatMap(phase => phase.events)
+  .map(event => `${event.time}${event.end?'—'+event.end:''}${event.timeNote||''} ${event.title}`).join('；');
+const stamp = new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
+const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Liangchen//Wedding Invitation//ZH','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:${w.date}-wedding@liangchen.local`,`DTSTAMP:${stamp}`,`DTSTART:${utc(w.ceremonyTime)}`,...(ceremony?.end?[`DTEND:${utc(ceremony.end)}`]:[]),`SUMMARY:${escape(`${w.groom}与${w.bride}的婚礼典礼`)}`,`LOCATION:${escape([w.venue.district,w.venue.address,w.venue.fullName,w.venue.room].join(' '))}`,`DESCRIPTION:${escape(`请于${w.guestArrivalTime}前到场，${w.ceremonyTime}婚礼典礼开始。${w.venue.room}。${venueSchedule}。期待与你，一起见证幸福。`)}`,'END:VEVENT','END:VCALENDAR'];
 // RFC 5545: fold at <= 75 UTF-8 bytes without splitting code points.
 const fold = line => {let result='',chunk='';for(const char of line){if(Buffer.byteLength(chunk+char)>73){result+=chunk+'\r\n ';chunk='';}chunk+=char;}return result+chunk;};
 fs.writeFileSync(path.join(out,'婚礼日程.ics'),lines.map(fold).join('\r\n')+'\r\n');

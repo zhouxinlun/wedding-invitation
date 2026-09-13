@@ -1,10 +1,11 @@
 // 请柬唯一内容源；地点为已核对的 GCJ-02 坐标，筹备待办不作为已落实设施展示。
 const wedding = {
+  "shareUrl": "https://xinni1006.mengmeng.site/",
   "groom": "周新沦",
   "bride": "李小妮",
   "date": "2026-10-06",
   "dateLabel": "2026年10月6日",
-  "ceremonyTime": "10:58",
+  "ceremonyTime": "11:08",
   "venue": {
     "name": "尚汇宴",
     "branch": "时代-龙和大道店",
@@ -39,15 +40,21 @@ const wedding = {
   ],
   "coupleMotion": {
     "enabled": true,
-    "webFile": "media/couple-wave.mp4"
+    "webFile": "media/couple-interactions.mp4",
+    "webPopoutFile": "media/couple-princess-popout-stable.mp4"
+  },
+  "music": {
+    "title": "Married Life · 钢琴版",
+    "artist": "Michael Giacchino（作曲）",
+    "webFile": "media/married-life-piano.m4a"
   },
   "photos": [
     {
-      "file": "couple-red.jpg",
+      "file": "couple-red-natural-v2.jpg",
       "title": "良辰美景，与你同在",
       "label": "佳偶天成",
       "group": "red",
-      "cloud": true
+      "cloud": false
     },
     {
       "file": "couple-white.jpg",
@@ -677,32 +684,37 @@ const wedding = {
     "愿有你在场，见证我们的这一刻。"
   ],
   "closing": "带着祝福来，就很好。",
-  "guestArrivalTime": "10:30",
+  "guestArrivalTime": "10:40",
   "schedule": [
     {
       "id": "morning",
       "title": "晨起盼喜",
-      "subtitle": "05:10—06:10 · 新郎家",
+      "subtitle": "05:30—06:40 · 新郎家",
       "destination": "home-0",
       "placeLabel": "新郎家",
       "events": [
         {
-          "time": "05:10",
+          "time": "05:30",
           "title": "妆点良辰",
           "detail": "男方化妆师到达颐和公馆，为新郎准备造型。"
         },
         {
-          "time": "05:30",
+          "time": "06:00",
           "title": "记录清晨的喜悦",
           "detail": "男方摄像师到达新郎家拍摄花絮；男方父母自行佩戴胸花。"
         },
         {
-          "time": "05:50",
-          "title": "亲友与车队集合",
-          "detail": "接亲亲友团、车队准时到达颐和公馆指定集合处，装饰花车。"
+          "time": "06:20",
+          "title": "接亲亲友集合",
+          "detail": "接亲亲友团准时到达颐和公馆指定集合处。"
         },
         {
-          "time": "06:10",
+          "time": "06:30",
+          "title": "车队集合，装点花车",
+          "detail": "接亲车队准时到达颐和公馆指定集合处，装饰花车。"
+        },
+        {
+          "time": "06:40",
           "title": "出发，去接心上人",
           "detail": "接亲车队从新郎家出发。"
         }
@@ -711,28 +723,28 @@ const wedding = {
     {
       "id": "together",
       "title": "接你回家",
-      "subtitle": "06:50—08:40 · 两家团圆",
+      "subtitle": "07:20—09:10 · 两家团圆",
       "destination": "home-1",
       "placeLabel": "新娘家",
       "events": [
         {
-          "time": "06:50",
+          "time": "07:20",
           "title": "叩响幸福的门",
           "detail": "到达金樾和著，接亲、闯门与游戏。"
         },
         {
-          "time": "07:30",
+          "time": "07:50",
           "title": "携手返程",
           "detail": "新人从新娘家出发，返回颐和公馆婚房。"
         },
         {
-          "time": "08:10",
+          "time": "08:40",
           "timeNote": "之前",
           "title": "新房里的团圆",
           "detail": "到达婚房，吃饺子、挂帘子；饺子提前五分钟煮好。"
         },
         {
-          "time": "08:40",
+          "time": "09:10",
           "title": "向喜宴出发",
           "detail": "新人前往尚汇宴二层宴会大厅。"
         }
@@ -741,39 +753,56 @@ const wedding = {
     {
       "id": "ceremony",
       "title": "欢聚见证",
-      "subtitle": "09:00—10:58 · 尚汇宴",
+      "subtitle": "09:30—12:00前 · 尚汇宴",
       "destination": "venue",
       "placeLabel": "婚礼饭店",
       "events": [
         {
-          "time": "09:00",
+          "time": "09:30",
           "timeNote": "左右",
           "title": "抵达婚宴大厅",
           "detail": "新人到达尚汇宴二层宴会厅；提前安排人员迎接、拧礼花筒。"
         },
         {
-          "time": "09:00",
-          "end": "09:30",
+          "time": "09:30",
+          "end": "10:00",
           "title": "换妆与礼服",
           "detail": "新人换装、整理造型。"
         },
         {
-          "time": "09:30",
-          "end": "10:10",
+          "time": "10:00",
+          "end": "10:30",
           "title": "把幸福定格",
           "detail": "大厅摆拍；新郎与父母安排迎宾。"
         },
         {
-          "time": "10:30",
+          "time": "10:40",
           "title": "亲友到齐，静候良辰",
           "detail": "所有宾客请于此时前到达饭店。拍摄完成，新娘进入包间休息候场，新郎继续迎宾。",
           "highlight": true
         },
         {
-          "time": "10:58",
+          "time": "11:08",
+          "end": "11:38",
           "title": "典礼开始",
           "detail": "周新沦与李小妮，邀你见证一生之约。",
           "highlight": true
+        },
+        {
+          "time": "11:38",
+          "title": "礼成，合影留念",
+          "detail": "婚礼典礼结束，开始与宾客合影。"
+        },
+        {
+          "time": "11:40",
+          "title": "喜宴开席",
+          "detail": "饭店准时上菜，与亲友共享喜宴。"
+        },
+        {
+          "time": "12:00",
+          "timeNote": "之前",
+          "title": "换装敬酒",
+          "detail": "新娘尽快完成换装，与新郎一起向亲友敬酒。"
         }
       ]
     }
@@ -781,9 +810,10 @@ const wedding = {
   "preparationNotes": [
     "与酒店确认休息区及新人休息包间，提前预订；到店后的休息、换装与候场位置以酒店确认结果为准。",
     "两家导航当前落点为小区，请提前确认楼栋、进门方式及接亲车队的准确集合位置。",
-    "男方父母自行佩戴胸花；车队于05:50集合并装饰花车。",
+    "男方父母自行佩戴胸花；接亲亲友团06:20集合，车队06:30集合并装饰花车，06:40出发。",
     "婚房饺子提前五分钟煮好；婚宴大厅提前安排礼花筒迎接人员。",
-    "大厅摆拍时段为09:30—10:10；10:30前完成拍摄、安排新娘候场，并确保宾客到齐。"
+    "大厅摆拍时段为10:00—10:30；10:40完成拍摄收尾、安排新娘候场，宾客请于10:40前到齐；新郎与父母安排迎宾，新郎继续迎宾。",
+    "11:08典礼开始，11:38礼成后开始宾客合影；与酒店确认11:40准时上菜，新娘12:00前尽快换装完毕并开始敬酒。"
   ],
   "albums": [
     {
@@ -794,11 +824,11 @@ const wedding = {
       "cover": "album-vows.jpg"
     },
     {
-      "id": "red",
-      "title": "囍色倾心",
-      "subtitle": "一抹中国红，满心都是你。",
-      "package": "album-one",
-      "cover": "album-red.jpg"
+      "id": "heart",
+      "title": "心动如初",
+      "subtitle": "目光落在你身上，心动便有了模样。",
+      "package": "album-four",
+      "cover": "album-heart.jpg"
     },
     {
       "id": "white",
@@ -822,11 +852,11 @@ const wedding = {
       "cover": "album-pure.jpg"
     },
     {
-      "id": "heart",
-      "title": "心动如初",
-      "subtitle": "目光落在你身上，心动便有了模样。",
-      "package": "album-four",
-      "cover": "album-heart.jpg"
+      "id": "red",
+      "title": "囍色倾心",
+      "subtitle": "一抹中国红，满心都是你。",
+      "package": "album-one",
+      "cover": "album-red.jpg"
     },
     {
       "id": "rose",

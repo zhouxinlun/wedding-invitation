@@ -1,7 +1,7 @@
 'use strict';
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'../dist/h5'),port=Number(process.env.PORT||8765);
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.ttf':'font/ttf','.ics':'text/calendar; charset=utf-8','.txt':'text/plain; charset=utf-8'};
+const types={'.mp4':'video/mp4','.mp3':'audio/mpeg','.m4a':'audio/mp4','.ogg':'audio/ogg','.wav':'audio/wav','.ico':'image/x-icon','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.ttf':'font/ttf','.ics':'text/calendar; charset=utf-8','.txt':'text/plain; charset=utf-8'};
 const server=http.createServer((request,response)=>{
   if(!['GET','HEAD'].includes(request.method)){response.writeHead(405);response.end();return;}
   let file;try{const url=new URL(request.url,'http://localhost');file=path.resolve(root,'.'+decodeURIComponent(url.pathname));}catch(_){response.writeHead(400);response.end();return;}

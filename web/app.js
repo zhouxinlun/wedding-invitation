@@ -4,6 +4,11 @@
   const fields = {...w, venue: w.venue.fullName, venueName: w.venue.name, branch: w.venue.branch, district: w.venue.district};
   document.querySelectorAll('[data-field]').forEach(el => {el.textContent = fields[el.dataset.field] || '';});
   const asset = file => '../miniprogram/assets/' + file;
+  document.querySelectorAll('main > .nav-section').forEach(section => {
+    const brand = document.createElement('div'); brand.className = 'chapter-brand';
+    const logo = new Image(); logo.src = asset('couple-monogram.jpg'); logo.alt = '周新沦与李小妮 · 双名花藤'; logo.width = 80; logo.height = 80;
+    brand.append(logo); section.prepend(brand);
+  });
   const grid = document.querySelector('#photo-grid');
   document.querySelector('#album-count').textContent = `${w.albums.length}本相册 · ${w.photos.length}个心动瞬间 · 轻触翻开`;
   const coverVines = window.WEDDING_VINES.plan('album-covers', Math.max(0, w.albums.length - 2));
@@ -35,6 +40,7 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const navLinks = [...document.querySelectorAll('.bottom-nav a')];
   const nav = document.querySelector('.bottom-nav');
+  const chapters = navLinks.map(link => document.querySelector(link.hash));
   let turnTimer, navTimer, navigating = false, motionEnabled = true;
   function setMotion() {
     motionEnabled = !reduceMotion.matches;
@@ -42,7 +48,10 @@
     document.documentElement.classList.toggle('js-motion', motionEnabled && 'IntersectionObserver' in window);
   }
   setMotion(); reduceMotion.addEventListener('change', setMotion);
-  function restoreNavigation() {clearTimeout(navTimer); nav.classList.remove('nav-quiet');}
+  function restoreNavigation() {
+    clearTimeout(navTimer); nav.classList.remove('nav-quiet');
+    if (!navigating) updateChapterAtViewport();
+  }
   window.addEventListener('scroll', () => {
     nav.classList.add('nav-quiet'); clearTimeout(navTimer);
     navTimer = setTimeout(restoreNavigation, 220);
@@ -63,7 +72,53 @@
   function selectChapter(id) {
     const index = navLinks.findIndex(a => a.hash === '#' + id);
     if (index < 0) return;
+    document.documentElement.classList.toggle('opening-active', id === 'us');
     navLinks.forEach((a,i) => { a.classList.toggle('active',i===index); if(i===index) a.setAttribute('aria-current','location'); else a.removeAttribute('aria-current'); });
+  }
+  function updateChapterAtViewport() {
+    const readingLine = (window.innerHeight - nav.getBoundingClientRect().height) * .3;
+    let current = chapters[0];
+    for (const chapter of chapters) {
+      if (chapter.getBoundingClientRect().top > readingLine) break;
+      current = chapter;
+    }
+    selectChapter(current.id);
+  }
+  function scrollToChapter(target, behavior) {
+    if (target.id !== 'us') {
+      target.scrollIntoView({behavior,block:'start'});
+      return;
+    }
+    const opening = target.getBoundingClientRect();
+    const availableHeight = window.innerHeight - nav.getBoundingClientRect().height;
+    const topSpace = Math.max(0, (availableHeight - opening.height) / 2);
+    window.scrollTo({top:Math.max(0, window.scrollY + opening.top - topSpace),behavior});
+  }
+  // Old invitation links still land on the new opening; named chapters stay usable.
+  function syncChapterFromHash() {
+    if (location.hash === '#invitation') {
+      history.replaceState(null, '', '#us');
+      scrollToChapter(document.querySelector('#us'), 'instant');
+    }
+    selectChapter(location.hash.slice(1) || 'us');
+  }
+  syncChapterFromHash();
+  window.addEventListener('hashchange', syncChapterFromHash);
+  // Align once after the display font settles; never pull a guest back after interaction.
+  if ((!location.hash || location.hash === '#us') &&
+      performance.getEntriesByType?.('navigation')[0]?.type !== 'back_forward') {
+    const entryHash = location.hash;
+    let interacted = false;
+    const cancelAlignment = () => {interacted = true;};
+    const inputEvents = ['pointerdown','touchstart','wheel','keydown'];
+    inputEvents.forEach(type => window.addEventListener(type, cancelAlignment, {once:true,passive:true}));
+    (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(() => {
+      inputEvents.forEach(type => window.removeEventListener(type, cancelAlignment));
+      if (!interacted && location.hash === entryHash) {
+        scrollToChapter(document.querySelector('#us'), 'instant');
+        restoreNavigation();
+      }
+    }));
   }
   document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', event => {
     const index = navLinks.findIndex(a => a.hash === link.hash);
@@ -71,39 +126,39 @@
     if (!target || index < 0) return;
     event.preventDefault(); clearTimeout(turnTimer); navigating = true; selectChapter(target.id);
     restoreNavigation();
-    target.scrollIntoView({behavior:motionEnabled?'smooth':'instant',block:'start'});
+    scrollToChapter(target, motionEnabled?'smooth':'instant');
     history.replaceState(null,'',link.hash);
-    turnTimer = setTimeout(()=>{navigating=false;},motionEnabled?520:0);
+    turnTimer = setTimeout(()=>{navigating=false;updateChapterAtViewport();},motionEnabled?520:0);
   }));
   if ('IntersectionObserver' in window) {
     const revealObserver = new IntersectionObserver(entries => entries.forEach(entry => {if(entry.isIntersecting) {entry.target.classList.add('visible'); revealObserver.unobserve(entry.target);}}), {threshold:.03});
     document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-    const navObserver = new IntersectionObserver(entries => entries.forEach(entry => {if(entry.isIntersecting && !navigating) selectChapter(entry.target.id);}), {rootMargin:'-12% 0px -42% 0px'});
+    // Observer notifications may describe a chapter we have already scrolled past.
+    const navObserver = new IntersectionObserver(() => {if(!navigating) updateChapterAtViewport();}, {rootMargin:'-12% 0px -42% 0px'});
     document.querySelectorAll('.nav-section').forEach(el => navObserver.observe(el));
   }
-  const blessings = ['愿你也被幸福偏爱','接住这一份喜气','好事成双，喜乐常伴','谢谢你来，见证我们'];
-  let blessingIndex = 0, sparkTimer;
-  document.querySelector('.joy-stamp').addEventListener('click', () => {
-    const note=document.querySelector('.stamp-note'); note.textContent=blessings[blessingIndex++%blessings.length]; note.classList.add('has-blessing');
-    const sparks=document.querySelector('.stamp-sparks'); sparks.replaceChildren(); clearTimeout(sparkTimer);
-    if(motionEnabled) for(let i=0;i<8;i++){const ray=document.createElement('span');ray.className='spark-ray';ray.style.transform=`rotate(${i*45}deg)`;const glyph=document.createElement('span');glyph.className='spark-glyph';glyph.textContent=i%2?'喜':'囍';ray.append(glyph);sparks.append(ray);}
-    sparkTimer=setTimeout(()=>sparks.replaceChildren(),1300);
-  });
   const photoDialog = document.querySelector('#photo-dialog');
+  const photoSnow = snow.cloneNode(true); photoSnow.classList.add('photo-snow'); photoDialog.prepend(photoSnow);
+  const photoFrame = document.querySelector('.lightbox-frame'), photoVines = document.querySelector('.lightbox-vines');
   let selectedPhoto = 0, previewPhotos = w.photos.filter(photo => !photo.package),photoRequest=0;
   const photoState=make('div','photo-state'),photoMessage=make('p','','正在展开这一帧…'),photoRetry=make('button','outline-btn','重新加载');
   photoState.setAttribute('role','status');photoRetry.type='button';photoState.append(photoMessage,photoRetry);photoDialog.querySelector('figure').append(photoState);
-  function photoFailed(){photoState.hidden=false;photoRetry.hidden=false;photoMessage.textContent='这张照片暂时未能打开';document.querySelector('#lightbox-image').hidden=true;}
+  function photoFailed(){photoState.hidden=false;photoRetry.hidden=false;photoMessage.textContent='这张照片暂时未能打开';document.querySelector('#lightbox-image').hidden=true;photoFrame.classList.remove('photo-ready');}
   async function showPhoto(index,force=false) {
     selectedPhoto = (index + previewPhotos.length) % previewPhotos.length;
     const photo = previewPhotos[selectedPhoto]; const img = document.querySelector('#lightbox-image');
     const request=++photoRequest;img.hidden=true;img.removeAttribute('src');photoState.hidden=false;photoRetry.hidden=true;photoMessage.textContent='正在展开这一帧…';
+    photoFrame.classList.remove('photo-ready'); photoVines.replaceChildren();
+    window.WEDDING_VINES.plan('lightbox:'+photo.file,4).forEach((file,i)=>{
+      const branch=make('span','lightbox-vine vine-side-'+i),art=new Image();art.src=asset(file);art.alt='';art.width=660;art.height=220;art.draggable=false;branch.append(art);photoVines.append(branch);
+    });
     document.querySelector('#lightbox-caption').textContent = `${selectedPhoto + 1} / ${previewPhotos.length}　${photo.title}`;
     try{
-      const result=await window.WeddingCloud.album(photo.group,force);
+      // The approved cover ships with the page; other originals retain signed cloud URLs.
+      const result=photo.cloud ? await window.WeddingCloud.album(photo.group,force) : null;
       if(request!==photoRequest)return;
-      const media=result.photos.find(item=>item.file===photo.file);if(!media)throw Error('PHOTO_MISSING');
-      img.onload=()=>{if(request!==photoRequest)return;photoState.hidden=true;img.hidden=false;img.classList.remove('photo-enter');void img.offsetWidth;img.classList.add('photo-enter');};
+      const media=photo.cloud ? result.photos.find(item=>item.file===photo.file) : {url:photo.package?'../miniprogram/'+photo.package+'/images/'+photo.file:asset(photo.file)};if(!media)throw Error('PHOTO_MISSING');
+      img.onload=()=>{if(request!==photoRequest)return;photoState.hidden=true;img.hidden=false;img.classList.remove('photo-enter');void img.offsetWidth;img.classList.add('photo-enter');photoFrame.classList.add('photo-ready');};
       img.onerror=()=>{if(request===photoRequest)photoFailed();};img.alt=photo.title;img.src=media.url;
     }catch(_){if(request===photoRequest)photoFailed();}
   }
@@ -154,10 +209,4 @@
   tabs.hidden = places.length < 2; selectPlace(0);
   document.querySelectorAll('[data-place]').forEach(link => link.addEventListener('click', () => {const index=places.findIndex(place=>place.id===link.dataset.place);if(index>=0)selectPlace(index);}));
   document.querySelector('#copy-venue').addEventListener('click', () => copy(journey.addressText(selectedPlace),'赴约地址已复制'));
-  document.querySelector('#share-invite').addEventListener('click',()=>document.querySelector('#share-dialog').showModal());
-  const caption=`我们结婚啦！\n${w.groom} & ${w.bride}\n诚邀你在${w.dateLabel} ${w.ceremonyTime}，来见证我们的婚礼。\n${w.venue.district} · ${w.venue.fullName} · ${w.venue.room}\n请于${w.guestArrivalTime}前到场。\n带着祝福来，就很好。`;
-  document.querySelector('#copy-caption').addEventListener('click',()=>copy(caption,'邀请文案已复制'));
-  const shareLink=document.createElement('button');shareLink.className='outline-btn';shareLink.textContent='复制请柬链接';shareLink.type='button';
-  document.querySelector('#share-dialog').append(shareLink);
-  shareLink.onclick=()=>{if(!/^https?:$/.test(location.protocol)){notify('正式链接正在准备中。');return;}const url=new URL(location.href);url.hash='';url.search='';copy(url.href,'请柬链接已复制，可发送给亲友');};
 })();
