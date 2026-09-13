@@ -7,6 +7,12 @@ async function build(){
   await fs.mkdir(path.join(root,'web/vendor'),{recursive:true});
   // All paths are absolute; isolate npm resolution from unrelated parent Yarn PnP projects.
   await esbuild.build({absWorkingDir:os.tmpdir(),entryPoints:[path.join(root,'node_modules/@cloudbase/js-sdk/dist/index.esm.js')],outfile:path.join(root,'web/vendor/cloudbase.js'),bundle:true,format:'esm',platform:'browser',target:'es2020',minify:true,legalComments:'external',logLevel:'warning'});
+  await esbuild.build({absWorkingDir:os.tmpdir(),entryPoints:[path.join(root,'web/journey-map.js')],nodePaths:[path.join(root,'node_modules')],outfile:path.join(root,'web/vendor/journey-map.js'),bundle:true,format:'iife',platform:'browser',target:'es2020',minify:true,legalComments:'external',logLevel:'warning'});
+  await fs.mkdir(path.join(root,'web/vendor/leaflet'),{recursive:true});
+  await fs.copyFile(path.join(root,'node_modules/leaflet/dist/leaflet.css'),path.join(root,'web/vendor/leaflet/leaflet.css'));
+  await fs.cp(path.join(root,'node_modules/leaflet/dist/images'),path.join(root,'web/vendor/leaflet/images'),{recursive:true});
+  await fs.copyFile(path.join(root,'node_modules/leaflet/LICENSE'),path.join(root,'web/vendor/leaflet/LICENSE.txt'));
+  await fs.copyFile(path.join(root,'node_modules/coordtransform/LICENSE'),path.join(root,'web/vendor/leaflet/coordtransform-LICENSE.txt'));
   await fs.rm(out,{recursive:true,force:true});await fs.mkdir(out,{recursive:true});
   for(const file of ['index.html','app.js','share.js','style.css','title-font.css','h5.css','cloud-client.js','popout.js','couple-motion.js','music.js','blessings.js','blessings.css'])await copy('web/'+file);
   const wedding=require('../miniprogram/wedding');

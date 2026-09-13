@@ -8,36 +8,51 @@
 .popout-playing .popout-canvas{opacity:1}
 .popout-playing .us-photo{background:radial-gradient(ellipse at 47% 40%,#7a8372 0%,#687461 64%,#4f5e4d 100%)}
 .popout-playing .us-photo>.image-button,.popout-playing .us-motion{opacity:0!important}
-.wedding-music{position:fixed;right:max(16px,env(safe-area-inset-right,0px));top:calc(90px + env(safe-area-inset-top,0px));z-index:35;display:flex;align-items:center;gap:8px;min-height:44px;padding:5px 10px 5px 5px;border:1px solid #c4a26e66;border-radius:30px;background:#123b3de8;color:#e8c994;box-shadow:0 3px 14px #082a3038;backdrop-filter:blur(10px);font:inherit;font-size:11px;line-height:1.3}
-.music-record{position:relative;display:grid;place-items:center;width:31px;height:31px;flex:none;border-radius:50%;background:repeating-radial-gradient(circle,#2e4e46 0 2px,#183932 3px 4px);border:1px solid #c4a26e77}
-.music-record::before{content:"";width:11px;height:11px;border:1px solid #e3b678;border-radius:50%;background:#944b3b;box-shadow:inset 0 0 0 3px #b77755}
-.music-record::after{content:"";position:absolute;top:3px;width:2px;height:4px;border-radius:2px;background:#d7ba83}
-.wedding-music.is-playing .music-record{animation:music-record-spin 5s linear infinite}
-.wedding-music:focus-visible{outline:2px solid #f2d29a;outline-offset:4px}
+.wedding-music{position:relative;display:flex;flex:0 0 48px;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:48px;margin-left:6px;padding:3px 0 2px;border:0;border-left:1px solid #c4a26e35;border-radius:0;background:transparent;color:#d6c399;font:inherit;cursor:pointer;pointer-events:auto}
+.music-record{position:relative;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:repeating-radial-gradient(circle,#35534a 0 2px,#173930 3px 4px);border:1px solid #c4a26e99;box-shadow:0 0 0 3px #d3b4790a}
+.music-record::before{content:"";width:8px;height:8px;border-radius:50%;background:#b45943;box-shadow:inset 0 0 0 2px #d6a969}
+.music-record::after{content:"";position:absolute;top:2px;width:2px;height:3px;background:#f1d1a0;border-radius:2px}
+.music-label{font-size:9px;letter-spacing:1px;line-height:1.3}
+.wedding-music.is-playing{color:#f5dbad}.wedding-music.is-playing .music-record{animation:music-record-spin 5s linear infinite}
+.wedding-music:focus-visible{outline:2px solid #f2d29a;outline-offset:2px;border-radius:6px}
 @keyframes music-record-spin{to{transform:rotate(360deg)}}
-@media(max-width:700px){.wedding-music{right:12px;top:calc(74px + env(safe-area-inset-top,0px))}.music-label{max-width:2em;line-height:1.3;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.wedding-music.is-playing .music-record{animation:none}}
 .b-identity-note{font-size:11px;line-height:1.8;color:#80685b;margin-top:14px}
 .b-web-dialog .b-sheet-title{color:#65463d}
 
-/* Travel details need a full column until there is room for two readable cards. */
-.journey{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);column-gap:clamp(28px,5vw,64px)}
-.journey>.section-copy,.journey-card,.journey-greeting>div,.timeline>div{min-width:0}
-.journey-card{width:100%}
-.journey h2>span,.journey .greeting-title>span{display:inline-block}
-.timeline .muted time{white-space:nowrap}
-@media(max-width:900px){
- .journey{display:flex;flex-direction:column;align-items:stretch;gap:28px;padding-top:64px}
- .journey h2{font-size:clamp(28px,4.5vw,36px);letter-spacing:1px}
- .journey .event-date{font-size:22px;padding:15px 0 20px}
- .journey .timeline{gap:20px;padding:20px 0 5px}
- .journey .timeline>div>time{font-size:43px}
- .journey-greeting{padding:22px}
- .journey .greeting-title{font-size:21px;letter-spacing:0}
- .journey-card .venue-name{font-size:34px}
- .journey>.chapter-brand{margin-bottom:0}
-}
-@media(max-width:380px){.journey .greeting-title{font-size:19px}.journey-card .venue-name{font-size:30px}}
+/* One travel card is the navigation target; the timing follows beneath it. */
+.journey.section{display:flex;flex-direction:column;gap:24px;align-items:stretch;max-width:680px;padding:62px 24px 72px}
+.journey>.chapter-brand{margin-bottom:0!important}
+.journey-heading{text-align:center}.journey-heading .section-kicker{justify-content:center}.journey-heading .section-kicker::after{display:none}
+.journey h2{font-size:34px;letter-spacing:2px;line-height:1.5}.journey h2>span{display:inline-block}
+.journey-card{width:100%;min-width:0;flex:none}
+.journey-active .b-fab{visibility:hidden}
+.journey-greeting{padding:16px 20px;min-height:76px}.journey .greeting-title{font-size:23px;letter-spacing:1px;line-height:1.5}
+.journey .destination-tabs{padding:10px 16px;gap:8px}.journey .destination-tabs button{min-height:38px;font-size:12px;padding:8px 4px}
+.journey-map-frame{position:relative;isolation:isolate;background:#e6e4d8}
+.journey .destination-map{height:210px;background:#e6e4d8;z-index:0;font-family:inherit;touch-action:pan-y}
+.map-state{position:absolute;bottom:25px;left:10px;right:10px;width:max-content;max-width:calc(100% - 20px);margin:0 auto;padding:6px 10px;background:#f7efdfeb;color:#4b544a;border-radius:5px;font-size:11px;pointer-events:none}
+.map-state[hidden]{display:none}
+.wedding-map-pin{background:none;border:0}.wedding-map-pin>span{display:grid;place-items:center;width:31px;height:34px;background:#903a35;border:2px solid #f4d5a3;border-radius:16px 16px 16px 3px;color:#ffe8be;font:21px/1 "Songti SC",serif;box-shadow:0 3px 8px #422b3540}
+.guest-map-pin>span{display:block;width:16px;height:16px;background:#276e9e;border:3px solid white;border-radius:50%;box-shadow:0 0 0 5px #469dcc44}
+.leaflet-tooltip.wedding-map-label{padding:4px 9px;border:1px solid #b9a983;background:#fff8e9;color:#543e30;font-family:inherit;font-size:12px;line-height:1.4;box-shadow:0 2px 8px #3332}
+.journey .leaflet-control-attribution{font-size:9px;background:#fffc;color:#43534c}.journey .leaflet-control-attribution a{color:#2a6158}
+.journey .leaflet-control-zoom a{color:#244b40;background:#fff8e9;font-size:21px}
+.journey .destination-details{padding:14px 20px 12px}.journey .destination-details>.eyebrow{display:none}
+.journey .venue-name{font-size:29px;letter-spacing:1px;line-height:1.4;margin:0}
+.journey .venue-branch,.journey .venue-room{display:inline;font-size:11px;line-height:1.8;color:#d5c69f;letter-spacing:.5px}.journey .venue-room:not(:empty)::before{content:" · "}
+.journey .venue-address{margin-top:6px;font-size:11px;line-height:1.7}.journey .place-note{font-size:10px;margin:4px 0 0;line-height:1.6;color:#c8b995}
+.journey .distance-card{margin-top:10px;padding:9px 0;gap:8px}.journey .distance-number{font-size:13px;line-height:1.6}.journey .distance-note{font-size:10px;line-height:1.6;min-height:16px}
+.journey .distance-button{display:flex;align-items:center;gap:4px;border:1px solid #c3a87660;background:#284f46;border-radius:8px;min-height:40px;padding:7px 9px;font-size:10px}.distance-button>span:first-child{font-size:21px}
+.journey .venue-actions{display:grid;grid-template-columns:minmax(0,1fr) 68px;gap:9px;margin-top:12px}
+.journey .route-button{min-height:54px;padding:10px 12px;gap:10px}.journey .button-seal{width:27px;height:32px;font-size:22px}.journey .button-title{font-size:14px;letter-spacing:.5px}.journey .button-subtitle{font-size:9px;letter-spacing:.5px}.journey .button-arrow{font-size:18px;width:26px;height:26px}
+.journey .copy-address{display:flex;flex-direction:column;gap:2px;min-height:54px;padding:7px 3px;font-size:10px;letter-spacing:0}.journey .copy-mark{font-size:20px}.journey .map-note{font-size:9px;margin-top:8px;line-height:1.5}
+.journey-card-footer{padding:7px 20px;font-size:9px}
+.journey-timing{text-align:center;color:#d5c69f;padding:6px 0 0}.journey-timing .event-date{font-size:21px;padding:0;margin:0 0 9px}
+.ceremony-clock{display:flex;align-items:baseline;justify-content:center;gap:10px}.ceremony-clock time{font:42px/1.3 Georgia,serif;color:#edcb92}.ceremony-clock span{font-size:12px;letter-spacing:1px}
+.arrival-reminder{font-size:12px;line-height:1.8;margin:6px 0 12px}.arrival-reminder time{font-weight:600;color:#f0d7aa}.journey-timing .text-link{font-size:11px}
+@media(max-width:519px){.journey.section{padding:48px 18px 50px;gap:20px}.journey .destination-map{height:180px}.journey-greeting{padding:12px 16px;min-height:65px}.journey .greeting-title{font-size:20px;letter-spacing:0}.journey .destination-details{padding:12px 16px 10px}.journey .venue-name{font-size:26px}.journey .section-kicker{font-size:9px;letter-spacing:2px}.journey h2{font-size:29px}}
+@media(max-width:519px) and (max-height:740px){.journey .destination-map{height:140px}.journey-greeting{padding:9px 14px;min-height:56px}.journey .destination-details{padding:10px 14px 8px}.journey .distance-card{padding:6px 0;margin-top:7px}.journey .destination-tabs{padding-block:8px}}
 
 /* H5 opens on the moving portrait; the red invitation remains the share cover. */
 .h5-opening{max-width:1050px;padding:34px 40px 65px;gap:0 80px;grid-template-columns:1fr 1fr;align-items:center}
@@ -202,18 +217,12 @@ body{isolation:isolate}
 .garden-stem-lower{top:82%;width:205px;transform:translate(-50%,-50%) rotate(-78deg);opacity:.68}
 .garden-note-right .garden-stem-upper{top:21%;transform:translate(-50%,-50%) rotate(-79deg)}
 .garden-note-right .garden-stem-lower{top:84%;width:180px;transform:translate(-50%,-50%) rotate(82deg)}
-.garden-monogram{position:absolute;top:9%;left:50%;width:47px;padding:3px;transform:translateX(-50%) rotate(-8deg);border:1px solid #d3af7077;border-radius:50%;background:#71332e;box-shadow:0 0 0 4px #d2b17a0c;pointer-events:auto;z-index:2}
-.garden-monogram img{width:100%;height:auto;border-radius:50%}
-.garden-monogram:active{transform:translateX(-50%) rotate(-8deg) scale(.96)}
-.garden-monogram:focus-visible{outline:2px solid #f2d29a;outline-offset:5px}
-.garden-music-label{position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%) rotate(8deg);white-space:nowrap;color:#e8c994;font-size:8px;letter-spacing:1px;line-height:1.5}
 .garden-lantern{position:absolute;left:50%;top:22%;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%) rotate(4deg);transform-origin:50% 0;filter:drop-shadow(0 3px 7px #29180d44)}
 .lantern-thread{width:1px;height:25px;background:#d0a26099}
 .lantern-body{position:relative;display:grid;place-items:center;width:50px;height:45px;line-height:1;font-size:23px;color:#f6dca1;border:1px solid #c99855;border-radius:45%;background:radial-gradient(ellipse at 46% 35%,#d46b45,#b43831 55%,#7e292a);box-shadow:inset 0 0 10px #6a202555}
 .lantern-body::before{content:"";position:absolute;inset:0 11px;border-inline:1px solid #efc78470;border-radius:50%}
 .lantern-body::after{content:"";position:absolute;top:-3px;left:15px;width:18px;height:4px;border-radius:2px;background:#cc9c58;box-shadow:0 44px #cc9c58}
 .lantern-tassel{width:13px;height:26px;margin-top:7px;border-top:4px solid #cea66c;border-radius:2px 2px 4px 4px;background:repeating-linear-gradient(90deg,#bd805b 0 1px,transparent 1px 3px)}
-@media(min-width:520px) and (max-width:700px),(min-width:1240px){.opening-active.has-music .wedding-music{display:none}}
 .garden-poem{position:absolute;top:42%;left:50%;transform:translateX(-50%);display:flex;flex-direction:row-reverse;gap:12px;white-space:nowrap;font-size:16px;line-height:1.5;letter-spacing:7px;text-shadow:0 1px 5px #123d40}
 .garden-poem>span{writing-mode:vertical-rl}
 .garden-poem>span+span{padding-top:32px;color:#c5b28d}
@@ -233,7 +242,6 @@ body{isolation:isolate}
  .garden-note-right .garden-stem img{animation-delay:-4s}
  .garden-date{animation:garden-date-sway 8s ease-in-out infinite;transform-origin:50% 0}
  .garden-lantern{animation:garden-date-sway 5.5s ease-in-out infinite}
- .garden-monogram.is-playing img{animation:music-record-spin 12s linear infinite}
  .garden-glint{animation:garden-light 6s ease-in-out infinite}
  .garden-glint-two{animation-delay:-3s}
 }
@@ -246,7 +254,7 @@ body{isolation:isolate}
  .h5-opening .story-last{font-size:clamp(38px,5.2vw,55px);padding-left:clamp(28px,3vw,42px)}
  .garden-note{width:24px;opacity:.4;top:120px;bottom:95px}
  .garden-note-left{left:8px}.garden-note-right{right:8px}
- .garden-note::before,.garden-note::after,.garden-monogram,.garden-poem,.garden-sign,.garden-date{display:none}
+ .garden-note::before,.garden-note::after,.garden-poem,.garden-sign,.garden-date{display:none}
  .garden-stem{width:210px}.garden-stem-lower,.garden-note-right .garden-stem-lower{width:180px}
 }
 @media(max-width:700px){
@@ -256,7 +264,7 @@ body{isolation:isolate}
 @media(max-width:519px){
  .garden-note{width:26px;top:115px;bottom:150px;opacity:.65}
  .garden-note-left{left:5px}.garden-note-right{right:5px;top:150px}
- .garden-note::before,.garden-note::after,.garden-monogram,.garden-poem,.garden-sign,.garden-date{display:none}
+ .garden-note::before,.garden-note::after,.garden-poem,.garden-sign,.garden-date{display:none}
  .garden-stem{width:180px;transform:translate(-50%,-50%) rotate(86deg)}
  .garden-stem-lower{width:155px;transform:translate(-50%,-50%) rotate(-86deg)}
  .garden-note-right .garden-stem-upper{transform:translate(-50%,-50%) rotate(-86deg)}
@@ -336,3 +344,10 @@ main > .nav-section{position:relative}
  .share-preview{gap:14px;padding:12px}.share-preview>img{width:125px;flex-basis:125px}.share-preview strong{font-size:24px}
 }
 @media(max-width:360px){.share-preview>img{width:105px;flex-basis:105px}.share-preview-label{font-size:7px}}
+
+/* A full-colour lantern hangs on the portrait itself, including on phones. */
+.opening-portrait .portrait-lantern{left:-15px;top:25%;z-index:4;opacity:1;pointer-events:none}
+.opening-portrait .portrait-lantern .lantern-body{width:38px;height:38px;font-size:21px}
+.opening-portrait .portrait-lantern .lantern-body::after{left:10px;width:16px;box-shadow:0 37px #cc9c58}
+.opening-portrait .portrait-lantern .lantern-thread{height:22px}.opening-portrait .portrait-lantern .lantern-tassel{height:25px;width:12px}
+@media(max-width:519px){.opening-portrait .portrait-lantern{left:-17px;top:25%}.opening-portrait .portrait-lantern .lantern-body{width:31px;height:33px;font-size:18px}.opening-portrait .portrait-lantern .lantern-body::after{left:8px;width:13px;box-shadow:0 32px #cc9c58}}

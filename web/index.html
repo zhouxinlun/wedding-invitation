@@ -14,7 +14,7 @@
 <meta property="og:image:width" content="864">
 <meta property="og:image:height" content="1080">
 <meta property="og:image:alt" content="周新沦与李小妮的中式婚纱合照">
-<!-- /Share preview --><link rel="icon" href="../favicon.ico" sizes="16x16 32x32 48x48 64x64"><link rel="apple-touch-icon" href="../miniprogram/assets/couple-monogram.jpg"><link rel="preload" as="image" href="../miniprogram/assets/couple-white.jpg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="blessings.css"><link rel="stylesheet" href="h5.css"><script defer src="../miniprogram/wedding.js"></script><script defer src="../miniprogram/shared/rose-vines.js"></script><script defer src="../miniprogram/journey.js"></script><script defer src="../miniprogram/shared/blessing-config.js"></script><script defer src="cloud-client.js"></script><script defer src="app.js"></script><script defer src="share.js"></script><script defer src="popout.js"></script><script defer src="couple-motion.js"></script><script defer src="music.js"></script><script defer src="../miniprogram/shared/blessing-snow.js"></script><script defer src="../miniprogram/shared/blessing-editor.js"></script><script defer src="blessings.js"></script></head>
+<!-- /Share preview --><link rel="icon" href="../favicon.ico" sizes="16x16 32x32 48x48 64x64"><link rel="apple-touch-icon" href="../miniprogram/assets/couple-monogram.jpg"><link rel="preload" as="image" href="../miniprogram/assets/couple-white.jpg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="blessings.css"><link rel="stylesheet" href="vendor/leaflet/leaflet.css"><link rel="stylesheet" href="h5.css"><script defer src="../miniprogram/wedding.js"></script><script defer src="../miniprogram/shared/rose-vines.js"></script><script defer src="../miniprogram/journey.js"></script><script defer src="../miniprogram/shared/blessing-config.js"></script><script defer src="cloud-client.js"></script><script defer src="vendor/journey-map.js"></script><script defer src="app.js"></script><script defer src="share.js"></script><script defer src="popout.js"></script><script defer src="couple-motion.js"></script><script defer src="music.js"></script><script defer src="../miniprogram/shared/blessing-snow.js"></script><script defer src="../miniprogram/shared/blessing-editor.js"></script><script defer src="blessings.js"></script></head>
 <body>
 <div class="page-botanicals" aria-hidden="true">
   <span class="edge-vine edge-vine-nw"><img src="../miniprogram/assets/rose-vines/vine-02.png" alt="" width="660" height="220" draggable="false"></span>
@@ -31,8 +31,8 @@
       <div class="opening-garden">
         <div class="garden-note garden-note-left">
           <span class="garden-stem garden-stem-upper" aria-hidden="true"><img src="../miniprogram/assets/rose-vines/vine-03.png" alt="" width="660" height="220" draggable="false"></span>
-          <button class="garden-monogram" data-music-toggle type="button" aria-label="播放音乐" hidden><img src="../miniprogram/assets/couple-monogram.jpg" alt="" width="80" height="80" draggable="false"><span class="garden-music-label" aria-hidden="true">播放音乐</span></button>
-          <span class="garden-lantern" aria-hidden="true"><span class="lantern-thread"></span><span class="lantern-body serif">囍</span><span class="lantern-tassel"></span></span>
+
+
           <div class="garden-poem serif" aria-hidden="true"><span>一屋两人</span><span>三餐四季</span></div>
           <span class="garden-stem garden-stem-lower" aria-hidden="true"><img src="../miniprogram/assets/rose-vines/vine-10.png" alt="" width="660" height="220" draggable="false"></span>
           <span class="garden-sign serif" aria-hidden="true">长长 · 久久</span>
@@ -51,7 +51,7 @@
         <p class="section-kicker"><span class="chapter-number" aria-hidden="true">壹</span>THE TWO OF US</p>
         <h1 id="us-title" class="serif story-title"><span class="story-first">往后余生<span class="title-punctuation">，</span></span><span class="story-last">都是我们<span class="title-punctuation">。</span></span></h1>
       </div>
-      <div class="opening-portrait">
+      <div class="opening-portrait"><span class="garden-lantern portrait-lantern" aria-hidden="true"><span class="lantern-thread"></span><span class="lantern-body serif">囍</span><span class="lantern-tassel"></span></span>
         <div class="portrait-halo" aria-hidden="true"></div>
         <div class="us-photo"><button class="image-button" data-photo="1" aria-label="放大查看白纱合照"><img src="../miniprogram/assets/couple-white.jpg" alt="新娘手捧白色花束，与新郎并肩而立" width="1280" height="1920" fetchpriority="high"></button><video class="us-motion" muted loop playsinline preload="none" aria-hidden="true"></video></div>
         <div class="portrait-botanicals" aria-hidden="true">
@@ -64,7 +64,7 @@
       </div>
       <div class="opening-details">
         <div class="names-details"><div><span>新郎</span><strong class="serif" data-field="groom"></strong></div><div class="heart-seal serif" aria-hidden="true">囍</div><div><span>新娘</span><strong class="serif" data-field="bride"></strong></div></div>
-        <a class="opening-date" href="#journey" aria-label="查看婚礼时间与赴宴地点"><span class="opening-date-line"><time datetime="2026-10-06" data-field="dateLabel"></time><span class="opening-date-dot" aria-hidden="true">·</span><span><time data-field="ceremonyTime"></time> 典礼</span></span><span class="opening-venue"><span data-field="venue"></span><span aria-hidden="true"> ↗</span></span></a>
+        <a class="opening-date" href="#journey" data-place="venue" aria-label="查看婚礼时间与赴宴地点"><span class="opening-date-line"><time datetime="2026-10-06" data-field="dateLabel"></time><span class="opening-date-dot" aria-hidden="true">·</span><span><time data-field="ceremonyTime"></time> 典礼</span></span><span class="opening-venue"><span data-field="venue"></span><span aria-hidden="true"> ↗</span></span></a>
         <p class="opening-welcome">我们结婚啦，盼你来见证。</p>
         <img class="opening-flourish" src="../miniprogram/assets/rose-vines/vine-08.png" alt="" width="660" height="220" aria-hidden="true" draggable="false">
       </div>
@@ -74,14 +74,20 @@
     <section id="schedule" class="section schedule nav-section"><div class="section-heading reveal"><div><p class="section-kicker"><span class="chapter-number" aria-hidden="true">肆</span>OUR WEDDING DAY</p><h2 class="serif">良辰，一刻一刻。</h2></div><p class="muted">2026年10月6日 · 从清晨的欢喜，到一生的约定</p></div>
     <div class="guest-arrival reveal"><div class="arrival-heading"><span class="serif">致每一位来赴约的你</span><span class="arrival-seal serif" aria-hidden="true">囍</span></div><div class="arrival-times"><div><time class="arrival-time" data-field="guestArrivalTime"></time><span class="arrival-label">请于此时前到场</span></div><span class="arrival-thread" aria-hidden="true">—</span><div><time class="arrival-time" data-field="ceremonyTime"></time><span class="arrival-label">婚礼典礼开始</span></div></div><a class="arrival-place" href="#journey" data-place="venue"><span>尚汇宴 · 二层宴会大厅</span><span>查看地图 ↗</span></a></div>
     <div id="schedule-phases" class="schedule-phases"></div><p class="schedule-note">接亲亲友请留意两家集合时间；赴宴宾客请于<time data-field="guestArrivalTime"></time>前到场。<span class="serif">一路平安，满心欢喜。</span></p></section>
-    <section id="journey" class="section journey nav-section"><div class="section-copy reveal"><p class="section-kicker"><span class="chapter-number" aria-hidden="true">伍</span>SAVE THE DATE</p><h2 class="serif"><span>有你在，</span><span>才圆满。</span></h2><p class="event-date serif" data-field="dateLabel"></p><div class="timeline"><span class="timeline-dot" aria-hidden="true"></span><div><time data-field="ceremonyTime"></time><p class="gold">婚礼仪式开始</p><p class="muted">请于<time data-field="guestArrivalTime"></time>前到场 · 二层宴会大厅</p></div></div><a class="text-link" href="../exports/婚礼日程.ics" download>保存婚礼日程 ↗</a></div><div class="journey-card reveal">
-  <div class="journey-greeting"><div><p class="eyebrow">山海有距离 · 欢喜没有</p><h3 class="greeting-title serif"><span>不管多远，</span><span>都盼你来。</span></h3></div><span class="postmark serif" aria-hidden="true">赴<span>约</span></span></div>
-  <div class="destination-tabs" role="group" aria-label="选择赴约地点" hidden></div>
-  <div class="destination-details"><p class="eyebrow" id="place-label">婚礼饭店</p><h3 class="venue-name serif" id="place-name"></h3><p class="venue-branch" id="place-branch"></p><p class="venue-room" id="place-room"></p><p class="venue-address" id="place-address"></p>
-    <p class="place-note" id="place-detail-note"></p><div class="venue-actions"><a class="invitation-button route-button" id="open-map" target="_blank" rel="noopener" hidden><span class="button-seal serif" aria-hidden="true">约</span><span class="button-copy"><span class="button-title">打开地点导航</span><span class="button-subtitle">打开地图 · 规划路线</span></span><span class="button-arrow" aria-hidden="true">↗</span></a><button class="copy-address copy-only" id="copy-venue"><span class="copy-mark" aria-hidden="true">▱</span><span>复制赴约地址</span><span class="copy-arrow" aria-hidden="true">↗</span></button></div>
-    <p class="map-note" id="map-note">复制完整店名，可在地图中搜索路线。</p>
-  </div><div class="journey-card-footer"><span>路途慢慢，喜悦满满</span><span class="serif" aria-hidden="true">囍</span></div>
-</div></section>
+    <section id="journey" class="section journey nav-section">
+      <div class="section-copy journey-heading reveal"><p class="section-kicker"><span class="chapter-number" aria-hidden="true">伍</span>SAVE THE DATE</p><h2 class="serif"><span>有你在，</span><span>才圆满。</span></h2></div>
+      <div class="journey-card reveal">
+        <div class="journey-greeting"><div><p class="eyebrow">山海有距离 · 欢喜没有</p><h3 class="greeting-title serif">不管多远，都盼你来。</h3></div><span class="postmark serif" aria-hidden="true">赴<span>约</span></span></div>
+        <div class="destination-tabs" role="group" aria-label="选择赴约地点" hidden></div>
+        <div class="journey-map-frame"><div id="destination-map" class="destination-map" role="region" aria-label="赴约地点地图"></div><p id="map-state" class="map-state" role="status">地图将在赴宴时展开</p></div>
+        <div class="destination-details"><p class="eyebrow" id="place-label">婚礼饭店</p><h3 class="venue-name serif" id="place-name"></h3><p class="venue-branch" id="place-branch"></p><p class="venue-room" id="place-room"></p><p class="venue-address" id="place-address"></p><p class="place-note" id="place-detail-note"></p>
+          <div class="distance-card"><div><p class="distance-number" id="guest-distance">你与这份欢喜，相距几许？</p><p class="distance-note" id="location-state" role="status">允许定位后显示直线距离</p></div><button class="distance-button" id="locate-guest" type="button"><span aria-hidden="true">⌖</span><span>定位我的位置</span></button></div>
+          <div class="venue-actions"><a class="invitation-button route-button" id="open-map" target="_blank" rel="noopener" hidden><span class="button-seal serif" aria-hidden="true">约</span><span class="button-copy"><span class="button-title">打开地点导航</span><span class="button-subtitle">从我的位置出发</span></span><span class="button-arrow" aria-hidden="true">↗</span></a><button class="copy-address" id="copy-venue" aria-label="复制赴约地址"><span class="copy-mark" aria-hidden="true">▱</span><span>复制地址</span></button></div>
+          <p class="map-note" id="map-note">定位仅用于本次查看距离与导航。</p>
+        </div><div class="journey-card-footer"><span>路途慢慢，喜悦满满</span><span class="serif" aria-hidden="true">囍</span></div>
+      </div>
+      <div class="journey-timing reveal"><p class="event-date serif" data-field="dateLabel"></p><div class="ceremony-clock"><time data-field="ceremonyTime"></time><span>婚礼仪式开始</span></div><p class="arrival-reminder">请于 <time data-field="guestArrivalTime"></time> 前到场 · 二层宴会大厅</p><a class="text-link" href="../exports/婚礼日程.ics" download>保存婚礼日程 ↗</a></div>
+    </section>
     <footer class="farewell reveal"><div class="seal serif" aria-hidden="true">囍</div><h2 class="serif">带着祝福来，就很好。</h2><p class="muted">我们在这里，等你赴约。</p><div class="footer-actions"><button class="outline-btn" id="share-invite">分享这份喜悦</button></div><p class="footer-date"><span data-field="groom"></span> & <span data-field="bride"></span> · 2026.10.06</p></footer>
   </main>
   <nav class="bottom-nav" aria-label="请柬菜单"><div class="nav-track"><a href="#us" class="active" aria-current="location"><span class="nav-number" aria-hidden="true">01</span>我们</a><a href="#album"><span class="nav-number" aria-hidden="true">02</span>相册</a><a href="#blessings"><span class="nav-number" aria-hidden="true">03</span>祝福</a><a href="#schedule"><span class="nav-number" aria-hidden="true">04</span>流程</a><a href="#journey"><span class="nav-number" aria-hidden="true">05</span>赴宴</a></div></nav>

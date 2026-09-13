@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const w = window.WEDDING;
+  const journeyMap = window.WeddingMap?.create();
   const fields = {...w, venue: w.venue.fullName, venueName: w.venue.name, branch: w.venue.branch, district: w.venue.district};
   document.querySelectorAll('[data-field]').forEach(el => {el.textContent = fields[el.dataset.field] || '';});
   const asset = file => '../miniprogram/assets/' + file;
@@ -73,6 +74,8 @@
   function selectChapter(id) {
     const index = navLinks.findIndex(a => a.hash === '#' + id);
     if (index < 0) return;
+    if(id==='journey'&&!document.documentElement.classList.contains('journey-active'))journeyMap?.activate();
+    document.documentElement.classList.toggle('journey-active',id==='journey');
     document.documentElement.classList.toggle('opening-active', id === 'us');
     navLinks.forEach((a,i) => { a.classList.toggle('active',i===index); if(i===index) a.setAttribute('aria-current','location'); else a.removeAttribute('aria-current'); });
   }
@@ -86,19 +89,27 @@
     selectChapter(current.id);
   }
   function scrollToChapter(target, behavior) {
-    if (target.id !== 'us') {
+    if (target.id !== 'us' && target.id !== 'journey') {
       target.scrollIntoView({behavior,block:'start'});
       return;
     }
-    const opening = target.getBoundingClientRect();
+    const openingNode = target.id==='journey'?target.querySelector('.journey-card'):target;
+    const opening = openingNode.getBoundingClientRect();
+    // Reveal transforms move the painted card, not its final layout position.
+    let absoluteTop = window.scrollY + opening.top;
+    if(target.id==='journey'){
+      absoluteTop=0;
+      for(let node=openingNode;node;node=node.offsetParent)absoluteTop+=node.offsetTop;
+    }
     const availableHeight = window.innerHeight - nav.getBoundingClientRect().height;
-    const topSpace = Math.max(0, (availableHeight - opening.height) / 2);
-    window.scrollTo({top:Math.max(0, window.scrollY + opening.top - topSpace),behavior});
+    const topSpace = Math.max(12, (availableHeight - opening.height) / 2);
+    window.scrollTo({top:Math.max(0, absoluteTop - topSpace),behavior});
   }
   // Old invitation links still land on the new opening; named chapters stay usable.
   function syncChapterFromHash() {
     if (location.hash === '#invitation') {
       history.replaceState(null, '', '#us');
+      selectChapter('us');
       scrollToChapter(document.querySelector('#us'), 'instant');
     }
     selectChapter(location.hash.slice(1) || 'us');
@@ -106,7 +117,7 @@
   syncChapterFromHash();
   window.addEventListener('hashchange', syncChapterFromHash);
   // Align once after the display font settles; never pull a guest back after interaction.
-  if ((!location.hash || location.hash === '#us') &&
+  if ((!location.hash || location.hash === '#us' || location.hash === '#journey') &&
       performance.getEntriesByType?.('navigation')[0]?.type !== 'back_forward') {
     const entryHash = location.hash;
     let interacted = false;
@@ -116,7 +127,7 @@
     (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(() => {
       inputEvents.forEach(type => window.removeEventListener(type, cancelAlignment));
       if (!interacted && location.hash === entryHash) {
-        scrollToChapter(document.querySelector('#us'), 'instant');
+        scrollToChapter(document.querySelector(entryHash==='#journey'?'#journey':'#us'), 'instant');
         restoreNavigation();
       }
     }));
@@ -125,6 +136,10 @@
     const index = navLinks.findIndex(a => a.hash === link.hash);
     const target = document.querySelector(link.hash);
     if (!target || index < 0) return;
+    if(target.id==='journey'&&link.dataset.place){
+      const destinationIndex=places.findIndex(place=>place.id===link.dataset.place);
+      if(destinationIndex>=0)selectPlace(destinationIndex);
+    }
     event.preventDefault(); clearTimeout(turnTimer); navigating = true; selectChapter(target.id);
     restoreNavigation();
     scrollToChapter(target, motionEnabled?'smooth':'instant');
@@ -204,10 +219,10 @@
       url.search = new URLSearchParams({position:selectedPlace.longitude+','+selectedPlace.latitude,name:selectedPlace.fullName||selectedPlace.name,coordinate:'gaode',callnative:'0'}).toString();
       mapLink.href = url.toString();
     } else mapLink.removeAttribute('href');
-    document.querySelector('#map-note').textContent = selectedPlace.canNavigate ? '打开地图后，可选择当前位置并规划路线。两家集合入口以新人通知为准。' : '复制完整店名，可在地图中搜索路线。';
+    document.querySelector('#map-note').textContent = selectedPlace.canNavigate ? '定位仅用于本次查看距离与导航。' : '复制完整店名，可在地图中搜索路线。';
+    journeyMap?.setPlace(selectedPlace);
   }
-  places.forEach((place,index)=>{const button=document.createElement('button');button.textContent=place.label;button.addEventListener('click',()=>selectPlace(index));tabs.append(button);});
+  places.forEach((place,index)=>{const button=document.createElement('button');button.textContent=place.label;button.type='button';button.addEventListener('click',()=>selectPlace(index));tabs.append(button);});
   tabs.hidden = places.length < 2; selectPlace(0);
-  document.querySelectorAll('[data-place]').forEach(link => link.addEventListener('click', () => {const index=places.findIndex(place=>place.id===link.dataset.place);if(index>=0)selectPlace(index);}));
   document.querySelector('#copy-venue').addEventListener('click', () => copy(journey.addressText(selectedPlace),'赴约地址已复制'));
 })();

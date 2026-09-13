@@ -98,11 +98,13 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
     try{
       win.matchMedia=()=>({matches:true,addEventListener(){}});
       win.HTMLElement.prototype.scrollIntoView=function(){scrolls.push(this.id);};
-      win.scrollTo=options=>{centered.push(options);scrolls.push('us');};
+      win.scrollTo=options=>{centered.push(options);scrolls.push(doc.documentElement.classList.contains('journey-active')?'journey':'us');};
       win.requestAnimationFrame=callback=>{frames.push(callback);return frames.length;};
       Object.defineProperty(win,'innerHeight',{value:900});
       for(const [index,chapter] of [...doc.querySelectorAll('main>.nav-section')].entries())chapter.getBoundingClientRect=()=>({top:120+index*900,height:900});
       doc.querySelector('#us').getBoundingClientRect=()=>({top:120,height:640});
+      doc.querySelector('.journey-card').getBoundingClientRect=()=>({top:3744,height:640});
+      Object.defineProperty(doc.querySelector('.journey-card'),'offsetTop',{value:3720});
       doc.querySelector('.bottom-nav').getBoundingClientRect=()=>({height:80});
       win.IntersectionObserver=class{constructor(callback){observers.push(callback);}observe(){}unobserve(){}};
       win.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};
@@ -136,8 +138,14 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
       assert(doc.querySelector('meta[property="og:description"]').content.includes('11:08'));
       for(const link of doc.querySelectorAll('.bottom-nav a')){
         link.click();assert.equal(scrolls.at(-1),link.hash.slice(1));assert.equal(win.location.hash,link.hash);
+        if(link.hash==='#journey')assert.equal(centered.at(-1).top,3630,'Center the card layout, ignoring its 24px reveal transform');
         assert.equal(doc.documentElement.classList.contains('opening-active'),link.hash==='#us');
       }
+      for(const [index,button] of [...doc.querySelectorAll('.destination-tabs button')].entries()){
+        button.click();assert.equal(doc.querySelector('#place-name').textContent,index?win.WEDDING.homes[index-1].displayName:win.WEDDING.venue.name);
+        assert.equal(button.getAttribute('aria-pressed'),'true');
+      }
+      doc.querySelector('.opening-date').click();assert.equal(doc.querySelector('#place-name').textContent,win.WEDDING.venue.name,'Opening venue link must restore the hotel after viewing a home');
       win.location.hash='#invitation';win.dispatchEvent(new win.HashChangeEvent('hashchange'));
       assert.equal(win.location.hash,'#us');assert.equal(scrolls.at(-1),'us');
       assert.equal(doc.querySelector('.bottom-nav .active').hash,'#us');

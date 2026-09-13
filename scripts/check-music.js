@@ -19,14 +19,16 @@ function setup(webFile){
   const empty=setup('');try{assert.equal(empty.button,null);assert.equal(empty.audio,null);assert(empty.badge.hidden);}finally{empty.close();}
   const a=setup('media/recording.mp3');try{
     assert(a.audio.loop);assert.equal(a.audio.preload,'none');assert.equal(a.calls.length,0,'Never start audible media on page entry');
-    a.w.document.dispatchEvent(new a.w.Event('pointerdown'));await flush();assert.equal(a.calls.length,0);
+    a.w.document.dispatchEvent(new a.w.Event('click'));await flush();assert.equal(a.calls.length,1,'First page tap starts the music');
+    assert(!a.audio.paused);a.button.click();await flush();assert(a.audio.paused);
+    a.w.document.dispatchEvent(new a.w.Event('click'));await flush();assert(a.audio.paused,'A manual pause survives other page taps');
     assert(!a.badge.hidden);assert.equal(a.w.document.querySelectorAll('audio').length,1,'Both controls share a single recording');
     a.badge.click();await flush();assert(!a.audio.paused);assert.equal(a.button.getAttribute('aria-pressed'),'true');
     assert.equal(a.badge.getAttribute('aria-pressed'),'true');assert.equal(a.badge.getAttribute('aria-label'),a.button.getAttribute('aria-label'));
     a.audio.currentTime=14;a.w.dispatchEvent(new a.w.Event('pagehide'));assert(a.audio.paused);
     a.w.dispatchEvent(new a.w.Event('pageshow'));await flush();assert(!a.audio.paused);assert.equal(a.audio.currentTime,14);
     a.button.click();await flush();assert(a.audio.paused);
-    assert.equal(a.badge.getAttribute('aria-pressed'),'false');assert.match(a.badge.textContent,/播放/);
+    assert.equal(a.badge.getAttribute('aria-pressed'),'false');assert.match(a.badge.textContent,/音乐/);
     a.w.dispatchEvent(new a.w.Event('pagehide'));a.w.dispatchEvent(new a.w.Event('pageshow'));await flush();assert(a.audio.paused,'A deliberate pause must survive returning to the page');
     a.reject=true;a.button.click();await flush();assert(a.audio.paused);assert.match(a.button.textContent,/重试/);
     a.reject=false;a.button.click();await flush();assert(!a.audio.paused);
@@ -37,5 +39,5 @@ function setup(webFile){
     late.button.click();done();await flush();assert(late.audio.paused,'Cancelled loading must not start music when the request finishes');
     assert.equal(late.button.getAttribute('aria-pressed'),'false');
   }finally{late.close();}
-  console.log('PASS 缺音频不显示开关、仅主动点击播放、循环/暂停/返回续播、错误可重试、取消迟到播放');
+  console.log('PASS 首次页面点击播放、手动暂停不被其他点击覆盖、单播放器、循环/返回续播、错误重试与迟到取消');
 })().catch(error=>{console.error(error);process.exitCode=1;});
