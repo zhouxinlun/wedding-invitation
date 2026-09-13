@@ -276,7 +276,9 @@ main > .nav-section{position:relative}
 .chapter-brand{display:flex;align-items:center;justify-content:center;gap:15px;grid-column:1/-1;width:100%;margin:0 0 28px;pointer-events:none}
 .chapter-brand::before,.chapter-brand::after{content:"";height:1px;width:48px;background:linear-gradient(90deg,transparent,#bb97666b)}
 .chapter-brand::after{transform:rotate(180deg)}
-.chapter-brand img{width:62px;height:62px;object-fit:contain;border:1px solid #c7a46985;border-radius:50%;padding:3px;background:#78312e;box-shadow:0 0 0 4px #bb976614}
+.chapter-brand .wax-seal{position:relative;display:block;flex:none;width:74px;height:74px;transform:rotate(-5deg);filter:drop-shadow(0 2px 0 #5d171a) drop-shadow(1px 5px 4px #041d2370)}
+.chapter-brand .wax-seal img{display:block;width:100%;height:100%;object-fit:contain;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;clip-path:polygon(44.02% 0.00%, 43.94% 0.24%, 40.59% 0.88%, 38.60% 1.75%, 31.34% 5.90%, 27.83% 7.58%, 19.30% 10.37%, 15.31% 12.76%, 12.44% 15.71%, 11.00% 18.26%, 8.93% 24.00%, 7.34% 26.32%, 4.47% 29.35%, 3.35% 30.86%, 2.15% 33.17%, 1.04% 36.76%, 0.72% 38.92%, 0.96% 41.55%, 2.63% 45.93%, 3.11% 49.12%, 3.03% 53.27%, 1.59% 60.29%, 1.52% 62.92%, 2.23% 66.43%, 3.11% 68.82%, 4.47% 71.53%, 5.90% 73.60%, 8.61% 76.16%, 13.48% 78.95%, 16.11% 80.94%, 17.86% 82.93%, 20.26% 87.08%, 22.49% 89.31%, 24.40% 90.35%, 26.71% 90.99%, 31.90% 90.91%, 34.13% 91.23%, 36.20% 92.19%, 39.79% 95.14%, 42.82% 96.81%, 45.93% 97.77%, 49.12% 98.01%, 53.27% 97.29%, 59.41% 95.06%, 61.96% 94.42%, 71.61% 92.98%, 73.76% 92.42%, 77.99% 90.51%, 79.59% 89.39%, 81.74% 87.32%, 86.04% 80.30%, 87.80% 78.63%, 92.98% 74.72%, 94.98% 72.57%, 96.65% 69.78%, 97.53% 67.30%, 98.09% 64.27%, 97.61% 53.19%, 98.17% 50.56%, 99.28% 47.13%, 99.52% 44.34%, 99.04% 40.83%, 97.61% 36.68%, 96.17% 34.29%, 93.62% 31.26%, 92.11% 28.95%, 91.15% 26.48%, 89.95% 22.09%, 88.84% 19.94%, 87.40% 18.02%, 85.17% 15.87%, 83.17% 14.59%, 79.67% 13.16%, 77.19% 11.64%, 75.52% 9.97%, 73.05% 6.38%, 71.29% 4.86%, 69.86% 4.07%, 66.67% 3.35%, 61.24% 4.07%, 57.74% 3.91%, 53.51% 2.95%, 47.37% 0.56%)}
+.chapter-brand .wax-seal::after{content:"";position:absolute;inset:13%;border-radius:50%;pointer-events:none;background:linear-gradient(125deg,transparent 18%,#fff2be25 28%,transparent 39%);mix-blend-mode:screen;opacity:.65}
 .h5-opening .opening-portrait{grid-row:2/4}
 .h5-opening .chapter-brand{justify-content:flex-start;margin-bottom:22px}
 .h5-opening .chapter-brand::before{display:none}
@@ -320,7 +322,7 @@ main > .nav-section{position:relative}
 .b-saved-name strong{font-size:14px;font-weight:500;color:#65463d;overflow-wrap:anywhere}
 .b-saved-name button{margin-left:auto;min-height:44px;padding:6px 4px;color:#80604c;font-size:12px;background:transparent;white-space:nowrap}
 @media(max-width:700px){
- .chapter-brand{margin-bottom:24px;gap:12px}.chapter-brand img{width:54px;height:54px}.chapter-brand::before,.chapter-brand::after{width:34px}
+ .chapter-brand{margin-bottom:24px;gap:12px}.chapter-brand .wax-seal{width:62px;height:62px}.chapter-brand::before,.chapter-brand::after{width:34px}
  .h5-opening .chapter-brand{justify-content:center;margin-bottom:12px}.h5-opening .chapter-brand::before{display:block}
  .h5-opening .opening-portrait{grid-row:auto}
  .journey>.chapter-brand{margin-bottom:0}

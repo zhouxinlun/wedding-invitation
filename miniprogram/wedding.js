@@ -41,7 +41,7 @@ const wedding = {
   "coupleMotion": {
     "enabled": true,
     "webFile": "media/couple-interactions.mp4",
-    "webPopoutFile": "media/couple-princess-popout-stable.mp4"
+    "webPopoutFile": "media/couple-princess-popout-hd.mp4"
   },
   "music": {
     "title": "Married Life · 钢琴版",

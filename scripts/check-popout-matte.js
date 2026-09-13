@@ -7,7 +7,8 @@ const wedding=require('../miniprogram/wedding');
 const file=path.resolve(process.argv[2]||path.join(root,'web',wedding.coupleMotion.webPopoutFile));
 const fixture=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/popout-matte.json'),'utf8'));
 const [width,height]=fixture.size,frameBytes=width*height;
-const result=spawnSync('ffmpeg',['-v','error','-i',file,'-vf',`crop=${width}:${height}:${width}:0,format=gray`,'-f','rawvideo','pipe:1'],{maxBuffer:frameBytes*(fixture.frames+1)});
+// Fixture coordinates describe the same scene, independent of delivery resolution.
+const result=spawnSync('ffmpeg',['-v','error','-i',file,'-vf',`crop=iw/2:ih:iw/2:0,scale=${width}:${height}:flags=area,format=gray`,'-f','rawvideo','pipe:1'],{maxBuffer:frameBytes*(fixture.frames+1)});
 if(result.error)throw result.error;
 if(result.status!==0)throw Error(result.stderr.toString());
 if(result.stdout.length!==frameBytes*fixture.frames)throw Error('Unexpected decoded frame count');

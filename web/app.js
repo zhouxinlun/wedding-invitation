@@ -6,8 +6,9 @@
   const asset = file => '../miniprogram/assets/' + file;
   document.querySelectorAll('main > .nav-section').forEach(section => {
     const brand = document.createElement('div'); brand.className = 'chapter-brand';
-    const logo = new Image(); logo.src = asset('couple-monogram.jpg'); logo.alt = '周新沦与李小妮 · 双名花藤'; logo.width = 80; logo.height = 80;
-    brand.append(logo); section.prepend(brand);
+    const seal = document.createElement('span'); seal.className = 'wax-seal';
+    const logo = new Image(); logo.src = asset('couple-wax-seal.jpg'); logo.alt = '周新沦与李小妮 · 双名烫金封蜡'; logo.width = 80; logo.height = 80;
+    seal.append(logo); brand.append(seal); section.prepend(brand);
   });
   const grid = document.querySelector('#photo-grid');
   document.querySelector('#album-count').textContent = `${w.albums.length}本相册 · ${w.photos.length}个心动瞬间 · 轻触翻开`;
