@@ -53,3 +53,36 @@ for(const outcome of ['success','denied','timeout']){
   }finally{w.close();}
 }
 console.log('PASS 真实 Leaflet 初始化、三地点切换、定位成功/拒绝/超时重试、坐标系转换、导航起终点和延迟定位');
+
+// Images deliberately never resolve, reproducing a carrier connection that hangs.
+const stalled=new JSDOM(page,{url:'https://invitation.example/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});
+try{
+  const w=stalled.window,doc=w.document,deadlines=new Map();let nextTimer=100000,locationRequests=0;
+  const nativeSet=w.setTimeout.bind(w),nativeClear=w.clearTimeout.bind(w);
+  w.setTimeout=(callback,ms,...args)=>{if(ms<1000)return nativeSet(callback,ms,...args);const id=nextTimer++;deadlines.set(id,{callback,ms,args});return id;};
+  w.clearTimeout=id=>deadlines.delete(id)||nativeClear(id);
+  const expire=()=>{for(const [id,timer] of [...deadlines]){if(timer.ms<=15000){deadlines.delete(id);timer.callback(...timer.args);}}};
+  Object.defineProperty(w,'isSecureContext',{value:true});
+  Object.defineProperty(w.navigator,'geolocation',{value:{getCurrentPosition:()=>locationRequests++}});
+  const container=doc.querySelector('#destination-map');
+  Object.defineProperty(container,'clientWidth',{value:354});Object.defineProperty(container,'clientHeight',{value:180});
+  w.WeddingJourney=journey;w.eval(fs.readFileSync(path.join(root,'dist/h5/web/vendor/journey-map.js'),'utf8'));
+  const map=w.WeddingMap.create(),places=journey.destinations(config),status=doc.querySelector('#map-state');
+  map.setPlace(places[0]);map.activate();assert.match(status.textContent,/正在展开/);
+  expire();assert.match(status.textContent,/超时/,'Hanging tile requests must leave the loading state within 15 seconds');
+  const retry=doc.querySelector('#retry-map');assert(!retry.hidden);assert(!status.hidden);
+  const obsolete=[...container.querySelectorAll('.leaflet-tile')];
+  retry.click();assert.equal(locationRequests,1,'Retrying the map must not request GPS again');
+  assert.match(status.textContent,/正在展开/);
+  obsolete.forEach(tile=>tile.dispatchEvent(new w.Event('load')));
+  assert(!status.hidden,'Discarded requests must not dismiss a new loading state');
+  const current=[...container.querySelectorAll('.leaflet-tile')];assert(current.length>0);
+  current[0].dispatchEvent(new w.Event('error'));
+  current.slice(1).forEach(tile=>tile.dispatchEvent(new w.Event('load')));
+  assert.match(status.textContent,/部分/);assert(!retry.hidden);
+  retry.click();[...container.querySelectorAll('.leaflet-tile')].forEach(tile=>tile.dispatchEvent(new w.Event('load')));
+  assert(status.hidden);expire();assert(status.hidden,'Completed tile loads cancel the timeout');
+  map.setPlace(places[1]);expire();assert.match(status.textContent,/超时/,'A new destination gets its own loading deadline');
+  assert.equal(new URL(doc.querySelector('#open-map').href).hostname,'uri.amap.com','Navigation remains usable without a basemap');
+}finally{stalled.window.close();}
+console.log('PASS 底图挂起超时、独立重试、过期请求隔离、部分失败、成功清理与地点切换');

@@ -7,6 +7,7 @@ window.WeddingMap = {
     const q = selector => document.querySelector(selector);
     const container=q('#destination-map'), mapState=q('#map-state'), distance=q('#guest-distance');
     const locationState=q('#location-state'), locateButton=q('#locate-guest'), route=q('#open-map');
+    const mapMessage=q('#map-message'), retryMap=q('#retry-map');
     const journey=window.WeddingJourney;
     let map, tiles, destinationMarker, originMarker, place, destination, origin;
     let active=false, requested=false, locating=false;
@@ -43,15 +44,35 @@ window.WeddingMap = {
       map=L.map(container,{zoomControl:false,scrollWheelZoom:false,dragging:false,touchZoom:true,doubleClickZoom:false,boxZoom:false,keyboard:false,attributionControl:true});
       map.attributionControl.setPrefix(false);
       L.control.zoom({position:'bottomright',zoomInTitle:'放大地图',zoomOutTitle:'缩小地图'}).addTo(map);
-      let loaded=0,failed=0;
+      // Track live tiles, not cumulative events: switching places unloads old
+      // requests, which must not complete or fail the next place's loading state.
+      const tileStates=new Map();let deadline,expired=false;
+      const updateLoading=()=>{
+        const states=[...tileStates.values()],pending=states.includes('pending');
+        const loaded=states.includes('loaded'),failed=states.includes('error');
+        if(!pending){clearTimeout(deadline);deadline=undefined;}
+        const unavailable=failed||(expired&&pending);
+        mapState.hidden=!pending&&!failed;
+        retryMap.hidden=!unavailable;
+        mapMessage.textContent=unavailable ? loaded?'部分底图未加载，仍可打开导航':pending?'地图加载超时，仍可打开导航':'底图暂未加载，仍可打开导航' : '正在展开地图…';
+      };
+      const startDeadline=()=>{clearTimeout(deadline);expired=false;deadline=setTimeout(()=>{expired=true;deadline=undefined;updateLoading();},10000);};
       tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
         maxZoom:19,keepBuffer:0,referrerPolicy:'strict-origin-when-cross-origin',
         attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
       });
-      tiles.on('loading',()=>{loaded=0;failed=0;mapState.hidden=false;mapState.textContent='正在展开地图…';});
-      tiles.on('tileload',()=>{loaded++;mapState.hidden=true;});
-      tiles.on('tileerror',()=>{failed++;if(!loaded){mapState.hidden=false;mapState.textContent='底图暂未加载，可使用下方导航';}});
-      tiles.on('load',()=>{mapState.hidden=!failed;if(failed)mapState.textContent=loaded?'部分底图未加载，可使用下方导航':'底图暂未加载，可使用下方导航';});
+      tiles.on('loading',startDeadline);
+      map.on('movestart',startDeadline);
+      tiles.on('tileloadstart',({tile})=>{
+        tileStates.set(tile,'pending');
+        if(!deadline&&!expired)startDeadline();
+        updateLoading();
+      });
+      const settle=(tile,state)=>{if(tileStates.has(tile)){tileStates.set(tile,state);updateLoading();}};
+      tiles.on('tileload',({tile})=>settle(tile,'loaded'));
+      tiles.on('tileerror',({tile})=>settle(tile,'error'));
+      tiles.on('tileunload',({tile})=>{tileStates.delete(tile);updateLoading();});
+      retryMap.addEventListener('click',()=>{startDeadline();tiles.redraw();});
       tiles.addTo(map);
     }
     function locate() {
@@ -74,7 +95,7 @@ window.WeddingMap = {
       ensureMap();map.invalidateSize({pan:false});render();
       if(!requested)locate();
     }
-    locateButton.addEventListener('click',()=>{if(tiles)tiles.redraw();locate();});
+    locateButton.addEventListener('click',locate);
     return {
       activate,
       setPlace(next) {

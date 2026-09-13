@@ -3,7 +3,7 @@
   // No placeholder playback control while the chosen recording is still missing.
   if(!config?.webFile)return;
   const audio=document.createElement('audio');
-  audio.src=config.webFile;audio.preload='none';audio.loop=true;audio.volume=.28;
+  audio.src=config.webFile;audio.preload='auto';audio.loop=true;audio.volume=.28;
   const control=document.createElement('button');control.type='button';control.className='wedding-music';
   const record=document.createElement('span');record.className='music-record';record.setAttribute('aria-hidden','true');
   const label=document.createElement('span');label.className='music-label';
@@ -47,5 +47,7 @@
   document.addEventListener('visibilitychange',sync);
   window.addEventListener('pagehide',()=>{pageActive=false;sync();});
   window.addEventListener('pageshow',()=>{pageActive=true;sync();});
+  // Buffer immediately; audible playback still begins inside a real user gesture.
+  audio.load();
   render();
 })();
