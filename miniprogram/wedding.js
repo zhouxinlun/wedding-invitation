@@ -46,7 +46,7 @@ const wedding = {
   "music": {
     "title": "Married Life · 钢琴版",
     "artist": "Michael Giacchino（作曲）",
-    "webFile": "media/married-life-piano.m4a"
+    "webFile": "media/married-life-piano-mobile-v1.m4a"
   },
   "photos": [
     {
