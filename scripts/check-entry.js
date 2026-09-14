@@ -25,10 +25,33 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
   return {w,d,q,calls,timers,audio:q('audio'),clip:q('.popout-source')||q('.us-motion'),
     allow(el){info(el).blocked=false;},
     visibility(value){hidden=value;d.dispatchEvent(new w.Event('visibilitychange'));},
+    buffer(el,state){Object.assign(info(el),state);},
     ready(el,state={}){Object.assign(info(el),{readyState:3,end:2.5},state);el.dispatchEvent(new w.Event('canplay'));},
     tick(ms){for(const [id,timer]of [...timers])if(timer.ms===ms){timers.delete(id);timer.fn();}},close(){w.close();}};
 }
 (async()=>{
+  for(const readyState of [1,2,3]){
+    const mobile=fixture();try{
+      mobile.ready(mobile.audio,{readyState:1,end:0,duration:180});
+      mobile.ready(mobile.clip,{readyState,end:.2});await flush();assert(mobile.q('main').inert,'Wait for the small opening buffer');
+      mobile.buffer(mobile.clip,{end:.5});mobile.tick(250);await flush();
+      assert(!mobile.q('main').inert,'Buffered video must open without audio preload, a canplay event, or a tap');
+      assert(mobile.calls.some(c=>c.type==='play'&&c.el===mobile.clip));
+      assert(mobile.calls.some(c=>c.type==='play'&&c.el===mobile.audio));
+      assert(!mobile.calls.some(c=>c.type==='cloud'),'The long reel stays deferred while the first clip loads');
+    }finally{mobile.close();}
+  }
+  const unresolved=fixture();try{
+    unresolved.audio.play=()=>new Promise(()=>{});unresolved.clip.play=()=>new Promise(()=>{});
+    unresolved.ready(unresolved.clip,{end:.5});await flush();
+    assert(!unresolved.q('main').inert,'Unsettled play promises cannot hold the entry cover');
+  }finally{unresolved.close();}
+  const stalled=fixture();try{
+    stalled.visibility(true);stalled.tick(6000);await flush();assert(stalled.q('main').inert,'Do not open in a background tab');
+    stalled.visibility(false);await flush();assert(!stalled.q('main').inert,'Missing preload events have a bounded automatic exit');
+    stalled.ready(stalled.clip);stalled.ready(stalled.audio);stalled.tick(800);assert(stalled.q('#entry-screen').hidden);
+  }finally{stalled.close();}
+  console.log('PASS 手机仅元信息预载、缓冲阈值轮询、音频与播放授权不阻塞、缺失事件自动退出');
   const f=fixture();try{
     await flush();assert(f.w.WeddingEntry.pending);assert(f.q('main').inert);assert(!f.q('#entry-open').disabled,'Seal accepts a tap before metadata arrives');
     assert.equal(f.calls.filter(c=>c.type==='play').length,0,'Preload must not start invisible video or audible music');
@@ -38,7 +61,7 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
     assert(f.calls.some(c=>c.type==='play'&&c.el===f.audio),'Music starts synchronously in the entry click');
     assert(f.calls.some(c=>c.type==='play'&&c.el===f.clip),'Video starts in the same real tap');
     f.ready(f.audio,{duration:180,end:1});assert(f.q('main').inert,'Audio alone does not reveal an empty portrait');
-    f.ready(f.clip,{readyState:1,end:8});assert(f.q('main').inert,'Metadata alone is not a playable frame');
+    f.ready(f.clip,{readyState:1,end:0});assert(f.q('main').inert,'Metadata without buffered bytes is not a playable opening');
     f.ready(f.clip,{readyState:3,end:.5});assert(!f.q('main').inert,'Reveal with half a second, without canplaythrough or the complete clip');
     assert.equal(revealed,1);await flush();assert(!f.audio.paused&&!f.clip.paused);
     assert(f.q('.opening-portrait').classList.contains('popout-playing'));
@@ -52,7 +75,7 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
   console.log('PASS 开场使用原播放器预载、半秒媒体即可进入、点击同步启动、进入前不偷跑、进入后手动暂停');
   const automatic=fixture();try{
     let revealed=0;automatic.d.addEventListener('wedding:revealed',()=>revealed++);
-    automatic.ready(automatic.clip,{end:.5});await flush();assert.equal(automatic.calls.filter(c=>c.type==='play').length,0,'Keep preloading until both streams are ready');
+    automatic.ready(automatic.clip,{end:.5});await flush();assert(!automatic.q('main').inert,'The first video buffer opens without waiting for sound permission');
     automatic.ready(automatic.audio,{end:.5,duration:180});await flush();
     assert(!automatic.q('main').inert);assert(!automatic.audio.paused&&!automatic.clip.paused);
     assert.equal(revealed,1,'Partial media opens the QR entry without any click');
@@ -87,7 +110,7 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
   }finally{background.close();}
   console.log('PASS 扫码首段缓冲自动进入、音画自动播放受限不阻塞、后续轻触恢复、后台暂停与返回开启');
   const slow=fixture();try{
-    slow.q('#entry-open').click();slow.tick(8000);assert(!slow.q('#entry-skip').hidden);
+    slow.q('#entry-open').click();
     slow.ready(slow.audio,{error:{code:2},readyState:0,end:0});assert(!slow.q('#entry-skip').hidden);
     slow.q('#entry-skip').click();await flush();assert(!slow.w.WeddingEntry.pending);assert(!slow.q('main').inert);
     slow.ready(slow.clip);slow.ready(slow.audio);slow.tick(800);assert(slow.q('#entry-screen').hidden,'Late loads never reopen the gate');

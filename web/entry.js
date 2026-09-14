@@ -8,11 +8,11 @@
   const background=[...document.body.children].filter(el=>el!==screen&&el.tagName!=='SCRIPT');
   const previousInert=background.map(el=>el.inert);
   background.forEach(el=>{el.inert=true;});
-  let slow=false,opening=false,leaving=false;
+  let timedOut=false,opening=false,leaving=false,pollTimer;
   const cleanups=new Map();
   function reveal(){
     if(leaving)return;
-    leaving=true;clearTimeout(slowTimer);
+    leaving=true;clearTimeout(deadlineTimer);clearTimeout(pollTimer);
     document.removeEventListener('visibilitychange',render);
     skip.hidden=true;
     cleanups.forEach(dispose=>dispose());cleanups.clear();
@@ -27,16 +27,28 @@
   function render(){
     if(leaving)return;
     const failed=Object.values(slots).some(slot=>slot.state==='error');
-    const incomplete=Object.values(slots).some(slot=>!['ready','skipped'].includes(slot.state));
     screen.classList.toggle('entry-paused',document.hidden);
     enter.disabled=Object.values(slots).some(slot=>slot.state==='unbound');
     enter.setAttribute('aria-busy','true');
-    message.textContent=opening?'欢喜即将开场…':'首段音画准备好后自动进入，也可轻触封蜡开启声音';
-    skip.hidden=!(failed||(slow&&(opening||incomplete)));
+    message.textContent=opening?'欢喜即将开场…':'正在准备开场，首段画面缓冲后自动进入';
+    skip.hidden=!failed;
     screen.classList.toggle('entry-delayed',!skip.hidden);
-    const buffered=Object.values(slots).every(slot=>['ready','skipped','error'].includes(slot.state));
-    if(!opening&&buffered&&!document.hidden){enterInvitation(false,true);return;}
-    if(opening&&!document.hidden&&Object.values(slots).every(slot=>slot.blocked||slot.state==='skipped'||slot.state==='error'||(slot.state==='ready'&&!slot.media.paused)))reveal();
+    if(document.hidden)return;
+    if(timedOut){enterInvitation(true,true);return;}
+    // iOS can defer audio preload and frame decoding until play() is requested.
+    // Neither audio permission nor a pending play promise is a loading condition.
+    const buffered=['ready','skipped','error'].includes(slots.motion.state);
+    if(!opening&&buffered&&!enter.disabled){enterInvitation(false,true);return;}
+    if(opening&&buffered)reveal();
+  }
+  function measure(kind,media){
+    let buffered=0;
+    for(let i=0;i<media.buffered.length;i++)if(media.buffered.start(i)<=media.currentTime+.1&&media.buffered.end(i)>=media.currentTime)buffered=Math.max(buffered,media.buffered.end(i)-media.currentTime);
+    const remaining=Number.isFinite(media.duration)?media.duration-media.currentTime:Infinity;
+    // Use real buffered seconds, including WebKit's metadata/first-frame states.
+    // The native player decodes while the cover fades; no full-file wait or fetch.
+    const ready=media.readyState>=1&&buffered>0&&buffered>=Math.min(.4,remaining*.9);
+    slots[kind]={media,state:media.error?'error':ready?'ready':'loading'};
   }
   function enterInvitation(force=false,automatic=false){
     if(leaving)return;
@@ -53,17 +65,10 @@
       if(leaving||!slots[kind])return;
       cleanups.get(kind)?.();
       const update=()=>{
-        let buffered=0;
-        for(let i=0;i<media.buffered.length;i++)if(media.buffered.start(i)<=media.currentTime+.1&&media.buffered.end(i)>=media.currentTime)buffered=Math.max(buffered,media.buffered.end(i)-media.currentTime);
-        // HAVE_FUTURE_DATA plus a small lead is enough. Never require
-        // canplaythrough, the MP4's end, or the full music recording.
-        const remaining=Number.isFinite(media.duration)?media.duration-media.currentTime:Infinity;
-        const ready=media.readyState>=3&&buffered>=Math.min(.4,remaining*.9);
-        const blocked=slots[kind].media===media&&slots[kind].blocked&&media.paused;
-        slots[kind]={media,blocked,state:media.error?'error':ready?'ready':'loading'};
+        measure(kind,media);
         render();
       };
-      const events=['loadedmetadata','loadeddata','progress','canplay','playing','error','emptied'];
+      const events=['loadedmetadata','loadeddata','durationchange','progress','suspend','canplay','playing','error','emptied'];
       events.forEach(event=>media.addEventListener(event,update));
       cleanups.set(kind,()=>events.forEach(event=>media.removeEventListener(event,update)));
       update();
@@ -74,9 +79,18 @@
       slots[kind]={state:'skipped'};render();
     },
     fail(kind){if(!leaving&&slots[kind]){slots[kind]={state:'error'};render();}},
-    blocked(kind){if(!leaving&&slots[kind]){slots[kind].blocked=true;render();}}
+    blocked(){render();}
   };
-  const slowTimer=setTimeout(()=>{slow=true;render();},8000);
+  // A stalled request or mobile preload restriction cannot hold the invitation
+  // indefinitely. Keep the existing portrait visible and continue native loading.
+  const deadlineTimer=setTimeout(()=>{timedOut=true;render();},6000);
+  function poll(){
+    if(leaving)return;
+    for(const [kind,slot]of Object.entries(slots))if(slot.media)measure(kind,slot.media);
+    render();
+    if(!leaving)pollTimer=setTimeout(poll,250);
+  }
+  pollTimer=setTimeout(poll,250);
   document.addEventListener('visibilitychange',render);
   enter.addEventListener('click',()=>enterInvitation());skip.addEventListener('click',()=>enterInvitation(true));
   screen.addEventListener('keydown',event=>{

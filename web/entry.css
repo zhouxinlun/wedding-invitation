@@ -30,6 +30,9 @@
 .entry-message{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .entry-skip{position:fixed;bottom:max(30px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);min-height:44px;white-space:nowrap;padding:10px 14px;border:1px solid #e5c88d55;border-radius:24px;background:#123d40;color:#ead9b5;font-size:11px;letter-spacing:1px;cursor:pointer}
 .entry-skip[hidden]{display:none}
+.entry-spinner{position:absolute;right:max(26px,env(safe-area-inset-right));bottom:calc(26px + env(safe-area-inset-bottom));width:23px;height:23px;border:1px solid #d7b77c35;border-top-color:#efd7a4;border-right-color:#cfaa65;border-radius:50%;animation:entry-buffer-spin 1.25s linear infinite;pointer-events:none}
+.entry-paused .entry-spinner,.entry-leaving .entry-spinner{animation-play-state:paused}
+@keyframes entry-buffer-spin{to{transform:rotate(360deg)}}
 /* Ready media reveals the already-mounted invitation, with no extra loading route. */
 .entry-screen.entry-leaving{opacity:0;visibility:hidden;pointer-events:none}
 .entry-leaving .entry-emblem{transform:translateY(-12px) translateZ(80px) scale(1.08)}
