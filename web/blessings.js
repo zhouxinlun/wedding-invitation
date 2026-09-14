@@ -22,7 +22,7 @@ function mount(root,options){
   function message(text,failed=false){statusText.textContent=text;retry.hidden=!failed;status.hidden=!text;status.classList.toggle('has-error',failed);}
   function errorText(error){return error&&error.guestMessage||(['PHOTO_ERROR','NOT_CONFIGURED'].includes(error&&error.code)?error.message:'暂时未能连接，请检查网络后重试；你的输入还在');}
   async function refresh(){
-    if(demo||disposed)return true;
+    if(demo||disposed||document.documentElement.classList.contains('entry-pending'))return true;
     if(reading)return reading;
     const stamp=revision;
     const request=(async()=>{
@@ -44,7 +44,7 @@ function mount(root,options){
     return loaded;
   }
   function poll(){clearTimeout(pollTimer);if(demo||disposed)return;pollTimer=setTimeout(async()=>{if(!document.hidden&&!busy&&!replyBusy&&!mutating)await refresh();poll();},client&&client.pollMs||20000);}
-  function visibility(){sync();if(!document.hidden&&!mutating)refresh();poll();}
+  function visibility(){sync();if(started){if(!document.hidden&&!mutating)refresh();poll();}}
   retry.onclick=()=>{message('正在连接亲友来信…');refresh();};
   try{if(!demo)q('[name=name]').value=localStorage.getItem('wedding-guest-name')||'';}catch(_){}
   const nameFields=[];
@@ -182,7 +182,19 @@ function mount(root,options){
     }catch(error){rq('.b-error').textContent=errorText(error);}finally{mutating=false;replyBusy=false;rq('.b-loading').hidden=true;replyDialog.querySelectorAll('button,input,textarea').forEach(node=>node.disabled=false);}
   };
   drawEmoji();drawPhotos();render();sync();
-  if(!demo){message('正在打开亲友来信…');refresh();poll();}else message('');
+  let started=false,feedObserver;
+  const startLive=()=>{if(started||disposed||demo)return;started=true;feedObserver?.disconnect();message('正在打开亲友来信…');refresh();poll();};
+  if(!demo){
+    if(window.WeddingEntry?.pending){
+      document.addEventListener('wedding:opening-buffered',startLive,{once:true});
+      document.addEventListener('wedding:revealed',()=>{
+        if(!window.IntersectionObserver||!document.querySelector('.popout-source')||reduced.matches){startLive();return;}
+        feedObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))startLive();},{rootMargin:'240px'});
+        feedObserver.observe(root);
+        q('.b-fab').addEventListener('click',startLive,{once:true});
+      },{once:true});
+    }else startLive();
+  }else message('');
   return ()=>{disposed=true;revision++;clearTimeout(pollTimer);stopSnow();timers.forEach(clearTimeout);modalObserver.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',sync);urls.forEach(url=>URL.revokeObjectURL(url));if(dialog.open)dialog.close();if(replyDialog.open)replyDialog.close();};
 }
 window.WeddingBlessings={mount};

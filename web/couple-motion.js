@@ -4,7 +4,7 @@
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let visible=false,pending=false,failed=false,expiresAt=0,pageActive=true,retries=0,retryTimer;
   const portrait=frame.closest('.opening-portrait');
-  let popout,canvas,compositor,popoutTurn=false,animation,reelLoading;
+  let popout,canvas,compositor,popoutTurn=false,animation,reelLoading,backgroundStarted=false;
   if(config.webPopoutFile&&portrait&&window.createWeddingPopout){
     popout=document.createElement('video');popout.className='popout-source';popout.preload='none';
     popout.muted=true;popout.playsInline=true;popout.setAttribute('muted','');popout.setAttribute('playsinline','');popout.setAttribute('aria-hidden','true');
@@ -37,10 +37,22 @@
     if(popout?.cancelVideoFrameCallback)popout.cancelVideoFrameCallback(animation);else cancelAnimationFrame(animation);
     animation=null;portrait?.classList.remove('popout-playing');
   }
+  function warmBackground(){
+    if(backgroundStarted||!window.WeddingEntry||document.documentElement.classList.contains('entry-pending'))return;
+    // Let the untouched HD stream keep the bandwidth until its remaining frames
+    // are buffered. Album navigation can still request its own photos on demand.
+    if(compositor&&popout&&!reduced.matches&&!popout.error&&!popout.ended){
+      if(!Number.isFinite(popout.duration)||!popout.buffered.length||popout.buffered.end(popout.buffered.length-1)<popout.duration-.15)return;
+    }
+    backgroundStarted=true;
+    document.dispatchEvent(new Event('wedding:opening-buffered'));
+    if(popoutTurn)prepareReel().catch(()=>{});
+  }
   function disablePopout(){
     stopDrawing();popout?.pause();popoutTurn=false;compositor?.dispose();compositor=null;
     popout?.remove();canvas?.remove();video.loop=true;
     prepareOpening();
+    warmBackground();
   }
   function draw(){
     animation=null;if(!wanted()||!popoutTurn||popout.paused)return;
@@ -56,10 +68,11 @@
     }catch(_){disablePopout();sync();}
   }
   if(compositor){
-    popout.addEventListener('playing',()=>{stopDrawing();draw();if(window.WeddingEntry)prepareReel().catch(()=>{});});
+    popout.addEventListener('playing',()=>{stopDrawing();draw();});
     popout.addEventListener('pause',stopDrawing);
     popout.addEventListener('ended',()=>{stopDrawing();popoutTurn=false;video.currentTime=0;sync();});
     popout.addEventListener('error',()=>{disablePopout();sync();});
+    ['progress','canplaythrough','ended'].forEach(event=>popout.addEventListener(event,warmBackground));
     canvas.addEventListener('webglcontextlost',()=>{disablePopout();sync();});
     video.addEventListener('ended',()=>{
       if(!compositor)return;popoutTurn=true;popout.currentTime=0;sync();
@@ -98,6 +111,7 @@
   document.addEventListener('visibilitychange',sync);
   reduced.addEventListener('change',()=>{prepareOpening();sync();});
   document.addEventListener('wedding:enter',sync);
+  document.addEventListener('wedding:revealed',warmBackground,{once:true});
   // No overlay control: a real gesture can resume muted playback on browsers
   // that disallow initial autoplay, without consuming the guest's interaction.
   document.addEventListener('pointerdown',sync,{passive:true});

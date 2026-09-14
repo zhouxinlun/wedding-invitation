@@ -3,7 +3,7 @@
   // No placeholder playback control while the chosen recording is still missing.
   if(!config?.webFile){window.WeddingEntry?.unavailable('music');return;}
   const audio=document.createElement('audio');
-  audio.src=config.webFile;audio.preload='auto';audio.loop=true;audio.volume=.28;
+  audio.src=config.webFile;audio.preload=window.WeddingEntry?.pending?'metadata':'auto';audio.loop=true;audio.volume=.28;
   const control=document.createElement('button');control.type='button';control.className='wedding-music';
   const record=document.createElement('span');record.className='music-record';record.setAttribute('aria-hidden','true');
   const label=document.createElement('span');label.className='music-label';
@@ -29,7 +29,7 @@
     if(pending||!audio.paused)return;
     pending=true;render();
     try{if(audio.error)audio.load();await audio.play();}
-    catch(_){enabled=false;failed=true;}
+    catch(_){enabled=false;failed=true;window.WeddingEntry?.fail('music');}
     finally{pending=false;if(!wanted())audio.pause();render();}
   }
   const start=()=>{firstGesture=false;failed=false;enabled=true;sync();};

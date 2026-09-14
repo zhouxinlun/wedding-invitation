@@ -14,7 +14,7 @@ function fixture({gate=true,popout=true,reduced=false}={}){
   w.matchMedia=()=>({matches:reduced,addEventListener(){}});
   w.IntersectionObserver=class{constructor(cb){observe=cb;}observe(){}disconnect(){}};
   w.WEDDING={music:{webFile:'media/music.m4a',title:'Piano',artist:'Artist'},coupleMotion:{enabled:true,webPopoutFile:'media/opening.mp4'}};
-  w.WeddingCloud={motion:async()=>({url:'https://media.example/reel.mp4',expiresAt:Date.now()+60000})};
+  w.WeddingCloud={motion:async()=>{calls.push({type:'cloud'});return {url:'https://media.example/reel.mp4',expiresAt:Date.now()+60000};}};
   w.createWeddingPopout=()=>popout?{draw:()=>true,dispose(){}}:null;
   w.setTimeout=(fn,ms)=>{timers.set(++next,{fn,ms});return next;};w.clearTimeout=id=>timers.delete(id);
   if(gate)d.documentElement.classList.add('entry-pending');
@@ -27,25 +27,31 @@ function fixture({gate=true,popout=true,reduced=false}={}){
 }
 (async()=>{
   const f=fixture();try{
-    await flush();assert(f.w.WeddingEntry.pending);assert(f.q('main').inert);assert(f.q('#entry-open').disabled);
+    await flush();assert(f.w.WeddingEntry.pending);assert(f.q('main').inert);assert(!f.q('#entry-open').disabled,'Seal accepts a tap before metadata arrives');
     assert.equal(f.calls.filter(c=>c.type==='play').length,0,'Preload must not start invisible video or audible music');
     f.d.dispatchEvent(new f.w.Event('pointerdown'));f.d.dispatchEvent(new f.w.Event('click'));await flush();assert.equal(f.calls.filter(c=>c.type==='play').length,0);
-    f.ready(f.audio,{duration:180,end:25});assert(f.q('#entry-open').disabled,'Music alone cannot open the ready gate');
-    f.ready(f.clip,{readyState:1,end:8});assert(f.q('#entry-open').disabled,'Metadata/buffer without a playable frame is insufficient');
-    f.ready(f.clip,{readyState:4,end:1.5});assert(!f.q('#entry-open').disabled,'Respect browser canplaythrough when adaptive preload stops short');
-    assert.equal(f.clip.currentTime,0);assert(f.audio.paused&&f.clip.paused);
-    f.q('#entry-open').click();assert(!f.w.WeddingEntry.pending);assert(!f.q('main').inert);
+    let revealed=0;f.d.addEventListener('wedding:revealed',()=>revealed++);
+    f.q('#entry-open').click();assert(!f.w.WeddingEntry.pending);assert(f.q('main').inert,'The cover remains while the streams connect');
     assert(f.calls.some(c=>c.type==='play'&&c.el===f.audio),'Music starts synchronously in the entry click');
-    await flush();assert(!f.audio.paused&&!f.clip.paused);assert(f.q('.opening-portrait').classList.contains('popout-playing'));
-    f.tick(650);assert(f.q('#entry-screen').hidden);
+    assert(f.calls.some(c=>c.type==='play'&&c.el===f.clip),'Video starts in the same real tap');
+    f.ready(f.audio,{duration:180,end:1});assert(f.q('main').inert,'Audio alone does not reveal an empty portrait');
+    f.ready(f.clip,{readyState:1,end:8});assert(f.q('main').inert,'Metadata alone is not a playable frame');
+    f.ready(f.clip,{readyState:3,end:.5});assert(!f.q('main').inert,'Reveal with half a second, without canplaythrough or the complete clip');
+    assert.equal(revealed,1);await flush();assert(!f.audio.paused&&!f.clip.paused);
+    assert(f.q('.opening-portrait').classList.contains('popout-playing'));
+    f.tick(800);assert(f.q('#entry-screen').hidden);
+    assert(!f.calls.some(call=>call.type==='cloud'),'The long reel must not compete with the first partial buffer');
+    f.ready(f.clip,{end:8});f.clip.dispatchEvent(new f.w.Event('progress'));await flush();
+    assert(f.calls.some(call=>call.type==='cloud'),'Warm the long reel once the first scene has buffered');
+    assert.equal(revealed,1,'Continued incremental data must not reopen the cover');
     f.q('.wedding-music').click();await flush();assert(f.audio.paused);f.d.dispatchEvent(new f.w.Event('click'));await flush();assert(f.audio.paused,'Manual pause survives after opening');
   }finally{f.close();}
-  console.log('PASS 开场使用原播放器预载、真实媒体就绪门槛、点击同步启动、进入前不偷跑、进入后手动暂停');
+  console.log('PASS 开场使用原播放器预载、半秒媒体即可进入、点击同步启动、进入前不偷跑、进入后手动暂停');
   const slow=fixture();try{
-    slow.tick(12000);assert.match(slow.q('#entry-message').textContent,/网络慢/);assert(!slow.q('#entry-skip').disabled);
-    slow.ready(slow.audio,{error:{code:2},readyState:0,end:0});assert.match(slow.q('#entry-message').textContent,/暂未备好/);
+    slow.q('#entry-open').click();slow.tick(8000);assert(!slow.q('#entry-skip').hidden);
+    slow.ready(slow.audio,{error:{code:2},readyState:0,end:0});assert(!slow.q('#entry-skip').hidden);
     slow.q('#entry-skip').click();await flush();assert(!slow.w.WeddingEntry.pending);assert(!slow.q('main').inert);
-    slow.ready(slow.clip);slow.ready(slow.audio);slow.tick(650);assert(slow.q('#entry-screen').hidden,'Late loads never reopen the gate');
+    slow.ready(slow.clip);slow.ready(slow.audio);slow.tick(800);assert(slow.q('#entry-screen').hidden,'Late loads never reopen the gate');
   }finally{slow.close();}
   const fallback=fixture({popout:false});try{
     await flush();assert(fallback.clip.src.startsWith('https://media.example'));

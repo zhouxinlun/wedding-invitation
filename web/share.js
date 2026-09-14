@@ -8,7 +8,8 @@
   input.value=url;input.addEventListener('click',()=>input.select());
   let payload=null,sharing=false;
   // Prepare the public image before the click: share() must keep the click's user activation.
-  if(window.isSecureContext&&navigator.share&&navigator.canShare){
+  function prepareShare(){
+    if(!(window.isSecureContext&&navigator.share&&navigator.canShare))return;
     fetch(document.querySelector('.share-preview img').src).then(async response=>{
       if(!response.ok)throw Error('COVER_UNAVAILABLE');
       const blob=await response.blob();if(blob.type!=='image/jpeg')throw Error('INVALID_COVER');
@@ -17,6 +18,10 @@
       if(navigator.canShare({files})&&navigator.canShare(candidate))payload=candidate;
     }).catch(()=>{}); // The visible, same-origin image and link remain usable without file sharing.
   }
+  if(window.IntersectionObserver){
+    const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();prepareShare();}},{rootMargin:'240px'});
+    observer.observe(button);
+  }else if(window.WeddingEntry?.pending)document.addEventListener('wedding:revealed',prepareShare,{once:true});else prepareShare();
   button.addEventListener('click',async()=>{
     if(sharing)return;
     if(!payload){dialog.showModal();return;}

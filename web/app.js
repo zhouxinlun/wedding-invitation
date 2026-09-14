@@ -19,16 +19,27 @@
     const count = w.photos.filter(photo => photo.group === album.id).length;
     button.setAttribute('aria-label', `翻开${album.title}，共${count}张`);
     const frame = document.createElement('span'); frame.className = 'book-photo';
-    const img = new Image(); img.src = asset(album.cover); img.alt = album.title; img.loading = 'lazy'; img.width = 600; img.height = 400;
+    const img = new Image(); img.dataset.albumSrc = asset(album.cover); img.alt = album.title; img.loading = 'lazy'; img.width = 600; img.height = 400;
     const number = document.createElement('span'); number.className = 'book-number'; number.textContent = '0' + (index + 1);
     const open = document.createElement('span'); open.className = 'book-open'; open.textContent = '翻开 ↗'; frame.append(img, number, open);
     const label = document.createElement('span'); label.className = 'book-label';
     const title = document.createElement('span'); title.className = 'serif'; title.textContent = album.title;
     const total = document.createElement('span'); total.className = 'book-count'; total.textContent = count + '帧'; label.append(title, total); button.append(frame, label);
     if (index === 0) {const sub = document.createElement('span'); sub.className = 'book-subtitle'; sub.textContent = album.subtitle; button.append(sub);}
-    if(index < w.albums.length - 2){const vine=document.createElement('span');vine.className='book-vine'+(index%2?' vine-reverse':'');vine.setAttribute('aria-hidden','true');const art=new Image();art.src=asset(coverVines[index]);art.alt='';art.loading='lazy';vine.append(art);button.append(vine);}
+    if(index < w.albums.length - 2){const vine=document.createElement('span');vine.className='book-vine'+(index%2?' vine-reverse':'');vine.setAttribute('aria-hidden','true');const art=new Image();art.dataset.albumSrc=asset(coverVines[index]);art.alt='';art.loading='lazy';vine.append(art);button.append(vine);}
     grid.append(button);
   });
+  // Native lazy loading can fetch several screens ahead, behind the opening cover.
+  // Give each album its real URLs only when that book approaches the viewport.
+  function observeAlbums(){
+    const load=book=>book.querySelectorAll('[data-album-src]').forEach(img=>{img.src=img.dataset.albumSrc;delete img.dataset.albumSrc;});
+    if(!window.IntersectionObserver){grid.querySelectorAll('.album-book').forEach(load);return;}
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+      if(entry.isIntersecting){load(entry.target);observer.unobserve(entry.target);}
+    }),{rootMargin:'240px 0px'});
+    grid.querySelectorAll('.album-book').forEach(book=>observer.observe(book));
+  }
+  if(window.WeddingEntry?.pending)document.addEventListener('wedding:revealed',observeAlbums,{once:true});else observeAlbums();
   const phases = document.querySelector('#schedule-phases');
   const make = (tag, cls, text) => {const el = document.createElement(tag); el.className = cls; if(text) el.textContent = text; return el;};
   w.schedule.forEach((phase, index) => {
