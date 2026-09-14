@@ -34,11 +34,10 @@
 .map-state{position:absolute;bottom:25px;left:10px;right:10px;width:max-content;max-width:calc(100% - 20px);margin:0 auto;padding:6px 10px;background:#f7efdfeb;color:#4b544a;border-radius:5px;font-size:11px;pointer-events:none}
 .map-state[hidden]{display:none}
 .map-state button{pointer-events:auto;display:block;margin:5px auto 0;border:1px solid #997a4c;border-radius:5px;padding:6px 14px;background:#fff8e9;color:#775432;font:inherit;min-height:32px}.map-state button[hidden]{display:none}
-.wedding-map-pin{background:none;border:0}.wedding-map-pin>span{display:grid;place-items:center;width:31px;height:34px;background:#903a35;border:2px solid #f4d5a3;border-radius:16px 16px 16px 3px;color:#ffe8be;font:21px/1 "Songti SC",serif;box-shadow:0 3px 8px #422b3540}
+.wedding-map-pin{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:0}
+.wedding-map-pin>b{display:grid;place-items:center;width:31px;height:34px;background:#903a35;border:2px solid #f4d5a3;border-radius:16px 16px 16px 3px;color:#ffe8be;font:21px/1 "Songti SC",serif;box-shadow:0 3px 8px #422b3540}
+.wedding-map-label{display:block;white-space:nowrap;padding:4px 9px;border:1px solid #b9a983;border-radius:4px;background:#fff8e9;color:#543e30;font:12px/1.4 sans-serif;box-shadow:0 2px 8px #3332}
 .guest-map-pin>span{display:block;width:16px;height:16px;background:#276e9e;border:3px solid white;border-radius:50%;box-shadow:0 0 0 5px #469dcc44}
-.leaflet-tooltip.wedding-map-label{padding:4px 9px;border:1px solid #b9a983;background:#fff8e9;color:#543e30;font-family:inherit;font-size:12px;line-height:1.4;box-shadow:0 2px 8px #3332}
-.journey .leaflet-control-attribution{font-size:9px;background:#fffc;color:#43534c}.journey .leaflet-control-attribution a{color:#2a6158}
-.journey .leaflet-control-zoom a{color:#244b40;background:#fff8e9;font-size:21px}
 .journey .destination-details{padding:14px 20px 12px}.journey .destination-details>.eyebrow{display:none}
 .journey .venue-name{font-size:29px;letter-spacing:1px;line-height:1.4;margin:0}
 .journey .venue-branch,.journey .venue-room{display:inline;font-size:11px;line-height:1.8;color:#d5c69f;letter-spacing:.5px}.journey .venue-room:not(:empty)::before{content:" · "}

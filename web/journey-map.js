@@ -1,6 +1,32 @@
-/* Built with Leaflet and coordtransform; mini-program coordinates stay GCJ-02. */
-const L = require('leaflet');
+/* Destinations use GCJ-02. Browser GPS and straight-line distances use WGS84. */
 const coordinates = require('coordtransform');
+
+// JS API is loaded online from AMap, as required by its SDK distribution terms.
+// The public browser Key belongs here; securityJsCode lives only in Nginx.
+const MAP_KEY='e9c27479bd108ea4092a77a3bed700b4';
+let api, apiRequest, callbackSequence=0;
+function loadAMap() {
+  if(api)return Promise.resolve(api);
+  if(apiRequest)return apiRequest;
+  window._AMapSecurityConfig={serviceHost:location.origin+'/_AMapService'};
+  apiRequest=new Promise((resolve,reject)=>{
+    const callback='weddingMapReady'+(++callbackSequence),script=document.createElement('script');
+    let settled=false;
+    const finish=(error)=>{
+      if(settled)return;settled=true;clearTimeout(timer);script.remove();
+      // A timed-out script can arrive late. Its own callback cannot settle a retry.
+      window[callback]=()=>{delete window[callback];};
+      if(error){apiRequest=null;reject(error);}
+      else {delete window[callback];api=window.AMap;resolve(api);}
+    };
+    const timer=setTimeout(()=>finish(Error('timeout')),10000);
+    window[callback]=error=>finish(error||!window.AMap?.Map ? Error('sdk') : null);
+    script.onerror=()=>finish(Error('sdk'));
+    script.src='https://webapi.amap.com/maps?'+new URLSearchParams({v:'2.0',key:MAP_KEY,callback,plugin:'AMap.ToolBar'});
+    script.async=true;document.head.appendChild(script);
+  });
+  return apiRequest;
+}
 
 window.WeddingMap = {
   create() {
@@ -9,7 +35,8 @@ window.WeddingMap = {
     const locationState=q('#location-state'), locateButton=q('#locate-guest'), route=q('#open-map');
     const mapMessage=q('#map-message'), retryMap=q('#retry-map');
     const journey=window.WeddingJourney;
-    let map, tiles, destinationMarker, originMarker, place, destination, origin;
+    let map, destinationMarker, originMarker, place, destination, origin;
+    let generation=0, deadline, loading=false;
     let active=false, requested=false, locating=false;
 
     function updateRoute() {
@@ -26,55 +53,57 @@ window.WeddingMap = {
     }
     function render() {
       if(!map||!destination)return;
-      const latlng=[destination.latitude,destination.longitude];
-      const label=document.createElement('span');label.textContent=place.displayName||place.name;
-      if(!destinationMarker)destinationMarker=L.marker(latlng,{icon:L.divIcon({className:'wedding-map-pin',html:'<span>囍</span>',iconSize:[34,40],iconAnchor:[17,40]}),keyboard:false}).addTo(map);
-      destinationMarker.setLatLng(latlng).unbindTooltip().bindTooltip(label,{permanent:true,direction:'top',offset:[0,-36],className:'wedding-map-label'});
+      const target=[place.longitude,place.latitude];
+      const pin=document.createElement('div');pin.className='wedding-map-pin';
+      const label=document.createElement('span');label.className='wedding-map-label';label.textContent=place.displayName||place.name;
+      const seal=document.createElement('b');seal.textContent='囍';pin.append(label,seal);
+      if(!destinationMarker){destinationMarker=new api.Marker({position:target,anchor:'bottom-center',content:pin});map.add(destinationMarker);}
+      else {destinationMarker.setPosition(target);destinationMarker.setContent(pin);}
       if(origin){
-        const userPoint=[origin.latitude,origin.longitude];
-        if(!originMarker)originMarker=L.marker(userPoint,{icon:L.divIcon({className:'guest-map-pin',html:'<span></span>',iconSize:[18,18]}),keyboard:false}).bindTooltip('我的位置').addTo(map);
-        originMarker.setLatLng(userPoint);
-        map.fitBounds([latlng,userPoint],{padding:[45,45],maxZoom:15,animate:false});
-      }else map.setView(latlng,16,{animate:false});
+        const userPoint=coordinates.wgs84togcj02(origin.longitude,origin.latitude);
+        if(!originMarker){
+          const dot=document.createElement('div');dot.className='guest-map-pin';dot.title='我的位置';dot.append(document.createElement('span'));
+          originMarker=new api.Marker({position:userPoint,anchor:'center',content:dot});map.add(originMarker);
+        }else originMarker.setPosition(userPoint);
+        map.setFitView([destinationMarker,originMarker],true,[55,35,35,35],15);
+      }else map.setZoomAndCenter(16,target,true);
       container.setAttribute('aria-label',(place.displayName||place.name)+'地图');
       showDistance();
     }
-    function ensureMap() {
-      if(map)return;
-      map=L.map(container,{zoomControl:false,scrollWheelZoom:false,dragging:false,touchZoom:true,doubleClickZoom:false,boxZoom:false,keyboard:false,attributionControl:true});
-      map.attributionControl.setPrefix(false);
-      L.control.zoom({position:'bottomright',zoomInTitle:'放大地图',zoomOutTitle:'缩小地图'}).addTo(map);
-      // Track live tiles, not cumulative events: switching places unloads old
-      // requests, which must not complete or fail the next place's loading state.
-      const tileStates=new Map();let deadline,expired=false;
-      const updateLoading=()=>{
-        const states=[...tileStates.values()],pending=states.includes('pending');
-        const loaded=states.includes('loaded'),failed=states.includes('error');
-        if(!pending){clearTimeout(deadline);deadline=undefined;}
-        const unavailable=failed||(expired&&pending);
-        mapState.hidden=!pending&&!failed;
-        retryMap.hidden=!unavailable;
-        mapMessage.textContent=unavailable ? loaded?'部分底图未加载，仍可打开导航':pending?'地图加载超时，仍可打开导航':'底图暂未加载，仍可打开导航' : '正在展开地图…';
-      };
-      const startDeadline=()=>{clearTimeout(deadline);expired=false;deadline=setTimeout(()=>{expired=true;deadline=undefined;updateLoading();},10000);};
-      tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        maxZoom:19,keepBuffer:0,referrerPolicy:'strict-origin-when-cross-origin',
-        attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
-      });
-      tiles.on('loading',startDeadline);
-      map.on('movestart',startDeadline);
-      tiles.on('tileloadstart',({tile})=>{
-        tileStates.set(tile,'pending');
-        if(!deadline&&!expired)startDeadline();
-        updateLoading();
-      });
-      const settle=(tile,state)=>{if(tileStates.has(tile)){tileStates.set(tile,state);updateLoading();}};
-      tiles.on('tileload',({tile})=>settle(tile,'loaded'));
-      tiles.on('tileerror',({tile})=>settle(tile,'error'));
-      tiles.on('tileunload',({tile})=>{tileStates.delete(tile);updateLoading();});
-      retryMap.addEventListener('click',()=>{startDeadline();tiles.redraw();});
-      tiles.addTo(map);
+    function showMapError(message) {
+      mapState.hidden=false;retryMap.hidden=false;mapMessage.textContent=message+'，仍可打开导航';
     }
+    async function ensureMap() {
+      if(map){render();return;}
+      if(loading)return;
+      loading=true;
+      const current=++generation;
+      mapState.hidden=false;retryMap.hidden=true;mapMessage.textContent='正在展开地图…';
+      clearTimeout(deadline);
+      deadline=setTimeout(()=>{if(current===generation)showMapError('地图加载超时');},10000);
+      try {
+        await loadAMap();
+        if(current!==generation)return;
+        // A fresh map on destination changes gives every load its own completion
+        // event. Old completions cannot hide a newer destination's loading state.
+        map=new api.Map(container,{center:[place.longitude,place.latitude],zoom:16,viewMode:'2D',
+          dragEnable:false,scrollWheel:false,touchZoom:true,doubleClickZoom:false,keyboardEnable:false,rotateEnable:false,pitchEnable:false});
+        map.on('complete',()=>{
+          if(current!==generation)return;
+          clearTimeout(deadline);mapState.hidden=true;retryMap.hidden=true;
+        });
+        map.addControl(new api.ToolBar({position:{bottom:'28px',right:'10px'}}));
+        render();
+      }catch(error){
+        if(current===generation){clearTimeout(deadline);showMapError(error.message==='timeout'?'地图加载超时':'地图暂未加载');}
+      }finally{if(current===generation)loading=false;}
+    }
+    function resetMap() {
+      ++generation;clearTimeout(deadline);loading=false;
+      if(map)map.destroy();
+      map=destinationMarker=originMarker=null;
+    }
+    retryMap.addEventListener('click',()=>{resetMap();ensureMap();});
     function locate() {
       if(locating)return;
       requested=true;
@@ -92,14 +121,16 @@ window.WeddingMap = {
     function activate() {
       active=true;
       if(!place?.canNavigate)return;
-      ensureMap();map.invalidateSize({pan:false});render();
+      ensureMap();
       if(!requested)locate();
     }
     locateButton.addEventListener('click',locate);
     return {
       activate,
       setPlace(next) {
+        const changed=place?.id!==next.id;
         place=next;
+        if(changed)resetMap();
         if(!place.canNavigate){container.parentElement.hidden=true;distance.parentElement.parentElement.hidden=true;return;}
         container.parentElement.hidden=false;distance.parentElement.parentElement.hidden=false;
         const [longitude,latitude]=coordinates.gcj02towgs84(place.longitude,place.latitude);

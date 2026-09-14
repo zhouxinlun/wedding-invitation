@@ -17,7 +17,6 @@
     "@cloudbase/js-sdk": "3.8.2",
     "coordtransform": "2.1.2",
     "esbuild": "0.28.2",
-    "jsdom": "26.1.0",
-    "leaflet": "1.9.4"
+    "jsdom": "26.1.0"
   }
 }

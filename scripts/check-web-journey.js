@@ -1,88 +1,103 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{JSDOM}=require('jsdom');
-const root=path.resolve(__dirname,'..');
-const dom=new JSDOM(fs.readFileSync(path.join(root,'web/index.html'),'utf8'));
-try{
-  const doc=dom.window.document,card=doc.querySelector('.journey-card');
-  assert(card.querySelector('#destination-map'),'H5 travel card must include an inline map');
-  assert(doc.querySelector('.journey-timing'),'Ceremony and arrival times belong below the card');
-  assert(card.compareDocumentPosition(doc.querySelector('.journey-timing'))&dom.window.Node.DOCUMENT_POSITION_FOLLOWING);
-  assert(doc.querySelector('#locate-guest'),'Guests can retry their own location');
-}finally{dom.window.close();}
-console.log('PASS 赴宴地图、定位入口及卡片下方时间结构');
-
-const config=require('../miniprogram/wedding'),journey=require('../miniprogram/journey');
-const conversions=require('coordtransform');
-const page=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
-for(const outcome of ['success','denied','timeout']){
-  const runtime=new JSDOM(page,{url:'https://invitation.example/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});
-  const w=runtime.window,doc=w.document,requests=[];
-  try{
-    Object.defineProperty(w,'isSecureContext',{value:true});
-    Object.defineProperty(w.navigator,'geolocation',{value:{getCurrentPosition:(success,failure,options)=>requests.push({success,failure,options})}});
-    const container=doc.querySelector('#destination-map');
-    Object.defineProperty(container,'clientWidth',{value:354});Object.defineProperty(container,'clientHeight',{value:180});
-    w.WeddingJourney=journey;
-    w.eval(fs.readFileSync(path.join(root,'dist/h5/web/vendor/journey-map.js'),'utf8'));
-    const map=w.WeddingMap.create(),places=journey.destinations(config);
-    map.setPlace(places[0]);assert.equal(requests.length,0,'No location request before entering travel');
-    assert(!container.classList.contains('leaflet-container'),'No offscreen tile prefetch');
-    map.activate();assert(container.classList.contains('leaflet-container'));
-    assert.equal(requests.length,1);assert.equal(requests[0].options.timeout,12000);assert(requests[0].options.enableHighAccuracy);
-    map.setPlace(places[2]);assert.equal(requests.length,1,'Switching destinations does not duplicate a pending location prompt');
-    assert.equal(doc.querySelector('.wedding-map-label').textContent,places[2].displayName);
-    assert.equal(new URL(doc.querySelector('#open-map').href).searchParams.get('from'),'');
-    if(outcome==='success'){
-      const point=conversions.gcj02towgs84(places[2].longitude,places[2].latitude);
-      requests[0].success({coords:{latitude:point[1],longitude:point[0]}});
-      assert.equal(doc.querySelector('#guest-distance').textContent,'不足 100 米','WGS84 origin must be compared with the converted destination');
-      assert(doc.querySelector('.guest-map-pin'));
-      const route=new URL(doc.querySelector('#open-map').href),from=route.searchParams.get('from').split(',').map(Number);
-      assert(Math.abs(from[0]-places[2].longitude)<.0001);assert(Math.abs(from[1]-places[2].latitude)<.0001);
-      map.setPlace(places[0]);assert.match(doc.querySelector('#guest-distance').textContent,/公里/);
-      assert(new URL(doc.querySelector('#open-map').href).searchParams.get('to').startsWith(places[0].longitude+','+places[0].latitude));
-    }else{
-      requests[0].failure({code:outcome==='denied'?1:3});
-      assert.match(doc.querySelector('#location-state').textContent,outcome==='denied'?/未获允许/:/超时/);
-      assert(!doc.querySelector('.guest-map-pin'),'Never display an invented origin');
-      assert(!doc.querySelector('#locate-guest').disabled);
-      doc.querySelector('#locate-guest').click();assert.equal(requests.length,2,'A guest can retry denied/timed-out location');
-    }
-    for(const place of places){map.setPlace(place);assert.equal(doc.querySelector('.wedding-map-label').textContent,place.displayName||place.name);}
-    assert(doc.querySelector('.leaflet-control-attribution a[href="https://www.openstreetmap.org/copyright"]'));
-  }finally{w.close();}
-}
-console.log('PASS 真实 Leaflet 初始化、三地点切换、定位成功/拒绝/超时重试、坐标系转换、导航起终点和延迟定位');
-
-// Images deliberately never resolve, reproducing a carrier connection that hangs.
-const stalled=new JSDOM(page,{url:'https://invitation.example/web/index.html',runScripts:'outside-only',pretendToBeVisual:true});
-try{
-  const w=stalled.window,doc=w.document,deadlines=new Map();let nextTimer=100000,locationRequests=0;
-  const nativeSet=w.setTimeout.bind(w),nativeClear=w.clearTimeout.bind(w);
-  w.setTimeout=(callback,ms,...args)=>{if(ms<1000)return nativeSet(callback,ms,...args);const id=nextTimer++;deadlines.set(id,{callback,ms,args});return id;};
-  w.clearTimeout=id=>deadlines.delete(id)||nativeClear(id);
-  const expire=()=>{for(const [id,timer] of [...deadlines]){if(timer.ms<=15000){deadlines.delete(id);timer.callback(...timer.args);}}};
+const root=path.resolve(__dirname,'..'),page=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
+const journey=require('../miniprogram/journey'),config=require('../miniprogram/wedding'),coordinates=require('coordtransform');
+const places=journey.destinations(config),flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve();};
+// Controlled SDK surface for our loading, coordinate and retry contracts.
+// Actual AMap tiles/security proxy are checked separately in a real browser.
+function fixture(){
+  const dom=new JSDOM(page,{url:'https://invitation.example/web/index.html',runScripts:'outside-only'}),w=dom.window,d=w.document;
+  const q=s=>d.querySelector(s),maps=[],requests=[],timers=new Map();let id=0;
+  w.setTimeout=(fn,ms)=>{const key=++id;timers.set(key,{fn,ms});return key;};w.clearTimeout=key=>timers.delete(key);
   Object.defineProperty(w,'isSecureContext',{value:true});
-  Object.defineProperty(w.navigator,'geolocation',{value:{getCurrentPosition:()=>locationRequests++}});
-  const container=doc.querySelector('#destination-map');
-  Object.defineProperty(container,'clientWidth',{value:354});Object.defineProperty(container,'clientHeight',{value:180});
+  Object.defineProperty(w.navigator,'geolocation',{value:{getCurrentPosition:(success,failure,options)=>requests.push({success,failure,options})}});
+  class TestMap{
+    constructor(container,options){this.container=container;this.options=options;this.events={};this.markers=[];maps.push(this);}
+    on(event,callback){this.events[event]=callback;}
+    add(marker){this.markers.push(marker);this.container.append(marker.content);}
+    addControl(control){this.control=control;}
+    setZoomAndCenter(zoom,center){this.center=center;}
+    setFitView(markers){this.fit=markers;}
+    destroy(){this.destroyed=true;this.container.replaceChildren();}
+  }
+  class Marker{
+    constructor(options){Object.assign(this,options);}
+    setPosition(position){this.position=position;}
+    setContent(content){this.content.replaceWith(content);this.content=content;}
+  }
+  const SDK={Map:TestMap,Marker,ToolBar:class{constructor(options){this.options=options;}}};
   w.WeddingJourney=journey;w.eval(fs.readFileSync(path.join(root,'dist/h5/web/vendor/journey-map.js'),'utf8'));
-  const map=w.WeddingMap.create(),places=journey.destinations(config),status=doc.querySelector('#map-state');
-  map.setPlace(places[0]);map.activate();assert.match(status.textContent,/正在展开/);
-  expire();assert.match(status.textContent,/超时/,'Hanging tile requests must leave the loading state within 15 seconds');
-  const retry=doc.querySelector('#retry-map');assert(!retry.hidden);assert(!status.hidden);
-  const obsolete=[...container.querySelectorAll('.leaflet-tile')];
-  retry.click();assert.equal(locationRequests,1,'Retrying the map must not request GPS again');
-  assert.match(status.textContent,/正在展开/);
-  obsolete.forEach(tile=>tile.dispatchEvent(new w.Event('load')));
-  assert(!status.hidden,'Discarded requests must not dismiss a new loading state');
-  const current=[...container.querySelectorAll('.leaflet-tile')];assert(current.length>0);
-  current[0].dispatchEvent(new w.Event('error'));
-  current.slice(1).forEach(tile=>tile.dispatchEvent(new w.Event('load')));
-  assert.match(status.textContent,/部分/);assert(!retry.hidden);
-  retry.click();[...container.querySelectorAll('.leaflet-tile')].forEach(tile=>tile.dispatchEvent(new w.Event('load')));
-  assert(status.hidden);expire();assert(status.hidden,'Completed tile loads cancel the timeout');
-  map.setPlace(places[1]);expire();assert.match(status.textContent,/超时/,'A new destination gets its own loading deadline');
-  assert.equal(new URL(doc.querySelector('#open-map').href).hostname,'uri.amap.com','Navigation remains usable without a basemap');
-}finally{stalled.window.close();}
-console.log('PASS 底图挂起超时、独立重试、过期请求隔离、部分失败、成功清理与地点切换');
+  const app=w.WeddingMap.create();
+  const script=()=>q('script[src^="https://webapi.amap.com/maps?"]');
+  const callback=()=>w[new URL(script().src).searchParams.get('callback')];
+  return {w,d,q,app,maps,requests,timers,script,callback,
+    async ready(){w.AMap=SDK;callback()();await flush();},
+    async expire(){for(const [key,{fn,ms}]of [...timers]){if(ms<=15000&&timers.has(key)){timers.delete(key);fn();}}await flush();},close:()=>w.close()};
+}
+(async()=>{
+  const structural=new JSDOM(page),doc=structural.window.document,card=doc.querySelector('.journey-card');
+  assert(card.querySelector('#destination-map'));
+  assert(card.compareDocumentPosition(doc.querySelector('.journey-timing'))&structural.window.Node.DOCUMENT_POSITION_FOLLOWING);
+  assert(doc.querySelector('#locate-guest'));assert(!page.includes('leaflet'));structural.window.close();
+  console.log('PASS 地图卡片、卡片下方时间与定位入口');
+  for(const outcome of ['success','denied','timeout']){
+    const f=fixture();try{
+      f.app.setPlace(places[0]);assert.equal(f.requests.length,0);assert(!f.script(),'Offscreen maps do not load SDK');
+      f.app.activate();assert.equal(f.requests.length,1);assert(f.script());
+      assert.equal(f.w._AMapSecurityConfig.serviceHost,'https://invitation.example/_AMapService');
+      assert(!('securityJsCode' in f.w._AMapSecurityConfig));
+      assert.equal(f.requests[0].options.timeout,12000);assert(f.requests[0].options.enableHighAccuracy);
+      f.app.setPlace(places[2]);assert.equal(f.requests.length,1);assert.equal(f.d.querySelectorAll('script[src^="https://webapi.amap.com/maps?"]').length,1);
+      await f.ready();assert.equal(f.maps.length,1,'A superseded destination must not construct an extra map');
+      let current=f.maps.at(-1);
+      assert.equal(f.q('.wedding-map-label').textContent,places[2].displayName);
+      assert.equal(current.markers[0].position.join(','),[places[2].longitude,places[2].latitude].join(','),'AMap markers must use GCJ-02');
+      assert(!f.q('#map-state').hidden,'SDK ready alone does not mean tiles loaded');
+      current.events.complete();assert(f.q('#map-state').hidden);
+      if(outcome==='success'){
+        const point=coordinates.gcj02towgs84(places[2].longitude,places[2].latitude);
+        f.requests[0].success({coords:{longitude:point[0],latitude:point[1]}});
+        assert.equal(f.q('#guest-distance').textContent,'不足 100 米','Distance compares WGS84 with WGS84');
+        assert(f.q('.guest-map-pin'));const marker=current.markers[1];
+        assert(Math.abs(marker.position[0]-places[2].longitude)<.0001);assert(Math.abs(marker.position[1]-places[2].latitude)<.0001);
+        const from=new URL(f.q('#open-map').href).searchParams.get('from').split(',').map(Number);
+        assert(Math.abs(from[0]-places[2].longitude)<.0001);assert(Math.abs(from[1]-places[2].latitude)<.0001);
+      }else{
+        f.requests[0].failure({code:outcome==='denied'?1:3});
+        assert.match(f.q('#location-state').textContent,outcome==='denied'?/未获允许/:/超时/);
+        assert(!f.q('.guest-map-pin'));assert(!f.q('#locate-guest').disabled);
+        assert.equal(new URL(f.q('#open-map').href).searchParams.get('from'),'');
+        f.q('#locate-guest').click();assert.equal(f.requests.length,2);
+      }
+      for(const place of places){
+        f.app.setPlace(place);await flush();current=f.maps.at(-1);
+        assert.equal(f.q('.wedding-map-label').textContent,place.displayName||place.name);
+        assert(new URL(f.q('#open-map').href).searchParams.get('to').startsWith(place.longitude+','+place.latitude));
+        current.events.complete();
+      }
+    }finally{f.close();}
+  }
+  console.log('PASS 三地点切换、定位成功/拒绝/超时、独立定位重试、GCJ-02标记、WGS84距离与导航起终点');
+  const f=fixture();try{
+    f.app.setPlace(places[0]);f.app.activate();await f.ready();
+    const obsolete=f.maps.at(-1);await f.expire();assert.match(f.q('#map-message').textContent,/超时/);assert(!f.q('#retry-map').hidden);
+    f.q('#retry-map').click();await flush();assert(obsolete.destroyed);assert.equal(f.requests.length,1,'Map retry must not prompt GPS again');
+    obsolete.events.complete();assert(!f.q('#map-state').hidden,'An old completion must not dismiss a new load');
+    f.maps.at(-1).events.complete();assert(f.q('#map-state').hidden);await f.expire();assert(f.q('#map-state').hidden);
+    f.app.setPlace(places[1]);await flush();await f.expire();assert.match(f.q('#map-message').textContent,/超时/);
+    assert.equal(new URL(f.q('#open-map').href).hostname,'uri.amap.com');
+  }finally{f.close();}
+  console.log('PASS 底图挂起有界超时、独立重试、迟到事件隔离、成功清理与新地点加载期限');
+  for(const failure of ['timeout','network','key']){
+    const f=fixture();try{
+      f.app.setPlace(places[0]);f.app.activate();const obsolete=f.callback();
+      if(failure==='timeout')await f.expire();
+      else {if(failure==='network')f.script().onerror();else f.callback()('INVALID_USER_KEY');await flush();}
+      assert(!f.q('#retry-map').hidden);assert(!f.script());
+      f.q('#retry-map').click();assert(f.script());obsolete();await flush();assert.equal(f.maps.length,0);
+      await f.ready();assert.equal(f.maps.length,1);f.maps[0].events.complete();assert(f.q('#map-state').hidden);
+      assert.equal(f.requests.length,1);
+    }finally{f.close();}
+  }
+  console.log('PASS 在线SDK挂起/网络失败/Key拒绝及重试、旧SDK回调隔离（受控SDK测试）');
+})().catch(error=>{console.error(error);process.exitCode=1;});
