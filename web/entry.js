@@ -1,4 +1,4 @@
-/* The existing streams open the letter automatically once their first portion is playable. */
+/* The main page drops its loading veil once the existing streams can begin. */
 (() => {
   const root=document.documentElement,screen=document.querySelector('#entry-screen');
   if(!root.classList.contains('entry-pending')||!screen)return;
@@ -31,7 +31,7 @@
     screen.classList.toggle('entry-paused',document.hidden);
     enter.disabled=Object.values(slots).some(slot=>slot.state==='unbound');
     enter.setAttribute('aria-busy','true');
-    message.textContent=opening?'欢喜即将开场…':'喜帖准备好后自动开启，也可轻触封蜡开启声音';
+    message.textContent=opening?'欢喜即将开场…':'首段音画准备好后自动进入，也可轻触封蜡开启声音';
     skip.hidden=!(failed||(slow&&(opening||incomplete)));
     screen.classList.toggle('entry-delayed',!skip.hidden);
     const buffered=Object.values(slots).every(slot=>['ready','skipped','error'].includes(slot.state));
