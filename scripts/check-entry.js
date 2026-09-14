@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{JSDOM}=require('jsdom');
 const root=path.resolve(__dirname,'..'),html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
 const flush=async()=>{for(let i=0;i<16;i++)await Promise.resolve();};
-function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMotion=false}={}){
+function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMotion=false,reelFile=''}={}){
   const dom=new JSDOM(html,{url:'https://invitation.example/web/index.html'+(gate?'':'#album'),runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window,d=w.document;
   const media=new WeakMap(),calls=[],timers=new Map();let next=0,observe,hidden=false;
   Object.defineProperty(d,'hidden',{get:()=>hidden});
@@ -14,7 +14,7 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
   w.HTMLMediaElement.prototype.pause=function(){info(this).paused=true;this.dispatchEvent(new w.Event('pause'));};
   w.matchMedia=()=>({matches:reduced,addEventListener(){}});
   w.IntersectionObserver=class{constructor(cb){observe=cb;}observe(){}disconnect(){}};
-  w.WEDDING={music:{webFile:'media/music.m4a',title:'Piano',artist:'Artist'},coupleMotion:{enabled:true,webPopoutFile:'media/opening.mp4'}};
+  w.WEDDING={music:{webFile:'media/music.m4a',title:'Piano',artist:'Artist'},coupleMotion:{enabled:true,webPopoutFile:'media/opening.mp4',webFile:reelFile}};
   w.WeddingCloud={motion:async()=>{calls.push({type:'cloud'});return {url:'https://media.example/reel.mp4',expiresAt:Date.now()+60000};}};
   w.createWeddingPopout=()=>popout?{draw:()=>true,dispose(){}}:null;
   w.setTimeout=(fn,ms)=>{timers.set(++next,{fn,ms});return next;};w.clearTimeout=id=>timers.delete(id);
@@ -59,6 +59,14 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
     automatic.ready(automatic.audio,{end:1});automatic.ready(automatic.clip,{end:1});assert.equal(revealed,1);
     assert(!automatic.calls.some(call=>call.type==='cloud'),'Later scenes stay deferred until the first clip is fully buffered');
   }finally{automatic.close();}
+  const bundled=fixture({reelFile:'media/local-reel.mp4'});try{
+    bundled.ready(bundled.clip,{end:.5});bundled.ready(bundled.audio,{end:.5,duration:180});await flush();
+    const reel=bundled.q('.us-motion');assert(!reel.hasAttribute('src'),'Bundled reel is not fetched during the first partial buffer');
+    bundled.ready(bundled.clip,{end:8});bundled.clip.dispatchEvent(new bundled.w.Event('progress'));await flush();
+    assert.equal(reel.getAttribute('src'),'media/local-reel.mp4');assert(!bundled.calls.some(c=>c.type==='cloud'),'Bundled H5 playback does not sign the large cloud reel');
+    bundled.ready(reel,{end:2,duration:81.5});bundled.clip.pause();bundled.clip.dispatchEvent(new bundled.w.Event('ended'));await flush();assert(!reel.paused);
+    reel.pause();reel.dispatchEvent(new bundled.w.Event('ended'));await flush();assert(!bundled.clip.paused,'The delivery copy still returns to the opening scene');
+  }finally{bundled.close();}
   for(const blockMotion of [false,true]){
     const blocked=fixture({blockMusic:true,blockMotion});try{
       blocked.ready(blocked.clip,{end:.5});blocked.ready(blocked.audio,{duration:180,end:.5});await flush();

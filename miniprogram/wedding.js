@@ -40,13 +40,13 @@ const wedding = {
   ],
   "coupleMotion": {
     "enabled": true,
-    "webFile": "media/couple-interactions.mp4",
-    "webPopoutFile": "media/couple-princess-popout-hd.mp4"
+    "webFile": "media/couple-interactions-mobile-v1.mp4",
+    "webPopoutFile": "media/couple-princess-popout-mobile-v1.mp4"
   },
   "music": {
     "title": "Married Life · 钢琴版",
     "artist": "Michael Giacchino（作曲）",
-    "webFile": "media/married-life-piano-mobile-v1.m4a"
+    "webFile": "media/married-life-piano-300k.m4a"
   },
   "photos": [
     {

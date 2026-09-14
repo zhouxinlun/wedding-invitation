@@ -13,9 +13,9 @@ async function build(){
   await fs.rm(out,{recursive:true,force:true});await fs.mkdir(out,{recursive:true});
   for(const file of ['index.html','poster.html','entry.js','entry.css','app.js','share.js','style.css','title-font.css','h5.css','cloud-client.js','popout.js','couple-motion.js','music.js','blessings.js','blessings.css'])await copy('web/'+file);
   const wedding=require('../miniprogram/wedding');
-  // Ship only the small H5 scene and the explicitly configured recording.
-  // The existing long reel still loads through its signed cloud URL.
-  for(const file of [wedding.coupleMotion.webPopoutFile,wedding.music.webFile].filter(Boolean)){
+  // Ship only the configured H5 delivery copies, never their larger originals.
+  // The reel is included in deployment but still requested after the opening.
+  for(const file of [wedding.coupleMotion.webPopoutFile,wedding.coupleMotion.webFile,wedding.music.webFile].filter(Boolean)){
     if(!/^media\/[\w.-]+\.(mp4|mp3|m4a|ogg|wav)$/.test(file))throw Error('H5 media must be a local file inside web/media: '+file);
     await copy('web/'+file);
   }

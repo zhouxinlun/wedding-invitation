@@ -20,7 +20,9 @@
     if(reelLoading)return reelLoading;
     if(!force&&video.getAttribute('src')&&expiresAt>Date.now()+15000)return;
     reelLoading=(async()=>{
-      const media=await window.WeddingCloud.motion(force);
+      // H5 can serve its delivery-sized reel from the same site. Keep the signed
+      // cloud path for installations without a bundled reel.
+      const media=config.webFile?{url:config.webFile,expiresAt:Infinity}:await window.WeddingCloud.motion(force);
       if(!wanted()&&!window.WeddingEntry?.pending)return;
       video.preload='auto';video.src=media.url;expiresAt=media.expiresAt;failed=false;video.load();
     })();
@@ -39,7 +41,7 @@
   }
   function warmBackground(){
     if(backgroundStarted||!window.WeddingEntry||document.documentElement.classList.contains('entry-pending'))return;
-    // Let the untouched HD stream keep the bandwidth until its remaining frames
+    // Let the opening stream keep the bandwidth until its remaining frames
     // are buffered. Album navigation can still request its own photos on demand.
     if(compositor&&popout&&!reduced.matches&&!popout.error&&!popout.ended){
       if(!Number.isFinite(popout.duration)||!popout.buffered.length||popout.buffered.end(popout.buffered.length-1)<popout.duration-.15)return;
