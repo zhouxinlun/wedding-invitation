@@ -1,10 +1,10 @@
 (() => {
   const config=window.WEDDING.coupleMotion,frame=document.querySelector('.us-photo'),video=frame?.querySelector('video');
-  if(!config?.enabled||!video||!window.IntersectionObserver)return;
+  if(!config?.enabled||!video||!window.IntersectionObserver){window.WeddingEntry?.unavailable('motion');return;}
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let visible=false,pending=false,failed=false,expiresAt=0,pageActive=true,retries=0,retryTimer;
   const portrait=frame.closest('.opening-portrait');
-  let popout,canvas,compositor,popoutTurn=false,animation;
+  let popout,canvas,compositor,popoutTurn=false,animation,reelLoading;
   if(config.webPopoutFile&&portrait&&window.createWeddingPopout){
     popout=document.createElement('video');popout.className='popout-source';popout.preload='none';
     popout.muted=true;popout.playsInline=true;popout.setAttribute('muted','');popout.setAttribute('playsinline','');popout.setAttribute('aria-hidden','true');
@@ -15,7 +15,24 @@
   video.loop=true;video.muted=true;video.playsInline=true;
   if(compositor)video.loop=false;
   const active=()=>popoutTurn?popout:video;
-  const wanted=()=>pageActive&&visible&&!document.hidden&&!reduced.matches&&!document.querySelector('dialog[open]');
+  const wanted=()=>!window.WeddingEntry?.pending&&pageActive&&visible&&!document.hidden&&!reduced.matches&&!document.querySelector('dialog[open]');
+  async function prepareReel(force=false){
+    if(reelLoading)return reelLoading;
+    if(!force&&video.getAttribute('src')&&expiresAt>Date.now()+15000)return;
+    reelLoading=(async()=>{
+      const media=await window.WeddingCloud.motion(force);
+      if(!wanted()&&!window.WeddingEntry?.pending)return;
+      video.preload='auto';video.src=media.url;expiresAt=media.expiresAt;failed=false;video.load();
+    })();
+    try{await reelLoading;}finally{reelLoading=null;}
+  }
+  function prepareOpening(){
+    if(!window.WeddingEntry?.pending)return;
+    if(reduced.matches){window.WeddingEntry.unavailable('motion');return;}
+    window.WeddingEntry.track('motion',active());
+    if(popoutTurn){popout.preload='auto';popout.src=config.webPopoutFile;popout.load();}
+    else prepareReel().catch(()=>window.WeddingEntry?.fail('motion'));
+  }
   function stopDrawing(){
     if(popout?.cancelVideoFrameCallback)popout.cancelVideoFrameCallback(animation);else cancelAnimationFrame(animation);
     animation=null;portrait?.classList.remove('popout-playing');
@@ -23,6 +40,7 @@
   function disablePopout(){
     stopDrawing();popout?.pause();popoutTurn=false;compositor?.dispose();compositor=null;
     popout?.remove();canvas?.remove();video.loop=true;
+    prepareOpening();
   }
   function draw(){
     animation=null;if(!wanted()||!popoutTurn||popout.paused)return;
@@ -38,7 +56,7 @@
     }catch(_){disablePopout();sync();}
   }
   if(compositor){
-    popout.addEventListener('playing',()=>{stopDrawing();draw();});
+    popout.addEventListener('playing',()=>{stopDrawing();draw();if(window.WeddingEntry)prepareReel().catch(()=>{});});
     popout.addEventListener('pause',stopDrawing);
     popout.addEventListener('ended',()=>{stopDrawing();popoutTurn=false;video.currentTime=0;sync();});
     popout.addEventListener('error',()=>{disablePopout();sync();});
@@ -59,7 +77,7 @@
     try{
       if(popoutTurn){
         if(!popout.getAttribute('src'))popout.src=config.webPopoutFile;
-      }else if(failed||!video.getAttribute('src')||expiresAt<Date.now()+15000){const media=await window.WeddingCloud.motion(failed);if(!wanted())return;failed=false;video.src=media.url;expiresAt=media.expiresAt;}
+      }else if(failed||!video.getAttribute('src')||expiresAt<Date.now()+15000){await prepareReel(failed);if(!wanted())return;}
       if(wanted())await active().play();
     }catch(error){
       frame.classList.remove('motion-playing');
@@ -78,7 +96,8 @@
   const observer=new IntersectionObserver(entries=>{const next=entries[0].intersectionRatio>.08;if(next&&!visible)retries=0;visible=next;sync();},{threshold:[0,.08]});
   observer.observe(frame);
   document.addEventListener('visibilitychange',sync);
-  reduced.addEventListener('change',sync);
+  reduced.addEventListener('change',()=>{prepareOpening();sync();});
+  document.addEventListener('wedding:enter',sync);
   // No overlay control: a real gesture can resume muted playback on browsers
   // that disallow initial autoplay, without consuming the guest's interaction.
   document.addEventListener('pointerdown',sync,{passive:true});
@@ -90,4 +109,5 @@
   });
   window.addEventListener('pagehide',()=>{pageActive=false;clearRetry();video.pause();popout?.pause();stopDrawing();});
   window.addEventListener('pageshow',()=>{pageActive=true;retries=0;sync();});
+  prepareOpening();
 })();

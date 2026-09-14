@@ -105,6 +105,10 @@
     const topSpace = Math.max(12, (availableHeight - opening.height) / 2);
     window.scrollTo({top:Math.max(0, absoluteTop - topSpace),behavior});
   }
+  document.addEventListener('wedding:enter',()=>{
+    scrollToChapter(document.querySelector('#us'),'instant');
+    selectChapter('us');restoreNavigation();
+  });
   // Old invitation links still land on the new opening; named chapters stay usable.
   function syncChapterFromHash() {
     if (location.hash === '#invitation') {

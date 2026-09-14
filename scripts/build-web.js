@@ -11,7 +11,7 @@ async function build(){
   await esbuild.build({absWorkingDir:os.tmpdir(),entryPoints:[path.join(root,'web/journey-map.js')],nodePaths:[path.join(root,'node_modules')],outfile:path.join(root,'web/vendor/journey-map.js'),bundle:true,format:'iife',platform:'browser',target:'es2020',minify:true,legalComments:'external',logLevel:'warning'});
   await fs.copyFile(path.join(root,'node_modules/coordtransform/LICENSE'),path.join(root,'web/vendor/coordtransform-LICENSE.txt'));
   await fs.rm(out,{recursive:true,force:true});await fs.mkdir(out,{recursive:true});
-  for(const file of ['index.html','app.js','share.js','style.css','title-font.css','h5.css','cloud-client.js','popout.js','couple-motion.js','music.js','blessings.js','blessings.css'])await copy('web/'+file);
+  for(const file of ['index.html','entry.js','entry.css','app.js','share.js','style.css','title-font.css','h5.css','cloud-client.js','popout.js','couple-motion.js','music.js','blessings.js','blessings.css'])await copy('web/'+file);
   const wedding=require('../miniprogram/wedding');
   // Ship only the small H5 scene and the explicitly configured recording.
   // The existing long reel still loads through its signed cloud URL.

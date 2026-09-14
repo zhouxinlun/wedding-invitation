@@ -1,0 +1,37 @@
+/* The red invitation opens like a keepsake; the existing page stays laid out below. */
+.entry-screen{display:none}
+.entry-pending{overflow:hidden!important}
+.entry-pending body{overflow:hidden}
+.entry-pending body>.bottom-nav,.entry-pending .b-fab{visibility:hidden}
+.entry-pending .entry-screen,.entry-screen.entry-leaving{display:flex}
+.entry-screen{position:fixed;inset:0;z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow-y:auto;padding:24px 28px calc(20px + env(safe-area-inset-bottom));background:#123d40;color:#f7eee0;text-align:center;transition:opacity .55s ease,visibility .55s ease;isolation:isolate}
+.entry-screen:focus{outline:0}
+.entry-screen::before{content:"";position:fixed;inset:14px;border:1px solid #c5aa6638;pointer-events:none}
+.entry-salute{color:#dec799;font-size:11px;letter-spacing:4px;line-height:1.6}
+.entry-cover{position:relative;width:min(100%,350px,calc(57dvh * .8));aspect-ratio:4/5;flex:none;border:1px solid #d1b16f;border-radius:50% 50% 0 0 / 40% 40% 0 0;box-shadow:0 0 0 7px #123d40,0 0 0 8px #b9a27366}
+.entry-cover>img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.entry-cover::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(transparent 56%,#102f2dce 100%);pointer-events:none}
+.entry-cover-title{position:absolute;z-index:1;bottom:22px;left:0;right:0;color:#f6d79b}
+.entry-cover-title h2{font:400 clamp(36px,9vw,48px)/1.25 "Wedding Display","Songti SC","STSong",serif;letter-spacing:6px}
+.entry-cover-title p{margin-top:7px;font-size:9px;letter-spacing:3px}
+.entry-seal{position:absolute;z-index:2;left:-12px;bottom:23px;display:grid;place-items:center;width:44px;height:51px;background:#a74433;border:1px solid #e5c58e;color:#ffe1a1;font:34px/1 "Songti SC",serif;transform:rotate(-9deg);box-shadow:2px 3px 0 #123d403d}
+.entry-names{margin-top:1px;color:#ead4a9;font-size:13px;letter-spacing:3px}
+.entry-preparation{width:min(100%,284px)}
+.entry-preparation progress{display:block;appearance:none;width:100%;height:2px;border:0;border-radius:0;background:#bda67730;color:#e5c58e}
+.entry-preparation progress::-webkit-progress-bar{background:#bda67730}
+.entry-preparation progress::-webkit-progress-value{background:#e5c58e;transition:width .25s ease}
+.entry-preparation progress::-moz-progress-bar{background:#e5c58e}
+.entry-states{display:flex;justify-content:center;gap:20px;margin-top:9px;font-size:10px;color:#cbd3bf;letter-spacing:1px}
+.entry-states span::before{content:"";display:inline-block;width:4px;height:4px;border:1px solid #c9b380;border-radius:50%;margin:0 6px 2px 0}
+.entry-states [data-state=ready]::before{background:#e5c58e;box-shadow:0 0 6px #e5c58e55}
+.entry-message{margin-top:7px;min-height:20px;color:#d6c8ac;font-size:11px;letter-spacing:.3px;line-height:1.6}
+.entry-actions{display:flex;flex-direction:column;align-items:center;gap:3px}
+.entry-open{display:flex;align-items:center;justify-content:center;gap:15px;min-width:184px;min-height:49px;border:1px solid #e5c58e;border-radius:4px;background:#e5c58e;color:#123d40;font-size:15px;letter-spacing:4px;transition:background .25s ease,transform .25s ease}
+.entry-open:disabled{background:transparent;border-color:#cbb6856b;color:#d3c5a4;cursor:wait}
+.entry-open i{font:20px/1 Georgia,serif;font-style:normal;letter-spacing:0}
+.entry-skip{padding:9px 16px;min-height:38px;background:transparent;color:#d1d3bd;font-size:10px;letter-spacing:1px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:#b79b6266}
+.entry-screen.entry-leaving{opacity:0;visibility:hidden;pointer-events:none}
+.entry-leaving .entry-cover{transform:translateY(-12px);transition:transform .55s ease}
+@media(max-height:700px){.entry-screen{gap:11px;padding-top:18px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}.entry-cover{width:min(100%,310px,calc(49dvh * .8))}.entry-cover-title{bottom:16px}.entry-cover-title h2{font-size:34px}.entry-names{font-size:12px}.entry-open{min-height:44px}.entry-message{font-size:10px}}
+@media(min-width:700px){.entry-screen{gap:17px}.entry-cover{width:min(350px,calc(57dvh * .8))}}
+@media(prefers-reduced-motion:reduce){.entry-screen,.entry-leaving .entry-cover,.entry-preparation progress::-webkit-progress-value{transition:none}.entry-leaving .entry-cover{transform:none}}

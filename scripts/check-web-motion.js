@@ -9,6 +9,7 @@ function setup(popoutMode='none'){
   w.WEDDING={coupleMotion:{enabled:true,webPopoutFile:popoutMode==='none'?'':'media/carry.mp4'}};
   const reduced={matches:false,addEventListener(type,cb){this.changed=cb;}};
   w.matchMedia=()=>reduced;
+  w.HTMLMediaElement.prototype.load=function(){};
   if(popoutMode!=='none')w.createWeddingPopout=clip=>{
     if(popoutMode==='unavailable')return null;
     let stopped=true;Object.defineProperty(clip,'paused',{get:()=>stopped});

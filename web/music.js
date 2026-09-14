@@ -1,7 +1,7 @@
 (() => {
   const config=window.WEDDING?.music;
   // No placeholder playback control while the chosen recording is still missing.
-  if(!config?.webFile)return;
+  if(!config?.webFile){window.WeddingEntry?.unavailable('music');return;}
   const audio=document.createElement('audio');
   audio.src=config.webFile;audio.preload='auto';audio.loop=true;audio.volume=.28;
   const control=document.createElement('button');control.type='button';control.className='wedding-music';
@@ -28,14 +28,17 @@
     if(!wanted()){audio.pause();render();return;}
     if(pending||!audio.paused)return;
     pending=true;render();
-    try{await audio.play();}
+    try{if(audio.error)audio.load();await audio.play();}
     catch(_){enabled=false;failed=true;}
     finally{pending=false;if(!wanted())audio.pause();render();}
   }
+  const start=()=>{firstGesture=false;failed=false;enabled=true;sync();};
+  document.addEventListener('wedding:enter',start);
   const startOnGesture=event=>{
+    if(window.WeddingEntry?.pending)return;
     if(!firstGesture||event.target.closest?.('.wedding-music,[data-music-toggle]'))return;
     if(event.type==='keydown'&&!['Enter',' '].includes(event.key))return;
-    firstGesture=false;failed=false;enabled=true;sync();
+    start();
   };
   // Invoke play synchronously inside the first real tap; audible autoplay is
   // otherwise blocked by mobile browsers. A deliberate pause never re-arms it.
@@ -48,6 +51,7 @@
   window.addEventListener('pagehide',()=>{pageActive=false;sync();});
   window.addEventListener('pageshow',()=>{pageActive=true;sync();});
   // Buffer immediately; audible playback still begins inside a real user gesture.
+  window.WeddingEntry?.track('music',audio);
   audio.load();
   render();
 })();

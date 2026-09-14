@@ -4,17 +4,18 @@ const source=fs.readFileSync(path.join(__dirname,'../web/music.js'),'utf8');
 const flush=async()=>{for(let n=0;n<12;n++)await Promise.resolve();};
 function setup(webFile){
   const dom=new JSDOM('<!doctype html><button data-music-toggle hidden><span class="garden-music-label"></span></button>',{url:'https://invitation.example',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window;
-  let paused=true,reject=false,resolvePlay=null,loads=0;const calls=[];
+  let paused=true,reject=false,resolvePlay=null,loads=0,broken=false;const calls=[];
   w.WEDDING={music:{title:'Selected recording',artist:'Artist',webFile}};
   Object.defineProperty(w.HTMLMediaElement.prototype,'paused',{get:()=>paused});
-  w.HTMLMediaElement.prototype.load=function(){loads++;};
+  Object.defineProperty(w.HTMLMediaElement.prototype,'error',{get:()=>broken?{code:2}:null});
+  w.HTMLMediaElement.prototype.load=function(){loads++;broken=false;};
   w.HTMLMediaElement.prototype.pause=function(){paused=true;this.dispatchEvent(new w.Event('pause'));};
   w.HTMLMediaElement.prototype.play=async function(){
-    calls.push('play');if(reject)throw new w.DOMException('Gesture required','NotAllowedError');
+    calls.push('play');if(broken)throw new w.DOMException('Source unavailable','NotSupportedError');if(reject)throw new w.DOMException('Gesture required','NotAllowedError');
     if(resolvePlay)await resolvePlay;paused=false;this.dispatchEvent(new w.Event('playing'));
   };
   w.eval(source);
-  return {w,calls,get loads(){return loads;},audio:w.document.querySelector('audio'),button:w.document.querySelector('.wedding-music'),badge:w.document.querySelector('[data-music-toggle]'),set reject(value){reject=value;},set delay(value){resolvePlay=value;},close:()=>w.close()};
+  return {w,calls,get loads(){return loads;},audio:w.document.querySelector('audio'),button:w.document.querySelector('.wedding-music'),badge:w.document.querySelector('[data-music-toggle]'),set reject(value){reject=value;},set broken(value){broken=value;},set delay(value){resolvePlay=value;},close:()=>w.close()};
 }
 (async()=>{
   const empty=setup('');try{assert.equal(empty.button,null);assert.equal(empty.audio,null);assert(empty.badge.hidden);}finally{empty.close();}
@@ -34,6 +35,7 @@ function setup(webFile){
     a.reject=true;a.button.click();await flush();assert(a.audio.paused);assert.match(a.button.textContent,/重试/);
     a.reject=false;a.button.click();await flush();assert(!a.audio.paused);
     a.audio.dispatchEvent(new a.w.Event('error'));assert(a.audio.paused);assert.match(a.button.textContent,/重试/);
+    a.broken=true;const loads=a.loads;a.button.click();await flush();assert.equal(a.loads,loads+1,'Network-failed audio must reload its source before retry');assert(!a.audio.paused);
   }finally{a.close();}
   const late=setup('media/recording.mp3');try{
     let done;late.delay=new Promise(resolve=>done=resolve);late.button.click();await flush();
