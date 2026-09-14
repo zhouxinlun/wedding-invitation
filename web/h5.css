@@ -68,17 +68,16 @@
 .opening-date-dot{color:#b79560}
 .opening-venue{display:block;margin-top:5px;color:#c0cfbc;font-size:12px}
 .opening-welcome{margin:22px 0 0;color:#bdcbb8;font-size:12px;letter-spacing:2px}
-.share-preview{display:flex;align-items:center;gap:20px;padding:15px;border:1px solid #b69a6555;border-radius:8px;background:#214b45}
-.share-preview>img{display:block;flex:0 0 104px;width:104px;height:auto;border-radius:3px}
-.share-preview>div{display:flex;flex-direction:column;min-width:0}
-.share-preview-label{font-size:8px;color:#c6be9d;letter-spacing:1px;white-space:nowrap}
-.share-preview strong{font-size:28px;font-weight:400;letter-spacing:4px;color:#f0d7ae;margin:9px 0 12px}
-.share-preview-names{font-size:12px;color:#e7d6b6;white-space:nowrap}
-.share-preview-date{font:11px/1.7 Georgia,serif;color:#cbb995;margin-top:8px;letter-spacing:1px}
 .share-dialog p.share-hint{margin:16px 0;font-size:12px}
 .share-url-label{display:block;font-size:11px;color:#bcccbd;margin-bottom:7px;letter-spacing:1px}
 .share-url{display:block;width:100%;padding:12px;border:1px solid #7e917255;border-radius:6px;background:#133b38;color:#efdbb7;font:14px/1.5 Georgia,serif}
-.share-secondary{display:flex;gap:10px}
+.share-preview{position:relative;margin:20px auto 0;background:#173b3c;border:1px solid #b69a6540;border-radius:3px;overflow:hidden}
+.share-preview>img{display:block;width:100%;height:auto;aspect-ratio:9/16;-webkit-touch-callout:default}
+.share-dialog p#share-poster-status{position:absolute;inset:42% 16px auto;text-align:center;font-size:12px;line-height:1.8;margin:0;color:#dfc79f}
+#retry-poster{position:absolute;top:54%;left:50%;transform:translateX(-50%);padding:12px 20px;background:#e7ca98;color:#123d40;border-radius:24px;white-space:nowrap}
+.share-secondary{display:flex;align-items:stretch;gap:10px;margin-bottom:24px}
+.share-secondary>a{display:flex;align-items:center;justify-content:center;text-decoration:none}
+.share-dialog .share-secondary>*{min-height:46px;margin-top:0}
 .share-secondary>*{flex:1;min-width:0;padding-left:5px;padding-right:5px;font-size:12px}
 @media(max-width:700px){
  .opening-active .b-fab{visibility:hidden}
@@ -107,10 +106,6 @@
 @media(max-width:360px){
  .h5-opening .story-first{font-size:21px}
  .h5-opening .story-last{font-size:24px}
- .share-preview{gap:12px;padding:12px}
- .share-preview>img{width:85px;flex-basis:85px}
- .share-preview-names{font-size:11px}
- .share-preview strong{font-size:25px}
 }
 
 /* The existing engraved roses frame the portrait without entering its face area.
@@ -324,7 +319,6 @@ main > .nav-section{position:relative}
 .still .lightbox-vine img{animation:none}
 .paused .lightbox-vine img{animation-play-state:paused}
 #share-status{min-height:24px;font-size:12px;color:#dfc79f}
-.share-preview>img{flex-basis:150px;width:150px}
 .b-saved-name{display:flex;align-items:center;gap:10px;padding:10px 0 18px;margin-bottom:8px;border-bottom:1px solid #bf9e6740;color:#80685b;font-size:12px}
 .b-saved-name::before{content:"♡";display:grid;place-items:center;flex:0 0 29px;height:29px;border-radius:50%;background:#8c44443d;color:#debb91;font-size:16px}
 .b-saved-name strong{font-size:14px;font-weight:500;color:#65463d;overflow-wrap:anywhere}
@@ -341,9 +335,7 @@ main > .nav-section{position:relative}
  .photo-dialog .photo-prev,.photo-dialog .photo-next{top:auto;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:none;background:#26484a}
  .photo-dialog .photo-prev{left:calc(50% - 60px)}.photo-dialog .photo-next{right:calc(50% - 60px)}
  .lightbox-vines{inset:-5px}.lightbox-vine{width:clamp(115px,48%,210px)}
- .share-preview{gap:14px;padding:12px}.share-preview>img{width:125px;flex-basis:125px}.share-preview strong{font-size:24px}
 }
-@media(max-width:360px){.share-preview>img{width:105px;flex-basis:105px}.share-preview-label{font-size:7px}}
 
 /* A full-colour lantern hangs on the portrait itself, including on phones. */
 .opening-portrait .portrait-lantern{left:-15px;top:25%;z-index:4;opacity:1;pointer-events:none}

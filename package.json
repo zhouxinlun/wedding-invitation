@@ -11,12 +11,16 @@
     "build:web": "node scripts/build-web.js",
     "check:popout-matte": "node scripts/check-popout-matte.js",
     "dev:web": "npm run build:web && node scripts/serve-web.js",
-    "test": "node scripts/check.js && node scripts/check-albums-schedule.js && node scripts/check-preview.js && node scripts/check-vines.js && node scripts/check-blessings.js && node scripts/check-blessing-snow.js && node scripts/check-cloud-media.js && node scripts/check-blessing-editor.js && node scripts/check-couple-motion.js && node scripts/check-web-motion.js && node scripts/check-music.js && node scripts/check-web-sharing.js && node scripts/check-h5.js && node scripts/check-web-journey.js && node scripts/check-entry.js"
+    "test": "node scripts/check.js && node scripts/check-albums-schedule.js && node scripts/check-preview.js && node scripts/check-vines.js && node scripts/check-blessings.js && node scripts/check-blessing-snow.js && node scripts/check-cloud-media.js && node scripts/check-blessing-editor.js && node scripts/check-couple-motion.js && node scripts/check-web-motion.js && node scripts/check-music.js && node scripts/check-share-poster.js && node scripts/check-web-sharing.js && node scripts/check-h5.js && node scripts/check-web-journey.js && node scripts/check-entry.js",
+    "export:poster": "node scripts/render-poster.js"
   },
   "devDependencies": {
     "@cloudbase/js-sdk": "3.8.2",
+    "@napi-rs/canvas": "1.0.9",
     "coordtransform": "2.1.2",
     "esbuild": "0.28.2",
-    "jsdom": "26.1.0"
+    "jsdom": "26.1.0",
+    "jsqr": "1.4.0",
+    "qrcode": "1.5.4"
   }
 }

@@ -159,7 +159,7 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
       doc.querySelector('#copy-link').click();await flush();
       assert.equal(copies.at(-1),require('../miniprogram/wedding').shareUrl);
       assert.equal(doc.querySelector('#share-url').value,copies.at(-1));
-      assert.equal(new URL(doc.querySelector('.share-preview img').src).pathname,'/miniprogram/assets/couple-red-natural-v2.jpg');
+      assert.equal(new URL(doc.querySelector('.share-preview img').src).pathname,'/web/media/wedding-share-poster.jpg');
       doc.querySelector('#share-dialog').close();
       doc.querySelector('[data-album=red]').click();
       const photo=doc.querySelector('#lightbox-image');assert.equal(mediaRequests.length,0,'Bundled cover never requires cloud login');
@@ -177,8 +177,8 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
   }
   const inner=new JSDOM(entryHtml),landing=new JSDOM(fs.readFileSync(path.join(out,'index.html'),'utf8'));
   try{
-    for(const resource of inner.window.document.querySelectorAll('script[src],link[rel="stylesheet"]')){
-      const url=new URL(resource.getAttribute('src')||resource.getAttribute('href'),'https://invitation.example/web/index.html');
+    for(const resource of inner.window.document.querySelectorAll('script[src],link[rel="stylesheet"],#share-poster,#save-poster')){
+      const url=new URL(resource.getAttribute('src')||resource.getAttribute('data-src')||resource.getAttribute('href'),'https://invitation.example/web/index.html');
       if(url.origin!=='https://invitation.example')continue;
       const bytes=fs.readFileSync(path.join(out,decodeURI(url.pathname)));
       assert.equal(url.searchParams.get('v'),require('node:crypto').createHash('sha256').update(bytes).digest('hex').slice(0,12),'Published code must bypass stale browser caches: '+url.pathname);

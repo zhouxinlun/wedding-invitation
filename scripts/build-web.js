@@ -11,7 +11,7 @@ async function build(){
   await esbuild.build({absWorkingDir:os.tmpdir(),entryPoints:[path.join(root,'web/journey-map.js')],nodePaths:[path.join(root,'node_modules')],outfile:path.join(root,'web/vendor/journey-map.js'),bundle:true,format:'iife',platform:'browser',target:'es2020',minify:true,legalComments:'external',logLevel:'warning'});
   await fs.copyFile(path.join(root,'node_modules/coordtransform/LICENSE'),path.join(root,'web/vendor/coordtransform-LICENSE.txt'));
   await fs.rm(out,{recursive:true,force:true});await fs.mkdir(out,{recursive:true});
-  for(const file of ['index.html','entry.js','entry.css','app.js','share.js','style.css','title-font.css','h5.css','cloud-client.js','popout.js','couple-motion.js','music.js','blessings.js','blessings.css'])await copy('web/'+file);
+  for(const file of ['index.html','poster.html','entry.js','entry.css','app.js','share.js','style.css','title-font.css','h5.css','cloud-client.js','popout.js','couple-motion.js','music.js','blessings.js','blessings.css'])await copy('web/'+file);
   const wedding=require('../miniprogram/wedding');
   // Ship only the small H5 scene and the explicitly configured recording.
   // The existing long reel still loads through its signed cloud URL.
@@ -25,17 +25,29 @@ async function build(){
   for(const file of ['wedding.js','journey.js','shared/blessing-config.js','shared/blessing-editor.js','shared/blessing-snow.js','shared/rose-vines.js'])await copy('miniprogram/'+file);
   for(const file of ['婚礼日程.ics'])await copy('exports/'+file);
   await copy('favicon.ico');
-  let page=await fs.readFile(path.join(out,'web/index.html'),'utf8');
+  // Generate the shareable image from the same wedding content on every release.
+  // Canvas, the font and QR encoder stay build-only; opening the H5 loads none of them.
+  const {renderPoster,publicPath}=require('./render-poster');
+  const poster=await renderPoster(wedding);
+  await fs.mkdir(path.dirname(path.join(out,publicPath)),{recursive:true});
+  await fs.writeFile(path.join(out,publicPath),poster);
+  await fs.mkdir(path.join(root,'exports'),{recursive:true});
+  await fs.writeFile(path.join(root,'exports/良辰之约-微信海报.jpg'),poster);
   // Existing visitors may cache JS/CSS for seven days. Version the built references
   // by their actual contents so every deployment loads matching code and config.
-  for(const match of [...page.matchAll(/((?:src|href)=["'])([^"']+\.(?:js|css))(["'])/g)]){
-    const relative=match[2];if(/^(?:[a-z]+:|\/\/)/i.test(relative))continue;
-    const file=path.resolve(out,'web',relative);
-    if(!file.startsWith(out+path.sep))throw Error('Public resource outside bundle: '+relative);
-    const version=createHash('sha256').update(await fs.readFile(file)).digest('hex').slice(0,12);
-    page=page.replace(match[0],match[1]+relative+'?v='+version+match[3]);
+  async function versionResources(page){
+    for(const match of [...page.matchAll(/((?:data-src|src|href)=["'])([^"']+(?:\.(?:js|css)|\/wedding-share-poster\.jpg))(["'])/g)]){
+      const relative=match[2];if(/^(?:[a-z]+:|\/\/)/i.test(relative))continue;
+      const file=path.resolve(out,'web',relative);
+      if(!file.startsWith(out+path.sep))throw Error('Public resource outside bundle: '+relative);
+      const version=createHash('sha256').update(await fs.readFile(file)).digest('hex').slice(0,12);
+      page=page.replace(match[0],match[1]+relative+'?v='+version+match[3]);
+    }
+    return page;
   }
+  const page=await versionResources(await fs.readFile(path.join(out,'web/index.html'),'utf8'));
   await fs.writeFile(path.join(out,'web/index.html'),page);
+  await fs.writeFile(path.join(out,'web/poster.html'),await versionResources(await fs.readFile(path.join(out,'web/poster.html'),'utf8')));
   const shareHead=page.match(/<!-- Share preview:[\s\S]*?-->([\s\S]*?)<!-- \/Share preview -->/);
   if(!shareHead)throw new Error('Missing static H5 share metadata');
   // Link crawlers may not follow a JavaScript redirect. Give the root the same preview.

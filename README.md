@@ -30,6 +30,16 @@
 
 ## 文件与检查
 
+### 微信海报分享
+
+H5 页尾的“分享这份喜悦”会展示完整海报，长按图片保存后发给亲友；图中二维码直接打开正式 H5 地址。支持文件分享的浏览器提供“发送海报”，其他浏览器保留图片下载和复制链接。微信内以长按保存、长按识别二维码为准。
+
+`npm run build:web` 使用 `miniprogram/wedding.js` 的姓名、日期、时间、饭店及正式网址重新生成海报，输出 `dist/h5/web/media/wedding-share-poster.jpg` 和本地 `exports/良辰之约-微信海报.jpg`。单独导出可执行 `npm run export:poster`；构建后的 `/web/poster.html` 可查看原图和下载。网页引用带图片内容版本号，避免继续分享旧海报。
+
+合照仍为已确认的 `couple-red-natural-v2.jpg`，只做比例排版；玫瑰与封蜡沿用现有素材。渲染器替代旧版 `web/poster-render.js`，Canvas 和二维码库仅在构建时使用。宾客滚动到分享入口或主动打开分享时才加载海报，不占开场媒体带宽。完整海报经 1080/720/540 像素缩放与 JPEG 压缩后的二维码解码由 `scripts/check-share-poster.js` 验证。
+
+构建字体 `scripts/assets/wedding-poster.ttf` 是官方 Noto Serif SC 的 400 字重子集，重命名为 Wedding Poster，遵循同目录 OFL 许可；仅供生成海报，不进入网页或小程序包。改动海报的中文用字时，应使用原始 Noto Serif SC 及 fontTools 更新对应字集。
+
 miniprogram/wedding.js是唯一内容源；journey.js共享地点和距离逻辑；shared/gallery.*与preview-images.js负责相册和微信本地媒体预览。五个相册分包共用相同模板，单包均小于2MB，首页主包约1.4MB。
 
 ```sh
