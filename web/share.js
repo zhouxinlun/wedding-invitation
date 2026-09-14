@@ -3,7 +3,6 @@
   const w=window.WEDDING,dialog=document.querySelector('#share-dialog'),button=document.querySelector('#share-invite');
   // Use the configured public entry even in local previews. Never forward visitor parameters.
   const url=new URL('/',w.shareUrl).href,input=document.querySelector('#share-url');
-  const text=`我们结婚啦！${w.groom} & ${w.bride}，邀你于${w.dateLabel} ${w.ceremonyTime}，共赴${w.venue.fullName}。`;
   const status=document.querySelector('#share-status');
   const poster=document.querySelector('#share-poster'),posterStatus=document.querySelector('#share-poster-status');
   const retry=document.querySelector('#retry-poster'),save=document.querySelector('#save-poster');
@@ -15,36 +14,25 @@
     poster.src=poster.dataset.src;
   }
   retry.addEventListener('click',()=>{poster.removeAttribute('src');loadPoster();});
-  function showPoster(){loadPoster();dialog.showModal();}
+  function showPoster(){loadPoster();status.textContent='';dialog.showModal();}
   input.value=url;input.addEventListener('click',()=>input.select());
-  let payload=null,sharing=false,preparing=false;
-  // Prepare the public image before the click: share() must keep the click's user activation.
-  function prepareShare(){
-    loadPoster();
-    if(!(window.isSecureContext&&navigator.share&&navigator.canShare))return;
-    if(preparing||payload)return;
-    preparing=true;
-    fetch(poster.src).then(async response=>{
-      if(!response.ok)throw Error('POSTER_UNAVAILABLE');
-      const blob=await response.blob();if(blob.type!=='image/jpeg')throw Error('INVALID_POSTER');
-      const files=[new File([blob],'良辰之约-微信海报.jpg',{type:blob.type})];
-      const candidate={files,title:'良辰之约 · '+w.groom+'与'+w.bride,text,url};
-      if(navigator.canShare({files})&&navigator.canShare(candidate)){payload=candidate;save.textContent='发送海报';}
-    }).catch(()=>{}).finally(()=>{preparing=false;}); // The image and link remain usable without file sharing.
-  }
+  // Download the build-generated full-resolution JPEG. Native sharing is no
+  // longer the action, and no second fetch/blob competes with image loading.
+  save.href=poster.dataset.src;
   if(window.IntersectionObserver){
-    const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();prepareShare();}},{rootMargin:'240px'});
+    const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();loadPoster();}},{rootMargin:'240px'});
     observer.observe(button);
-  }else if(window.WeddingEntry?.pending)document.addEventListener('wedding:revealed',prepareShare,{once:true});else prepareShare();
-  button.addEventListener('click',()=>{showPoster();prepareShare();});
-  save.addEventListener('click',async event=>{
-    if(!payload)return; // A normal same-origin download when system sharing is unavailable.
-    event.preventDefault();
-    if(sharing)return;
-    sharing=true;save.setAttribute('aria-disabled','true');
-    try{await navigator.share(payload);}
-    catch(error){if(error.name!=='AbortError')status.textContent='暂时无法唤起分享，请长按海报保存后发送。';}
-    finally{sharing=false;save.removeAttribute('aria-disabled');}
+  }else if(window.WeddingEntry?.pending)document.addEventListener('wedding:revealed',loadPoster,{once:true});else loadPoster();
+  button.addEventListener('click',showPoster);
+  save.addEventListener('click',event=>{
+    loadPoster();
+    if(/MicroMessenger/i.test(navigator.userAgent)){
+      // WeChat's WebView may suppress download links. Keep the actual JPEG in
+      // view so its native long-press menu can save it to the phone's album.
+      event.preventDefault();
+      status.textContent='请长按上方海报，选择「保存到相册」，即可保存完整长图。';
+      poster.scrollIntoView?.({block:'center',behavior:'smooth'});
+    }else status.textContent='已请求下载完整海报；也可以长按图片保存。';
   });
   document.querySelector('#copy-link').addEventListener('click',async()=>{
     try{
