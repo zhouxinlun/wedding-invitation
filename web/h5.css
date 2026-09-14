@@ -58,6 +58,7 @@
 .h5-opening{max-width:1050px;padding:34px 40px 65px;gap:0 80px;grid-template-columns:1fr 1fr;align-items:center}
 .opening-intro{align-self:end}
 .h5-opening .story-title{font-family:"Wedding Display","Songti SC","STSong",serif;font-weight:400;margin:18px 0 0;line-height:1.5}
+.h5-opening #us-title[tabindex="-1"]:focus{outline:none}
 .h5-opening .opening-portrait{position:relative;grid-column:2;grid-row:1/3;width:100%;max-width:370px;justify-self:center;aspect-ratio:2/3;isolation:isolate}
 .h5-opening .us-photo{width:100%;aspect-ratio:2/3;box-shadow:0 0 0 5px #123d40,0 0 0 6px #be9c6366,0 20px 55px #082c3055}
 .opening-details{align-self:start}

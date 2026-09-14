@@ -3,7 +3,7 @@
   // No placeholder playback control while the chosen recording is still missing.
   if(!config?.webFile){window.WeddingEntry?.unavailable('music');return;}
   const audio=document.createElement('audio');
-  audio.src=config.webFile;audio.preload=window.WeddingEntry?.pending?'metadata':'auto';audio.loop=true;audio.volume=.28;
+  audio.src=config.webFile;audio.preload='auto';audio.loop=true;audio.volume=.28;
   const control=document.createElement('button');control.type='button';control.className='wedding-music';
   const record=document.createElement('span');record.className='music-record';record.setAttribute('aria-hidden','true');
   const label=document.createElement('span');label.className='music-label';
@@ -28,11 +28,18 @@
     if(!wanted()){audio.pause();render();return;}
     if(pending||!audio.paused)return;
     pending=true;render();
-    try{if(audio.error)audio.load();await audio.play();}
-    catch(_){enabled=false;failed=true;window.WeddingEntry?.fail('music');}
+    try{if(audio.error)audio.load();await audio.play();firstGesture=false;}
+    catch(error){
+      enabled=false;
+      if(error.name==='NotAllowedError'){
+        // Permission to play sound is separate from buffering. Keep the first
+        // real tap available instead of trapping guests on the loading letter.
+        failed=false;firstGesture=true;window.WeddingEntry?.blocked('music');
+      }else{failed=true;window.WeddingEntry?.fail('music');}
+    }
     finally{pending=false;if(!wanted())audio.pause();render();}
   }
-  const start=()=>{firstGesture=false;failed=false;enabled=true;sync();};
+  const start=event=>{if(event?.detail?.automatic!==true)firstGesture=false;failed=false;enabled=true;sync();};
   document.addEventListener('wedding:enter',start);
   const startOnGesture=event=>{
     if(window.WeddingEntry?.pending)return;
@@ -50,7 +57,8 @@
   document.addEventListener('visibilitychange',sync);
   window.addEventListener('pagehide',()=>{pageActive=false;sync();});
   window.addEventListener('pageshow',()=>{pageActive=true;sync();});
-  // Buffer immediately; audible playback still begins inside a real user gesture.
+  // Buffer concurrently with the clip. The entry attempts playback once ready;
+  // browsers that block sound resume through the first real guest interaction.
   window.WeddingEntry?.track('music',audio);
   audio.load();
   render();

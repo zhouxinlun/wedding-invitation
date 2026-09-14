@@ -32,8 +32,8 @@ function setup(webFile){
     a.button.click();await flush();assert(a.audio.paused);
     assert.equal(a.badge.getAttribute('aria-pressed'),'false');assert.match(a.badge.textContent,/音乐/);
     a.w.dispatchEvent(new a.w.Event('pagehide'));a.w.dispatchEvent(new a.w.Event('pageshow'));await flush();assert(a.audio.paused,'A deliberate pause must survive returning to the page');
-    a.reject=true;a.button.click();await flush();assert(a.audio.paused);assert.match(a.button.textContent,/重试/);
-    a.reject=false;a.button.click();await flush();assert(!a.audio.paused);
+    a.reject=true;a.button.click();await flush();assert(a.audio.paused);assert.match(a.button.textContent,/音乐/);
+    a.reject=false;a.w.document.dispatchEvent(new a.w.Event('click'));await flush();assert(!a.audio.paused,'Blocked autoplay may resume on the next ordinary interaction');
     a.audio.dispatchEvent(new a.w.Event('error'));assert(a.audio.paused);assert.match(a.button.textContent,/重试/);
     a.broken=true;const loads=a.loads;a.button.click();await flush();assert.equal(a.loads,loads+1,'Network-failed audio must reload its source before retry');assert(!a.audio.paused);
   }finally{a.close();}

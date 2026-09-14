@@ -96,7 +96,9 @@
       frame.classList.remove('motion-playing');
       // A browser gesture restriction needs the next real interaction. Network
       // failures get a small, bounded retry window while the portrait is visible.
-      if(error.name!=='NotAllowedError'){
+      if(error.name==='NotAllowedError')window.WeddingEntry?.blocked('motion');
+      else{
+        window.WeddingEntry?.fail('motion');
         if(popoutTurn){disablePopout();fallback=true;}else retrySoon();
       }
     }

@@ -1,4 +1,4 @@
-/* A keepsake portrait tucked into an envelope. The whole letter is the tap target. */
+/* A turning wax seal accompanies incremental loading; the letter opens when ready. */
 .entry-screen{display:none}
 .entry-pending{overflow:hidden!important}
 .entry-pending body{overflow:hidden}
@@ -26,10 +26,10 @@
 .entry-envelope-pocket::before,.entry-envelope-pocket::after{content:"";position:absolute;inset:0;pointer-events:none}
 .entry-envelope-pocket::before{background:linear-gradient(32deg,#551c2480,transparent 56%);clip-path:polygon(0 0,55% 68%,100% 0,100% 100%,0 100%)}
 .entry-envelope-pocket::after{inset:0 9px 9px;border:1px solid #d7ab7460;border-top:0}
-.entry-flap{position:absolute;z-index:3;left:0;right:0;top:72%;height:18%;transform-origin:50% 0;transition:transform .65s cubic-bezier(.2,.7,.2,1);animation:entry-flap-invite 5.6s ease-in-out 1.2s infinite;filter:drop-shadow(0 3px 2px #35101c70);backface-visibility:hidden}
+.entry-flap{position:absolute;z-index:3;left:0;right:0;top:72%;height:18%;transform-origin:50% 0;transition:transform .65s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 3px 2px #35101c70);backface-visibility:hidden}
 .entry-flap-paper{position:absolute;inset:0;display:block;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(165deg,#a64b50,#80303a 65%);border-top:1px solid #d7ab7480}
 .entry-flap-paper::after{content:"";position:absolute;inset:0;background:linear-gradient(150deg,transparent 38%,#f7d59b33 49%,transparent 60%);opacity:.4}
-.entry-seal{position:absolute;z-index:4;left:calc(50% - 37px);top:calc(87% - 37px);width:74px;height:74px;transform:rotate(-9deg);filter:drop-shadow(0 2px 0 #611d25) drop-shadow(0 5px 4px #300d19aa);transition:transform .5s ease,opacity .45s ease;animation:entry-seal-invite 5.6s ease-in-out 1.2s infinite}
+.entry-seal{position:absolute;z-index:4;left:calc(50% - 37px);top:calc(87% - 37px);width:74px;height:74px;transform:rotate(-9deg);filter:drop-shadow(0 2px 0 #611d25) drop-shadow(0 5px 4px #300d19aa);transition:transform .5s ease,opacity .45s ease;animation:entry-seal-turn 16s linear infinite}
 .entry-seal::before{content:"";position:absolute;inset:-7px;border:1px solid #edcf9566;border-radius:50%;opacity:0;animation:entry-touch-halo 5.6s ease-out 1.2s infinite}
 .entry-seal-glint{position:absolute;inset:12%;border-radius:50%;overflow:hidden}
 .entry-seal-glint::after{content:"";position:absolute;inset:-20%;background:linear-gradient(120deg,transparent 35%,#fff2bd66 49%,transparent 62%);transform:translateX(-100%);animation:entry-gold 5.6s ease-in-out 1.2s infinite}
@@ -44,7 +44,7 @@
 .entry-gold-mote-one{--mote-x:-70px;--mote-y:-90px;--mote-delay:0s}
 .entry-gold-mote-two{--mote-x:65px;--mote-y:-120px;--mote-delay:.6s}
 .entry-gold-mote-three{--mote-x:12px;--mote-y:-150px;--mote-delay:1.2s}
-/* The invitation cue pauses while media starts. No fake progress or extra wait. */
+/* The seal turns until the actual reveal, even when a guest starts media early. */
 .entry-opening .entry-flap{animation:none;transform:rotateX(155deg)}
 .entry-opening .entry-seal{animation:none;transform:translateY(22px) rotate(14deg) scale(.88);opacity:0}
 .entry-opening .entry-seal::before,.entry-opening .entry-seal-glint::after{animation:none}
@@ -56,8 +56,8 @@
 .entry-leaving .entry-heading,.entry-leaving .entry-dedication{opacity:0;transition:opacity .4s ease}
 @media(hover:hover){.entry-open:hover .entry-letter{transform:translateY(-5px)}.entry-open:hover .entry-seal{filter:drop-shadow(0 2px 0 #611d25) drop-shadow(0 6px 6px #300d19aa) brightness(1.1)}.entry-opening .entry-open:hover .entry-letter{transform:translateY(-18px)}.entry-leaving .entry-open:hover .entry-letter{transform:translateY(-56px)}}
 .entry-open:active .entry-seal{transform:rotate(-5deg) scale(.94)}
-@keyframes entry-flap-invite{0%,12%,28%,100%{transform:rotateX(0)}20%{transform:rotateX(-12deg)}}
-@keyframes entry-seal-invite{0%,12%,28%,100%{transform:rotate(-9deg) translateY(0) scale(1)}20%{transform:rotate(-5deg) translateY(-3px) scale(1.07)}}
+@keyframes entry-seal-turn{from{transform:rotate(-9deg)}to{transform:rotate(351deg)}}
+.entry-paused .entry-open *,.entry-paused .entry-open *::before,.entry-paused .entry-open *::after{animation-play-state:paused!important}
 @keyframes entry-touch-halo{0%,14%,42%,100%{opacity:0;transform:scale(.85)}20%{opacity:.65;transform:scale(1)}40%{opacity:0;transform:scale(1.35)}}
 @keyframes entry-gold{0%,6%{transform:translateX(-100%)}28%,100%{transform:translateX(100%)}}
 @keyframes entry-mote{0%{opacity:0;transform:translate(0,0)}20%{opacity:.8}100%{opacity:0;transform:translate(var(--mote-x),var(--mote-y))}}
