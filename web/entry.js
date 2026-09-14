@@ -13,6 +13,7 @@
   function reveal(){
     if(leaving)return;
     leaving=true;clearTimeout(slowTimer);
+    skip.hidden=true;
     cleanups.forEach(dispose=>dispose());cleanups.clear();
     background.forEach((el,i)=>{el.inert=previousInert[i];});
     root.classList.remove('entry-pending');screen.classList.add('entry-leaving');
@@ -28,8 +29,9 @@
     const incomplete=Object.values(slots).some(slot=>!['ready','skipped'].includes(slot.state));
     enter.disabled=Object.values(slots).some(slot=>slot.state==='unbound');
     enter.setAttribute('aria-busy',String(opening));
-    message.textContent=opening?'欢喜即将开场…':'轻触封蜡 · 开启喜帖';
+    message.textContent=opening?'欢喜即将开场…':'轻触信封或封蜡，开启喜帖';
     skip.hidden=!(failed||(slow&&(opening||incomplete)));
+    screen.classList.toggle('entry-delayed',!skip.hidden);
     if(opening&&Object.values(slots).every(slot=>slot.state==='skipped'||slot.state==='error'||(slot.state==='ready'&&!slot.media.paused)))reveal();
   }
   function enterInvitation(force=false){

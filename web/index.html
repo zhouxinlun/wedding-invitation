@@ -18,18 +18,26 @@
 <body>
 <section id="entry-screen" class="entry-screen" role="dialog" aria-modal="true" aria-labelledby="entry-title" aria-describedby="entry-message" tabindex="-1">
   <div class="entry-paper">
-    <img class="entry-photo" src="../miniprogram/assets/couple-red-natural-v2.jpg" width="864" height="1080" fetchpriority="high" alt="周新沦与李小妮的中式婚纱合照">
-    <div class="entry-imprint"><span>囍帖</span><span>THE WEDDING OF<br>ZHOU &amp; LI</span></div>
-    <p class="entry-date">二〇二六<span>拾月 · 六日</span></p>
-    <p class="entry-margin">天作之合 · 佳偶天成</p>
-    <div class="entry-letter">
-      <p class="entry-salute">一封喜帖 · 一生之约</p>
+    <div class="entry-heading">
+      <p class="entry-salute">THE WEDDING LETTER</p>
       <h2 id="entry-title">良辰之约</h2>
       <p class="entry-names"><span data-field="groom">周新沦</span><i>&amp;</i><span data-field="bride">李小妮</span></p>
-      <div class="entry-ribbon"><button id="entry-open" class="entry-open wax-seal" type="button" aria-label="开启喜帖" disabled><img src="../miniprogram/assets/couple-wax-seal.jpg" width="88" height="88" alt="双名烫金封蜡"></button></div>
-      <p id="entry-message" class="entry-message" role="status">轻触封蜡 · 开启喜帖</p>
-      <button id="entry-skip" class="entry-skip" type="button" hidden>先进入，边看边加载 ↗</button>
     </div>
+    <button id="entry-open" class="entry-open" type="button" aria-label="开启喜帖" aria-describedby="entry-message" disabled>
+      <span class="entry-envelope-back" aria-hidden="true"></span>
+      <span class="entry-letter">
+        <img class="entry-photo" src="../miniprogram/assets/couple-red-natural-v2.jpg" width="864" height="1080" fetchpriority="high" alt="周新沦与李小妮的中式婚纱合照">
+        <span class="entry-letter-rule" aria-hidden="true"></span>
+      </span>
+      <span class="entry-envelope-pocket" aria-hidden="true"></span>
+      <span class="entry-flap" aria-hidden="true"><span class="entry-flap-paper"></span></span>
+      <span class="entry-seal wax-seal" aria-hidden="true"><img src="../miniprogram/assets/couple-wax-seal.jpg" width="88" height="88" alt=""><span class="entry-seal-glint"></span></span>
+      <span class="entry-postmark" aria-hidden="true">2026 · 10 · 06</span>
+      <span class="entry-gold-mote entry-gold-mote-one" aria-hidden="true"></span><span class="entry-gold-mote entry-gold-mote-two" aria-hidden="true"></span><span class="entry-gold-mote entry-gold-mote-three" aria-hidden="true"></span>
+    </button>
+    <p class="entry-dedication">把余生写成我们<span>把这封喜悦，寄给你</span></p>
+    <p id="entry-message" class="entry-message" role="status">轻触信封或封蜡，开启喜帖</p>
+    <button id="entry-skip" class="entry-skip" type="button" hidden>先进入，边看边加载 ↗</button>
   </div>
 </section>
 <div class="page-botanicals" aria-hidden="true">

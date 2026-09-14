@@ -1,41 +1,66 @@
-/* A photographic invitation with a gold-threaded wax seal, rather than a loading panel. */
+/* A keepsake portrait tucked into an envelope. The whole letter is the tap target. */
 .entry-screen{display:none}
 .entry-pending{overflow:hidden!important}
 .entry-pending body{overflow:hidden}
 .entry-pending body>.bottom-nav,.entry-pending .b-fab{visibility:hidden}
 .entry-pending .entry-screen,.entry-screen.entry-leaving{display:grid}
-.entry-screen{position:fixed;inset:0;z-index:100;place-items:center;background:#102f31;color:#f4ddb0;text-align:center;overflow:hidden;transition:opacity .75s ease,visibility .75s ease;isolation:isolate}
+.entry-screen{position:fixed;inset:0;z-index:100;place-items:center;background:#12383a;color:#edcf94;text-align:center;overflow:hidden;isolation:isolate;transition:opacity .35s ease .35s,visibility .75s ease}
 .entry-screen:focus{outline:0}
-.entry-paper{position:relative;width:min(100%,560px);height:100%;max-height:1000px;overflow:hidden;background:#54231f;isolation:isolate;box-shadow:0 0 90px #00191c80}
-.entry-paper::before{content:"";position:absolute;z-index:2;inset:13px;border:1px solid #e6c48770;pointer-events:none}
-.entry-paper::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#32120c87,transparent 24%,transparent 44%,#3d161c9c 62%,#35171ff5 84%,#35171f);pointer-events:none}
-.entry-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:51% 37%;z-index:-2}
-.entry-imprint{position:absolute;left:30px;top:max(33px,env(safe-area-inset-top));display:flex;align-items:center;gap:12px;text-align:left}
-.entry-imprint>span:first-child{font:30px/1.2 "Wedding Display","Songti SC",serif;letter-spacing:4px}
-.entry-imprint>span:last-child{border-left:1px solid #e8cf9466;padding-left:12px;font:8px/1.8 Georgia,serif;letter-spacing:1.5px}
-.entry-date{position:absolute;top:35px;right:30px;font:11px/1.7 "Songti SC",serif;letter-spacing:2px;text-align:right}
-.entry-date span{display:block;font-size:13px;margin-top:3px}
-.entry-margin{position:absolute;right:26px;top:29%;writing-mode:vertical-rl;font:12px/1.2 "Songti SC",serif;letter-spacing:5px;color:#fff0cbdd;text-shadow:0 1px 6px #422018}
-.entry-letter{position:absolute;left:26px;right:26px;bottom:calc(32px + env(safe-area-inset-bottom));padding-top:20px}
-.entry-salute{font:11px/1.6 "Songti SC",serif;letter-spacing:5px;color:#ecd2aaa6;margin:0 0 12px}
-.entry-letter h2{font:400 clamp(48px,13vw,72px)/1.25 "Wedding Display","Songti SC","STSong",serif;letter-spacing:7px;color:#f3d39b;text-shadow:0 2px 14px #24130c50;margin:0}
-.entry-names{display:flex;justify-content:center;align-items:center;gap:18px;margin:15px 0 18px;font:17px/1.5 "Songti SC",serif;letter-spacing:4px;color:#f6e8c9}
-.entry-names i{font:italic 17px Georgia,serif;letter-spacing:0;color:#c8a875}
-.entry-ribbon{display:flex;align-items:center;justify-content:center;gap:18px}
-.entry-ribbon::before,.entry-ribbon::after{content:"";flex:1;max-width:82px;height:1px;background:linear-gradient(90deg,transparent,#d5b67a99)}
-.entry-ribbon::after{transform:rotate(180deg)}
-.entry-open{position:relative;flex:none;width:86px;height:86px;padding:0!important;border:0;background:transparent;cursor:pointer;transform:rotate(-9deg);filter:drop-shadow(0 3px 0 #6a2328) drop-shadow(0 6px 8px #16080cc0);transition:transform .35s ease;touch-action:manipulation}
-.entry-open img{width:100%;height:100%;pointer-events:none}
-.entry-open::after{content:"";position:absolute;inset:15%;border-radius:50%;background:linear-gradient(120deg,transparent 30%,#fff3c64d 48%,transparent 65%);opacity:.5;animation:entry-gold 4s ease-in-out infinite;pointer-events:none}
-.entry-open:hover{transform:rotate(-4deg) scale(1.04)}
-.entry-open:focus-visible{outline:1px solid #f3d39b;outline-offset:8px;border-radius:50%}
-.entry-message{margin:14px 0 0;min-height:18px;font:11px/1.6 "Songti SC",serif;letter-spacing:3px;color:#e8cfaccc}
-.entry-skip{display:block;margin:9px auto -17px;padding:5px 10px;background:transparent;border:0;color:#dac7aa;font-size:10px;letter-spacing:1px;min-height:28px}
+.entry-screen::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 45%,#23535560,transparent 70%);pointer-events:none}
+.entry-screen::after{content:"";position:absolute;inset:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));border:1px solid #cfae6b24;pointer-events:none}
+.entry-paper{position:relative;display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;padding:28px 20px;isolation:isolate}
+.entry-heading{position:relative}
+.entry-salute{margin:0 0 12px;color:#cdb581a6;font:9px/1.5 Georgia,serif;letter-spacing:3.5px}
+.entry-heading h2{margin:0;font:400 clamp(36px,10vw,46px)/1.3 "Wedding Display","Songti SC","STSong",serif;letter-spacing:8px;text-indent:8px;color:#f0d8a5}
+.entry-names{display:flex;justify-content:center;align-items:center;gap:15px;margin:14px 0 0;font:14px/1.5 "Songti SC",serif;letter-spacing:3px;color:#e7ddc6}
+.entry-names i{font:italic 14px Georgia,serif;letter-spacing:0;color:#bba775}
+.entry-open{--letter-width:min(82vw,340px,48vh);--letter-width:min(82vw,340px,48svh);position:relative;display:block;flex:none;width:var(--letter-width);aspect-ratio:1 / 1.45;margin:0;padding:0!important;border:0;border-radius:3px;background:transparent;color:inherit;cursor:pointer;touch-action:manipulation;perspective:1000px;-webkit-tap-highlight-color:transparent;isolation:isolate}
+.entry-open:focus-visible{outline:2px solid #efd39d;outline-offset:12px}
+.entry-open>span{display:block;pointer-events:none}
+.entry-envelope-back{position:absolute;inset:64% 0 0;border-radius:3px;background:#521e24;box-shadow:0 18px 28px #031e2380,0 2px 2px #071e2366}
+.entry-letter{position:absolute;z-index:1;left:6%;top:0;width:88%;padding:13px 13px 50px;background:#eee3cc;box-shadow:0 1px 1px #fff5df66 inset,0 0 0 1px #af996b,0 10px 22px #041d2255;transition:transform .7s cubic-bezier(.22,.68,.2,1);transform-origin:50% 90%}
+.entry-letter::before{content:"";position:absolute;inset:6px;border:1px solid #b59d6950;pointer-events:none}
+.entry-photo{display:block;width:100%;height:auto;aspect-ratio:4 / 5;object-fit:contain;background:#c2ad8b;border:1px solid #846d4966}
+.entry-letter-rule{display:block;width:54px;height:1px;background:#b29b6b70;margin:20px auto 0}
+.entry-envelope-pocket{position:absolute;z-index:2;inset:72% 0 0;border:1px solid #b47c565e;border-top:0;border-radius:0 0 3px 3px;background:linear-gradient(148deg,#8e3940,#72262e 53%,#823038);box-shadow:0 -1px 1px #45182066}
+.entry-envelope-pocket::before,.entry-envelope-pocket::after{content:"";position:absolute;inset:0;pointer-events:none}
+.entry-envelope-pocket::before{background:linear-gradient(32deg,#551c2480,transparent 56%);clip-path:polygon(0 0,55% 68%,100% 0,100% 100%,0 100%)}
+.entry-envelope-pocket::after{inset:0 9px 9px;border:1px solid #d7ab7460;border-top:0}
+.entry-flap{position:absolute;z-index:3;left:0;right:0;top:72%;height:18%;transform-origin:50% 0;transition:transform .65s cubic-bezier(.2,.7,.2,1);animation:entry-flap-invite 5.6s ease-in-out 1.2s infinite;filter:drop-shadow(0 3px 2px #35101c70);backface-visibility:hidden}
+.entry-flap-paper{position:absolute;inset:0;display:block;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(165deg,#a64b50,#80303a 65%);border-top:1px solid #d7ab7480}
+.entry-flap-paper::after{content:"";position:absolute;inset:0;background:linear-gradient(150deg,transparent 38%,#f7d59b33 49%,transparent 60%);opacity:.4}
+.entry-seal{position:absolute;z-index:4;left:calc(50% - 37px);top:calc(87% - 37px);width:74px;height:74px;transform:rotate(-9deg);filter:drop-shadow(0 2px 0 #611d25) drop-shadow(0 5px 4px #300d19aa);transition:transform .5s ease,opacity .45s ease;animation:entry-seal-invite 5.6s ease-in-out 1.2s infinite}
+.entry-seal::before{content:"";position:absolute;inset:-7px;border:1px solid #edcf9566;border-radius:50%;opacity:0;animation:entry-touch-halo 5.6s ease-out 1.2s infinite}
+.entry-seal-glint{position:absolute;inset:12%;border-radius:50%;overflow:hidden}
+.entry-seal-glint::after{content:"";position:absolute;inset:-20%;background:linear-gradient(120deg,transparent 35%,#fff2bd66 49%,transparent 62%);transform:translateX(-100%);animation:entry-gold 5.6s ease-in-out 1.2s infinite}
+.entry-postmark{position:absolute;z-index:3;left:0;right:0;bottom:11px;font:9px/1.5 Georgia,serif;letter-spacing:4px;color:#e0bc88b3}
+.entry-dedication{margin:0;font:12px/1.9 "Songti SC",serif;letter-spacing:3px;color:#ddc797}
+.entry-dedication span{display:block;font-size:11px;letter-spacing:2px;color:#c8bc9b99}
+.entry-message{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.entry-skip{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);min-height:44px;white-space:nowrap;padding:10px 14px;border:1px solid #e5c88d55;border-radius:24px;background:#12383a;color:#ead9b5;font-size:11px;letter-spacing:1px;cursor:pointer}
 .entry-skip[hidden]{display:none}
-.entry-opening .entry-open{transform:rotate(5deg) scale(.94)}
+.entry-delayed .entry-dedication{visibility:hidden}
+.entry-gold-mote{position:absolute;z-index:5;left:50%;top:82%;width:3px;height:3px;border-radius:50%;background:#f5d399;box-shadow:0 0 7px #e7bd7977;opacity:0}
+.entry-gold-mote-one{--mote-x:-70px;--mote-y:-90px;--mote-delay:0s}
+.entry-gold-mote-two{--mote-x:65px;--mote-y:-120px;--mote-delay:.6s}
+.entry-gold-mote-three{--mote-x:12px;--mote-y:-150px;--mote-delay:1.2s}
+/* The invitation cue pauses while media starts. No fake progress or extra wait. */
+.entry-opening .entry-flap{animation:none;transform:rotateX(155deg)}
+.entry-opening .entry-seal{animation:none;transform:translateY(22px) rotate(14deg) scale(.88);opacity:0}
+.entry-opening .entry-seal::before,.entry-opening .entry-seal-glint::after{animation:none}
+.entry-opening .entry-letter{transform:translateY(-18px)}
+.entry-opening .entry-gold-mote{animation:entry-mote 2.2s ease-out var(--mote-delay) infinite}
 .entry-screen.entry-leaving{opacity:0;visibility:hidden;pointer-events:none}
-.entry-leaving .entry-paper{transform:scale(1.045);transition:transform .75s ease}
-@keyframes entry-gold{0%,100%{opacity:.2;transform:translateX(-5%)}50%{opacity:.8;transform:translateX(5%)}}
-@media(max-height:700px){.entry-letter{bottom:26px}.entry-imprint{top:28px}.entry-date{top:28px}.entry-letter h2{font-size:46px}.entry-salute{margin-bottom:8px;font-size:10px}.entry-names{margin:10px 0 12px;font-size:15px}.entry-open{width:66px;height:66px}.entry-message{margin-top:10px}.entry-margin{font-size:10px}}
-@media(min-width:700px){.entry-paper{height:calc(100% - 40px);max-height:940px}.entry-photo{object-position:50% 40%}.entry-letter{bottom:35px}}
-@media(prefers-reduced-motion:reduce){.entry-screen,.entry-open,.entry-leaving .entry-paper{transition:none}.entry-open::after{animation:none}}
+.entry-leaving .entry-letter{transform:translateY(-56px);opacity:0;transition:transform .7s ease,opacity .32s ease}
+.entry-leaving .entry-envelope-back,.entry-leaving .entry-envelope-pocket,.entry-leaving .entry-postmark{transform:translateY(65px);transition:transform .7s ease}
+.entry-leaving .entry-heading,.entry-leaving .entry-dedication{opacity:0;transition:opacity .4s ease}
+@media(hover:hover){.entry-open:hover .entry-letter{transform:translateY(-5px)}.entry-open:hover .entry-seal{filter:drop-shadow(0 2px 0 #611d25) drop-shadow(0 6px 6px #300d19aa) brightness(1.1)}.entry-opening .entry-open:hover .entry-letter{transform:translateY(-18px)}.entry-leaving .entry-open:hover .entry-letter{transform:translateY(-56px)}}
+.entry-open:active .entry-seal{transform:rotate(-5deg) scale(.94)}
+@keyframes entry-flap-invite{0%,12%,28%,100%{transform:rotateX(0)}20%{transform:rotateX(-12deg)}}
+@keyframes entry-seal-invite{0%,12%,28%,100%{transform:rotate(-9deg) translateY(0) scale(1)}20%{transform:rotate(-5deg) translateY(-3px) scale(1.07)}}
+@keyframes entry-touch-halo{0%,14%,42%,100%{opacity:0;transform:scale(.85)}20%{opacity:.65;transform:scale(1)}40%{opacity:0;transform:scale(1.35)}}
+@keyframes entry-gold{0%,6%{transform:translateX(-100%)}28%,100%{transform:translateX(100%)}}
+@keyframes entry-mote{0%{opacity:0;transform:translate(0,0)}20%{opacity:.8}100%{opacity:0;transform:translate(var(--mote-x),var(--mote-y))}}
+@media(max-height:720px){.entry-paper{gap:18px;padding:22px 20px}.entry-open{--letter-width:min(80vw,310px,42vh);--letter-width:min(80vw,310px,42svh)}.entry-heading h2{font-size:34px}.entry-salute{margin-bottom:8px;font-size:8px}.entry-names{margin-top:10px;font-size:13px}.entry-seal{width:66px;height:66px;left:calc(50% - 33px);top:calc(87% - 33px)}.entry-dedication{font-size:11px}.entry-dedication span{font-size:10px}.entry-postmark{font-size:8px;bottom:9px}.entry-skip{bottom:22px}}
+@media(max-height:540px){.entry-paper{gap:10px;padding:15px}.entry-heading h2{font-size:25px}.entry-salute,.entry-names,.entry-dedication span{display:none}.entry-open{--letter-width:min(62vw,46vh);--letter-width:min(62vw,46svh)}.entry-letter{padding:8px 8px 30px}.entry-seal{width:48px;height:48px;left:calc(50% - 24px);top:calc(86% - 24px)}.entry-postmark{font-size:7px;letter-spacing:2px;bottom:5px}.entry-skip{bottom:15px}}
+@media(prefers-reduced-motion:reduce){.entry-screen,.entry-open *{animation:none!important;transition:none!important}.entry-opening .entry-flap{transform:none;opacity:0}.entry-opening .entry-letter,.entry-leaving .entry-letter{transform:none}.entry-opening .entry-gold-mote{opacity:.5}}
