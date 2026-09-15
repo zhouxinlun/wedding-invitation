@@ -87,7 +87,7 @@
     if (index < 0) return;
     if(id==='journey'&&!document.documentElement.classList.contains('journey-active'))journeyMap?.activate();
     document.documentElement.classList.toggle('journey-active',id==='journey');
-    document.documentElement.classList.toggle('opening-active', id === 'us');
+    document.documentElement.classList.toggle('opening-active', id === 'us' || id === 'invitation');
     navLinks.forEach((a,i) => { a.classList.toggle('active',i===index); if(i===index) a.setAttribute('aria-current','location'); else a.removeAttribute('aria-current'); });
   }
   function updateChapterAtViewport() {
@@ -100,7 +100,7 @@
     selectChapter(current.id);
   }
   function scrollToChapter(target, behavior) {
-    if (target.id !== 'us' && target.id !== 'journey') {
+    if (!['invitation','us','journey'].includes(target.id)) {
       target.scrollIntoView({behavior,block:'start'});
       return;
     }
@@ -116,23 +116,19 @@
     const topSpace = Math.max(12, (availableHeight - opening.height) / 2);
     window.scrollTo({top:Math.max(0, absoluteTop - topSpace),behavior});
   }
+  const entryChapter=()=>chapters.find(chapter=>'#'+chapter.id===location.hash)||chapters[0];
   document.addEventListener('wedding:enter',()=>{
-    scrollToChapter(document.querySelector('#us'),'instant');
-    selectChapter('us');restoreNavigation();
+    const target=entryChapter();
+    scrollToChapter(target,'instant');
+    selectChapter(target.id);restoreNavigation();
   });
-  // Old invitation links still land on the new opening; named chapters stay usable.
   function syncChapterFromHash() {
-    if (location.hash === '#invitation') {
-      history.replaceState(null, '', '#us');
-      selectChapter('us');
-      scrollToChapter(document.querySelector('#us'), 'instant');
-    }
-    selectChapter(location.hash.slice(1) || 'us');
+    selectChapter(entryChapter().id);
   }
   syncChapterFromHash();
   window.addEventListener('hashchange', syncChapterFromHash);
   // Align once after the display font settles; never pull a guest back after interaction.
-  if ((!location.hash || location.hash === '#us' || location.hash === '#journey') &&
+  if ((!location.hash || ['#invitation','#us','#journey'].includes(location.hash)) &&
       performance.getEntriesByType?.('navigation')[0]?.type !== 'back_forward') {
     const entryHash = location.hash;
     let interacted = false;
@@ -142,7 +138,7 @@
     (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(() => {
       inputEvents.forEach(type => window.removeEventListener(type, cancelAlignment));
       if (!interacted && location.hash === entryHash) {
-        scrollToChapter(document.querySelector(entryHash==='#journey'?'#journey':'#us'), 'instant');
+        scrollToChapter(entryChapter(), 'instant');
         restoreNavigation();
       }
     }));

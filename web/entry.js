@@ -22,7 +22,7 @@
     const finish=()=>{screen.hidden=true;screen.classList.remove('entry-leaving');};
     screen.addEventListener('transitionend',event=>{if(event.target===screen)finish();},{once:true});
     setTimeout(finish,800);
-    const heading=document.querySelector('#us-title');heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});
+    const heading=document.querySelector(location.hash==='#us'?'#us-title':'#invitation-title');heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});
   }
   function render(){
     if(leaving)return;

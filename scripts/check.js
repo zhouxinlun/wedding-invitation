@@ -22,17 +22,17 @@ verify('分享路径及两种封面文件存在',()=>{
   [share.imageUrl,timeline.imageUrl].forEach(file=>assert(fs.existsSync(path.join(root,'miniprogram',file))));
   assert(share.title.includes(config.groom)&&share.title.includes(config.bride));
 });
-verify('小程序六章与 H5 五章均可导航，后台暂停仍正常',()=>{
+verify('小程序与 H5 六章均可导航，后台暂停仍正常',()=>{
  const {page,calls,timers}=setup();page.onLoad();
  const expected=['invitation','us','album','blessings','schedule','journey'];
  const native=fs.readFileSync(path.join(root,'miniprogram/pages/invitation/index.wxml'),'utf8');
  const web=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
  assert.deepEqual(Array.from(page.data.chapters,c=>c.id),expected);
  const nav=web.match(/<nav class="bottom-nav"[\s\S]*?<\/nav>/)[0];
- assert.deepEqual(Array.from(nav.matchAll(/href="#([^"]+)"/g),m=>m[1]),expected.slice(1));
- assert.deepEqual(Array.from(nav.matchAll(/class="nav-number"[^>]*>([^<]+)/g),m=>m[1]),['01','02','03','04','05']);
+ assert.deepEqual(Array.from(nav.matchAll(/href="#([^"]+)"/g),m=>m[1]),expected);
+ assert.deepEqual(Array.from(nav.matchAll(/class="nav-number"[^>]*>([^<]+)/g),m=>m[1]),['01','02','03','04','05','06']);
  for(const [index,id] of expected.entries()){
-  assert(native.includes('id="'+id+'"'));if(id!=='invitation')assert(web.includes('id="'+id+'"'));
+  assert(native.includes('id="'+id+'"'));assert(web.includes('id="'+id+'"'));
   page.navigate({currentTarget:{dataset:{target:id}}});
   assert.equal(page.data.active,id);assert.equal(page.data.activeIndex,index);
   assert.equal(calls.filter(c=>c.name==='pageScrollTo').at(-1).options.selector,'#'+id);

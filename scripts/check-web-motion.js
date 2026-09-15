@@ -2,18 +2,18 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {JSDOM}=require('jsdom');
 const flush=async()=>{for(let i=0;i<16;i++)await Promise.resolve();};
-function setup(popoutMode='none'){
+function setup(popoutMode='none',webFile=''){
   const dom=new JSDOM('<div class="opening-portrait"><div class="us-photo"><video muted loop playsinline></video></div></div><dialog></dialog>',{url:'https://invitation.example',runScripts:'outside-only',pretendToBeVisual:true});
   const w=dom.window,video=w.document.querySelector('video'),frame=video.parentElement,calls=[],timers=new Map();
   let visibility,paused=true,playError=null,mediaError=false,delayed=null,next=0;
-  w.WEDDING={coupleMotion:{enabled:true,webPopoutFile:popoutMode==='none'?'':'media/carry.mp4'}};
+  w.WEDDING={coupleMotion:{enabled:true,webFile,webPopoutFile:popoutMode==='none'?'':'media/carry.mp4'}};
   const reduced={matches:false,addEventListener(type,cb){this.changed=cb;}};
   w.matchMedia=()=>reduced;
   w.HTMLMediaElement.prototype.load=function(){};
   if(popoutMode!=='none')w.createWeddingPopout=clip=>{
     if(popoutMode==='unavailable')return null;
     let stopped=true;Object.defineProperty(clip,'paused',{get:()=>stopped});
-    clip.play=async()=>{calls.push('popout');stopped=false;clip.currentTime=3;clip.dispatchEvent(new w.Event('playing'));};
+    clip.play=async()=>{calls.push('popout');if(playError)throw playError;stopped=false;clip.currentTime=3;clip.dispatchEvent(new w.Event('playing'));};
     clip.pause=()=>{stopped=true;clip.dispatchEvent(new w.Event('pause'));};
     return {draw(){if(popoutMode==='draw-error')throw Error('context lost');return true;},dispose(){calls.push('dispose');}};
   };
@@ -30,6 +30,26 @@ function setup(popoutMode='none'){
     tick:async()=>{const [id,fn]=timers.entries().next().value||[];if(fn){timers.delete(id);fn();await flush();}},close:()=>w.close()};
 }
 (async()=>{
+  // Exercise the real controller after the host initially denies playback.
+  // These events occur without a scroll or a fresh IntersectionObserver entry.
+  for(const mode of ['none','ready'])for(const event of ['WeixinJSBridgeReady','wedding:revealed','loadeddata','canplay','touchend','click']){
+    const f=setup(mode);try{
+      f.playError=new f.w.DOMException('Host not ready','NotAllowedError');f.visible(.8);await flush();
+      const clip=mode==='ready'?f.w.document.querySelector('.popout-source'):f.video;
+      assert(clip.paused);assert.equal(f.timers.size,0);
+      f.playError=null;
+      const target=['loadeddata','canplay'].includes(event)?clip:f.w.document;
+      target.dispatchEvent(new f.w.Event(event));await flush();
+      assert(!clip.paused,`${mode}: ${event} must resume a visible portrait without a scroll`);
+      f.visible(0);target.dispatchEvent(new f.w.Event(event));await flush();assert(clip.paused,'Readiness must not start an offscreen clip');
+    }finally{f.close();}
+  }
+  const local=setup('none','media/reel.mp4');try{
+    local.visible(.8);
+    assert(local.calls.includes('play'),'A local source must call play synchronously, before user activation can expire');
+    await flush();assert.equal(local.video.getAttribute('src'),'media/reel.mp4');
+  }finally{local.close();}
+  console.log('PASS 微信就绪、首段解码、退出 Loading 和 iOS 触摸均可恢复，离屏不偷跑，本地播放保留同步手势');
   const a=setup();
   try{
     a.playError=new a.w.DOMException('Gesture required','NotAllowedError');a.visible(.8);await flush();

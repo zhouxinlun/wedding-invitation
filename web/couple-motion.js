@@ -7,15 +7,22 @@
   let popout,canvas,compositor,popoutTurn=false,animation,reelLoading,backgroundStarted=false;
   if(config.webPopoutFile&&portrait&&window.createWeddingPopout){
     popout=document.createElement('video');popout.className='popout-source';popout.preload='none';
-    popout.muted=true;popout.playsInline=true;popout.setAttribute('muted','');popout.setAttribute('playsinline','');popout.setAttribute('aria-hidden','true');
+    popout.setAttribute('aria-hidden','true');
     canvas=document.createElement('canvas');canvas.className='popout-canvas';canvas.setAttribute('aria-hidden','true');
     compositor=window.createWeddingPopout(popout,canvas);
     if(compositor){portrait.append(popout,canvas);popoutTurn=true;}
   }
-  video.loop=true;video.muted=true;video.playsInline=true;
+  for(const media of [video,popout].filter(Boolean)){
+    media.muted=true;media.defaultMuted=true;media.playsInline=true;
+    media.setAttribute('muted','');media.setAttribute('playsinline','');media.setAttribute('webkit-playsinline','');
+  }
+  video.loop=true;
   if(compositor)video.loop=false;
   const active=()=>popoutTurn?popout:video;
   const wanted=()=>!window.WeddingEntry?.pending&&pageActive&&visible&&!document.hidden&&!reduced.matches&&!document.querySelector('dialog[open]');
+  function loadReel(media){
+    video.preload='auto';video.src=media.url;expiresAt=media.expiresAt;failed=false;video.load();
+  }
   async function prepareReel(force=false){
     if(reelLoading)return reelLoading;
     if(!force&&video.getAttribute('src')&&expiresAt>Date.now()+15000)return;
@@ -24,7 +31,7 @@
       // cloud path for installations without a bundled reel.
       const media=config.webFile?{url:config.webFile,expiresAt:Infinity}:await window.WeddingCloud.motion(force);
       if(!wanted()&&!window.WeddingEntry?.pending)return;
-      video.preload='auto';video.src=media.url;expiresAt=media.expiresAt;failed=false;video.load();
+      loadReel(media);
     })();
     try{await reelLoading;}finally{reelLoading=null;}
   }
@@ -92,7 +99,13 @@
     try{
       if(popoutTurn){
         if(!popout.getAttribute('src'))popout.src=config.webPopoutFile;
-      }else if(failed||!video.getAttribute('src')||expiresAt<Date.now()+15000){await prepareReel(failed);if(!wanted())return;}
+      }else if(failed||!video.getAttribute('src')||expiresAt<Date.now()+15000){
+        // A bundled URL needs no async work: keep play() in the actual iOS
+        // touch/click handler instead of losing activation behind an await.
+        if(config.webFile)loadReel({url:config.webFile,expiresAt:Infinity});
+        else await prepareReel(failed);
+        if(!wanted())return;
+      }
       if(wanted())await active().play();
     }catch(error){
       frame.classList.remove('motion-playing');
@@ -115,10 +128,14 @@
   document.addEventListener('visibilitychange',sync);
   reduced.addEventListener('change',()=>{prepareOpening();sync();});
   document.addEventListener('wedding:enter',sync);
-  document.addEventListener('wedding:revealed',warmBackground,{once:true});
+  document.addEventListener('wedding:revealed',()=>{sync();warmBackground();},{once:true});
+  document.addEventListener('WeixinJSBridgeReady',sync);
+  for(const media of [video,popout].filter(Boolean)){
+    ['loadeddata','canplay'].forEach(type=>media.addEventListener(type,()=>{if(media===active())sync();}));
+  }
   // No overlay control: a real gesture can resume muted playback on browsers
   // that disallow initial autoplay, without consuming the guest's interaction.
-  document.addEventListener('pointerdown',sync,{passive:true});
+  ['pointerdown','touchend','click'].forEach(type=>document.addEventListener(type,sync,{capture:true,passive:true}));
   document.addEventListener('keydown',sync);
   window.addEventListener('online',()=>{retries=0;clearRetry();sync();});
   // Blessing dialogs are created by the following deferred script.

@@ -19,6 +19,7 @@ async function build(){
     if(!/^media\/[\w.-]+\.(mp4|mp3|m4a|ogg|wav)$/.test(file))throw Error('H5 media must be a local file inside web/media: '+file);
     await copy('web/'+file);
   }
+  await copy('web/media/invitation-cover-dunhuang.jpg');
   await copy('web/vendor');
   await copy('miniprogram/assets');
   await copy('miniprogram/shared/title-font-LICENSE.txt');

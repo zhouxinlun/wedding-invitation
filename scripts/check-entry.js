@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{JSDOM}=require('jsdom');
 const root=path.resolve(__dirname,'..'),html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
 const flush=async()=>{for(let i=0;i<16;i++)await Promise.resolve();};
-function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMotion=false,reelFile=''}={}){
+function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMotion=false,reelFile='',visible=true}={}){
   const dom=new JSDOM(html,{url:'https://invitation.example/web/index.html'+(gate?'':'#album'),runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window,d=w.document;
   const media=new WeakMap(),calls=[],timers=new Map();let next=0,observe,hidden=false;
   Object.defineProperty(d,'hidden',{get:()=>hidden});
@@ -20,9 +20,10 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
   w.setTimeout=(fn,ms)=>{timers.set(++next,{fn,ms});return next;};w.clearTimeout=id=>timers.delete(id);
   if(gate)d.documentElement.classList.add('entry-pending');
   for(const file of ['entry.js','couple-motion.js','music.js'])w.eval(fs.readFileSync(path.join(root,'web',file),'utf8'));
-  observe([{intersectionRatio:.8}]);
+  observe([{intersectionRatio:visible?.8:0}]);
   const q=s=>d.querySelector(s);
   return {w,d,q,calls,timers,audio:q('audio'),clip:q('.popout-source')||q('.us-motion'),
+    portraitVisibility(ratio){observe([{intersectionRatio:ratio}]);},
     allow(el){info(el).blocked=false;},
     visibility(value){hidden=value;d.dispatchEvent(new w.Event('visibilitychange'));},
     buffer(el,state){Object.assign(info(el),state);},
@@ -30,6 +31,13 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
     tick(ms){for(const [id,timer]of [...timers])if(timer.ms===ms){timers.delete(id);timer.fn();}},close(){w.close();}};
 }
 (async()=>{
+  const cover=fixture({visible:false});try{
+    cover.ready(cover.clip,{end:.5});await flush();
+    assert(!cover.q('main').inert,'Buffered media opens the static invitation without waiting for video playback');
+    assert(cover.clip.paused,'The second chapter must not play behind the first invitation');
+    assert.equal(cover.d.activeElement.id,'invitation-title');
+    cover.portraitVisibility(.8);await flush();assert(!cover.clip.paused,'Entering We starts its already buffered video');
+  }finally{cover.close();}
   for(const readyState of [1,2,3]){
     const mobile=fixture();try{
       mobile.ready(mobile.audio,{readyState:1,end:0,duration:180});

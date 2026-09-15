@@ -98,13 +98,16 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
     try{
       win.matchMedia=()=>({matches:true,addEventListener(){}});
       win.HTMLElement.prototype.scrollIntoView=function(){scrolls.push(this.id);};
-      win.scrollTo=options=>{centered.push(options);scrolls.push(doc.documentElement.classList.contains('journey-active')?'journey':'us');};
+      let scrollY=0;
+      Object.defineProperty(win,'scrollY',{get:()=>scrollY});
+      win.scrollTo=options=>{centered.push(options);scrollY=options.top;scrolls.push(options.top===4530?'journey':options.top===930?'us':'invitation');};
       win.requestAnimationFrame=callback=>{frames.push(callback);return frames.length;};
       Object.defineProperty(win,'innerHeight',{value:900});
-      for(const [index,chapter] of [...doc.querySelectorAll('main>.nav-section')].entries())chapter.getBoundingClientRect=()=>({top:120+index*900,height:900});
-      doc.querySelector('#us').getBoundingClientRect=()=>({top:120,height:640});
-      doc.querySelector('.journey-card').getBoundingClientRect=()=>({top:3744,height:640});
-      Object.defineProperty(doc.querySelector('.journey-card'),'offsetTop',{value:3720});
+      for(const [index,chapter] of [...doc.querySelectorAll('main>.nav-section')].entries())chapter.getBoundingClientRect=()=>({top:120+index*900-scrollY,height:900});
+      doc.querySelector('#invitation').getBoundingClientRect=()=>({top:120-scrollY,height:640});
+      doc.querySelector('#us').getBoundingClientRect=()=>({top:1020-scrollY,height:640});
+      doc.querySelector('.journey-card').getBoundingClientRect=()=>({top:4644-scrollY,height:640});
+      Object.defineProperty(doc.querySelector('.journey-card'),'offsetTop',{value:4620});
       doc.querySelector('.bottom-nav').getBoundingClientRect=()=>({height:80});
       win.IntersectionObserver=class{constructor(callback,options){this.callback=callback;observers.push({callback,options,targets:[]});this.record=observers.at(-1);}observe(target){this.record.targets.push(target);}unobserve(){}disconnect(){}};
       win.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};
@@ -122,16 +125,19 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
       if(interacted)win.dispatchEvent(new win.Event('wheel'));
       await flush();frames.splice(0).forEach(callback=>callback());
       if(hash==='#blessings'||interacted)assert.equal(centered.length,0,'Deep links and guest interaction keep their position');
-      else assert.equal(centered.at(-1).top,30,'Opening is centered above the 80px navigation');
-      assert.equal(doc.querySelector('main>section').id,'us');
-      assert.equal(doc.querySelector('.bottom-nav .active').hash,hash==='#blessings'?'#blessings':'#us');
+      else assert.equal(centered.at(-1).top,hash==='#us'?930:30,'Requested opening is centered above the 80px navigation');
+      assert.equal(doc.querySelector('main>section').id,'invitation');
+      assert.equal(doc.querySelector('.bottom-nav .active').hash,hash||'#invitation');
       const originalRects=[...doc.querySelectorAll('main>.nav-section')].map(chapter=>chapter.getBoundingClientRect);
-      for(const [index,chapter] of [...doc.querySelectorAll('main>.nav-section')].entries())chapter.getBoundingClientRect=()=>({top:20+(index-4)*900,height:900});
+      for(const [index,chapter] of [...doc.querySelectorAll('main>.nav-section')].entries())chapter.getBoundingClientRect=()=>({top:20+(index-5)*900,height:900});
       observers.find(observer=>observer.options?.rootMargin==='-12% 0px -42% 0px').callback([{isIntersecting:true,target:doc.querySelector('#schedule')}]);
       assert.equal(doc.querySelector('.bottom-nav .active').hash,'#journey','A late observer entry cannot highlight a chapter outside the reading area');
       [...doc.querySelectorAll('main>.nav-section')].forEach((chapter,index)=>{chapter.getBoundingClientRect=originalRects[index];});
       assert.equal(doc.querySelectorAll('h1').length,1);
-      assert(!doc.querySelector('#invitation'));
+      assert.equal(doc.querySelectorAll('.bottom-nav a').length,6);
+      assert.equal(doc.querySelector('#invitation + section').id,'us');
+      assert.equal(doc.querySelector('.invitation-portrait img').getAttribute('fetchpriority'),'high');
+      assert(!doc.querySelector('#invitation video'),'The invitation cover is independent of video autoplay');
       assert.equal(doc.querySelector('#us video').loop,true);
       assert.equal(doc.querySelector('#us .us-photo img').getAttribute('fetchpriority'),'high');
       assert(doc.querySelector('#us').textContent.includes('周新沦'));
@@ -144,8 +150,8 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
       assert(doc.querySelector('meta[property="og:description"]').content.includes('11:08'));
       for(const link of doc.querySelectorAll('.bottom-nav a')){
         link.click();assert.equal(scrolls.at(-1),link.hash.slice(1));assert.equal(win.location.hash,link.hash);
-        if(link.hash==='#journey')assert.equal(centered.at(-1).top,3630,'Center the card layout, ignoring its 24px reveal transform');
-        assert.equal(doc.documentElement.classList.contains('opening-active'),link.hash==='#us');
+        if(link.hash==='#journey')assert.equal(centered.at(-1).top,4530,'Center the card layout, ignoring its 24px reveal transform');
+        assert.equal(doc.documentElement.classList.contains('opening-active'),['#us','#invitation'].includes(link.hash));
       }
       for(const [index,button] of [...doc.querySelectorAll('.destination-tabs button')].entries()){
         button.click();assert.equal(doc.querySelector('#place-name').textContent,index?win.WEDDING.homes[index-1].displayName:win.WEDDING.venue.name);
@@ -153,8 +159,9 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
       }
       doc.querySelector('.opening-date').click();assert.equal(doc.querySelector('#place-name').textContent,win.WEDDING.venue.name,'Opening venue link must restore the hotel after viewing a home');
       win.location.hash='#invitation';win.dispatchEvent(new win.HashChangeEvent('hashchange'));
-      assert.equal(win.location.hash,'#us');assert.equal(scrolls.at(-1),'us');
-      assert.equal(doc.querySelector('.bottom-nav .active').hash,'#us');
+      assert.equal(win.location.hash,'#invitation');
+      assert.equal(doc.querySelector('.bottom-nav .active').hash,'#invitation');
+      doc.querySelector('.invitation-next').click();assert.equal(scrolls.at(-1),'us');
       doc.querySelector('#share-invite').click();assert(doc.querySelector('#share-dialog').open);
       doc.querySelector('#copy-link').click();await flush();
       assert.equal(copies.at(-1),require('../miniprogram/wedding').shareUrl);
@@ -195,7 +202,7 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
     require('node:vm').runInNewContext(landing.window.document.querySelector('script').textContent,{location:{search:'?from=friend',hash:'#album',replace:url=>{redirect=url;}}});
     assert.equal(redirect,'./web/index.html?from=friend#album');
   }finally{inner.window.close();landing.window.close();}
-  console.log('PASS H5 首屏为我们、旧喜帖链接兼容、五章导航、分享链接清理参数、根地址和内页同封面');
+  console.log('PASS H5 静态喜帖首屏、我们深链接保留、六章导航、分享链接清理参数、根地址和内页同封面');
   const files=fs.readdirSync(out,{recursive:true}).filter(file=>fs.statSync(path.join(out,file)).isFile());
   assert(!files.some(file=>/cloudfunctions|node_modules|preview|\.env|admin|secret|\.map$/.test(file)));
   assert(!files.some(file=>/couple-red\.jpg|share-card\.png|share-square\.png|良辰之约-微信请柬\.png/.test(file)));

@@ -1,5 +1,7 @@
 # 良辰之约 · 婚礼请柬
 
+> **当前更新（2026-09-15）**：H5 恢复「喜帖 → 我们 → 相册 → 祝福 → 流程 → 赴宴」。喜帖首屏使用早期青金边框原图的中间方形画面；原图来自 `assets/generated/wedding-invitation-60s/invitation-front-v1.png`（工作区），网页副本为 `web/media/invitation-cover-dunhuang.jpg`，仅缩小及 JPEG 编码，人物未重绘。封蜡 Loading 继续等待视频首段缓冲，视频在「我们」入屏后播放。微信就绪、媒体就绪、退出 Loading 和真实触摸都会检查是否应恢复静音内嵌播放；浏览器强制要求手势时不能保证无触摸播放。本次版本已通过本地审核，线上与本地使用同一份 H5 构建产物。
+
 > **当前更新（2026-09-09）**：同一仓库支持微信小程序与 H5，请柬内容、照片、祝福和云函数共用。H5 运行 `npm run dev:web`；域名注册、备案和部署步骤见 [H5.md](H5.md)。原封面与六项菜单保留。小程序 UGC 类目审核与 H5 上线分别处理。
 
 私有协作仓库：[zhouxinlun/wedding-invitation](https://github.com/zhouxinlun/wedding-invitation)。首次运行使用 Node.js 22+，执行 `npm run setup`、`npm test`，再用微信开发者工具导入仓库根目录。完整启动步骤、文件导航与分支协作见 [CONTRIBUTING.md](CONTRIBUTING.md)。
