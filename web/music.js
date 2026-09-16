@@ -39,7 +39,11 @@
     });
     render();
   }
-  function resumeFromGesture(){if(audio.paused)play();}
+  function resumeFromGesture(event){
+    // Music controls handle their own gesture; the global retry must not toggle them twice.
+    if(event.target.closest?.('.wedding-music,[data-music-toggle]'))return;
+    if(audio.paused)play();
+  }
   gestureEvents.forEach(type=>document.addEventListener(type,resumeFromGesture,true));
   controls.forEach(button=>button.addEventListener('click',()=>{
     if(!audio.paused){audio.pause();render();return;}
