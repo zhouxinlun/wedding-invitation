@@ -4,7 +4,7 @@
   if(!root.classList.contains('entry-pending')||!screen)return;
   const enter=screen.querySelector('#entry-open'),skip=screen.querySelector('#entry-skip');
   const message=screen.querySelector('#entry-message');
-  const slots={motion:{state:'unbound'},music:{state:'unbound'}};
+  const slots={motion:{state:'unbound'}};
   const background=[...document.body.children].filter(el=>el!==screen&&el.tagName!=='SCRIPT');
   const previousInert=background.map(el=>el.inert);
   background.forEach(el=>{el.inert=true;});
@@ -35,8 +35,6 @@
     screen.classList.toggle('entry-delayed',!skip.hidden);
     if(document.hidden)return;
     if(timedOut){enterInvitation(true,true);return;}
-    // iOS can defer audio preload and frame decoding until play() is requested.
-    // Neither audio permission nor a pending play promise is a loading condition.
     const buffered=['ready','skipped','error'].includes(slots.motion.state);
     if(!opening&&buffered&&!enter.disabled){enterInvitation(false,true);return;}
     if(opening&&buffered)reveal();
@@ -54,8 +52,6 @@
     if(leaving)return;
     if(!opening){
       opening=true;window.WeddingEntry.pending=false;
-      // A tap can still start playback immediately with its user activation.
-      // Automatic opening must not depend on permission for audible autoplay.
       document.dispatchEvent(new CustomEvent('wedding:enter',{detail:{automatic}}));
     }
     if(force)reveal();else render();
