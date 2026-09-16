@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const EMOJIS=['❤️','🌹','🎉','🥂','💐','囍'],snow=window.WeddingBlessingSnow,editor=window.WeddingBlessingEditor;
+const EMOJIS=['❤️','🌹','🎉','🥂','💐','囍','✨','🫶','🍾','💍'],BLESSING_PHRASES=['新婚快乐，百年好合！','愿你们永结同心，白头偕老。','愿往后余生，三餐四季皆有欢喜。','新婚大喜，甜甜蜜蜜！','愿你们相爱到老，幸福久久。','愿岁岁年年，常见欢喜。','佳偶天成，喜结良缘！','执子之手，与子偕老。','愿你们琴瑟和鸣，恩爱常在。','愿你们的生活有惊喜，也有甜蜜。','愿每一个平凡日子都闪闪发光。','愿你们携手看遍人间浪漫。','愿欢喜常伴，幸福不散场。','祝你们新婚愉快，喜乐常在！','愿你们一生相依，岁岁相守。','愿你们眼里有彼此，心里有欢喜。','愿爱意绵长，温柔相伴。','愿你们把日子过成喜欢的模样。','愿新婚的甜，延续到白发苍苍。','愿你们相敬如宾，甜蜜如初。','愿一屋两人三餐四季，温暖长久。','祝你们同心同德，幸福美满。','愿你们相濡以沫，共赴一生。','愿你们的故事一直有新的篇章。','愿朝朝暮暮，都有爱与陪伴。','愿你们在柴米油盐里收获浪漫。','愿两情长久，爱满人间。','愿你们牵手一生，幸福一世。','祝新人喜结连理，吉祥如意！','愿你们共度风雨，也共享彩虹。','愿你们的爱情甜过蜜糖。','愿所有美好如期而至。','愿你们心心相印，永远年轻。','愿你们的家充满笑声与鲜花。','愿一生一世一双人，白首不相离。','愿你们互相成就，共同闪耀。','祝你们新婚大吉，万事胜意！','愿爱有归处，家有温暖。','愿你们相伴到老，幸福到老。','愿每一次回眸，都是心动如初。','愿你们不负相遇，不负深情。'],snow=window.WeddingBlessingSnow,editor=window.WeddingBlessingEditor;
 const el=(tag,cls,text)=>{const node=document.createElement(tag);node.className=cls||'';if(text)node.textContent=text;return node;};
 function mount(root,options){
   const demo=options&&options.demo===true;
@@ -14,7 +14,7 @@ function mount(root,options){
   <button class="b-letter-card" aria-label="写一份祝福"><img class="b-letter-vine" src="../miniprogram/assets/rose-vines/vine-07.png" alt=""><div class="b-letter-to">致 小妮与新沦</div><div class="b-letter-title">这份欢喜，<span>就差你的一笔。</span></div><div class="b-letter-footer"><span>写祝福，也分享照片</span><span class="b-seal">寄 ♡</span></div></button>
   <div class="b-feed-heading"><span>亲友祝福</span><span class="b-feed-order">最新心意在前</span></div><div class="b-feed-frame"><div class="b-feed-scroll" role="region" aria-label="亲友祝福列表" tabindex="0"><div class="b-posts"></div><p class="b-list-end">每一句，都被好好珍藏 ♡</p></div></div><p class="b-footnote">祝福在这里相聚，良辰还在下方继续。</p>
   <div class="b-snow" aria-hidden="true"></div><button class="b-fab" aria-label="写祝福或分享照片"><span>♡</span>送祝福</button>
-  <dialog class="b-web-dialog" aria-labelledby="blessing-form-title"><div class="b-sheet"><div class="b-sheet-head"><div><span class="b-sheet-to">TO 小妮 & 新沦</span><h2 class="b-sheet-title" id="blessing-form-title">把欢喜，写给你们。</h2></div><button class="b-close" aria-label="关闭祝福窗口">×</button></div><form><div class="b-form-scroll"><div class="b-form-body"><label class="b-label b-name-label"><span>落款</span><input name="name" class="b-input" maxlength="20" placeholder="亲友熟悉的称呼" required autocomplete="nickname"></label><label class="b-label b-message-label"><span>想对你们说</span><textarea name="text" class="b-textarea" maxlength="160" placeholder="愿你们有说不完的话，也有看不完的风景。"></textarea><span class="b-counter">0 / 160</span></label><div class="b-emoji-row"></div><div class="b-photo-label"><span>附上你的独家收藏</span><span class="b-optional">0 / 3 张</span></div><p class="b-photo-note">新郎手机相册穷尽，请尽情上传新娘的丑照</p><div class="b-photo-picker"></div><input type="file" name="photos" accept="image/jpeg,image/png" multiple hidden><p class="b-error" role="status" aria-live="polite"></p><p class="b-identity-note">称呼、祝福和照片会展示给打开请柬的亲友。请在当前浏览器删除自己的内容；更换设备或清除浏览器数据后，原身份可能无法找回。</p></div></div><div class="b-send-footer"><div class="b-loading" role="status" aria-live="polite" hidden><div class="b-loading-spinner"></div><div><span class="b-progress"></span><span class="b-loading-hint">请稍候，完成后会自动显示</span></div></div><span class="b-send-note">${demo?'仅预览效果，本页操作不会发送给亲友':'称呼只需留一次，心意可以有很多次'}</span><button type="submit" class="b-send">寄出这份欢喜 ↗</button></div></form></div></dialog>`;
+  <dialog class="b-web-dialog" aria-labelledby="blessing-form-title"><div class="b-sheet"><div class="b-sheet-head"><div><span class="b-sheet-to">TO 小妮 & 新沦</span><h2 class="b-sheet-title" id="blessing-form-title">把欢喜，写给你们。</h2></div><button class="b-close" aria-label="关闭祝福窗口">×</button></div><form><div class="b-form-scroll"><div class="b-form-body"><label class="b-label b-name-label"><input name="name" class="b-input" maxlength="20" placeholder="请输入亲友熟悉的称呼" required autocomplete="nickname"></label><label class="b-label b-message-label"><span>想对你们说</span><textarea name="text" class="b-textarea" maxlength="160" placeholder="愿你们有说不完的话，也有看不完的风景。"></textarea><span class="b-counter">0 / 160</span></label><div class="b-quick-title">快捷送上新婚祝福</div><div class="b-phrase-row"></div><div class="b-emoji-title">再加一点喜气</div><div class="b-emoji-row"></div><p class="b-photo-note">新郎手机相册已经装满欢喜，欢迎用祝福和表情包刷屏 ♡</p><p class="b-error" role="status" aria-live="polite"></p><p class="b-identity-note">称呼、祝福和表情会展示给打开请柬的亲友。请在当前浏览器删除自己的内容；更换设备或清除浏览器数据后，原身份可能无法找回。</p></div></div><div class="b-send-footer"><div class="b-loading" role="status" aria-live="polite" hidden><div class="b-loading-spinner"></div><div><span class="b-progress"></span><span class="b-loading-hint">请稍候，完成后会自动显示</span></div></div><span class="b-send-note">${demo?'仅预览效果，本页操作不会发送给亲友':'称呼只需留一次，心意可以有很多次'}</span><button type="submit" class="b-send">寄出这份欢喜 ↗</button></div></form></div></dialog>`;
   const q=s=>root.querySelector(s),dialog=q('dialog'),form=q('form'),feed=q('.b-posts'),layer=q('.b-snow');
   q('.b-send').disabled=false;
   const status=el('div','b-feed-status'),statusText=el('span',''),retry=el('button','b-feed-retry','重新连接');
@@ -55,7 +55,7 @@ function mount(root,options){
   function bindName(container){
     const input=container.querySelector('[name=name]'),label=input.closest('label'),row=el('div','b-saved-name');
     const value=el('strong','',input.value),change=el('button','','修改称呼');change.type='button';
-    row.append(el('span','','落款'),value,change);label.before(row);row.hidden=!input.value;label.hidden=!!input.value;
+    row.append(value,change);label.before(row);row.hidden=!input.value;label.hidden=!!input.value;
     nameFields.push({input,label,row,value});
     change.onclick=()=>{row.hidden=true;label.hidden=false;input.focus();input.select();};
     input.addEventListener('change',()=>remember(input.value.trim()));
@@ -87,11 +87,11 @@ function mount(root,options){
   const modalObserver=new MutationObserver(sync);modalObserver.observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
   document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',sync);
   let previousOverflow='';
-  function open(){previousOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';dialog.showModal();sync();}
+  function open(){previousOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';drawPhrases();dialog.showModal();sync();}
   q('.b-letter-card').onclick=open;q('.b-fab').onclick=open;q('.b-close').onclick=()=>{if(!busy)dialog.close();};dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});dialog.addEventListener('close',()=>{document.documentElement.style.overflow=previousOverflow;sync();});
-  function drawEmoji(){const row=q('.b-emoji-row');row.replaceChildren();EMOJIS.forEach(emoji=>{const b=el('button','',emoji);b.type='button';b.ariaLabel='加入正文 '+emoji;b.onclick=()=>{if(busy)return;const value=editor.append(q('[name=text]').value,emoji);if(value===null){q('.b-error').textContent='正文最多160字，删减几个字再加入表情吧';return;}q('[name=text]').value=value;q('.b-counter').textContent=Array.from(value).length+' / 160';};row.append(b);});}
-  function drawPhotos(){const row=q('.b-photo-picker');row.replaceChildren();q('.b-optional').textContent=photos.length+' / 3 张';photos.forEach((src,i)=>{const wrap=el('div','b-picked'),img=el('img');img.src=src;img.alt='本次选择的照片';const b=el('button','','×');b.type='button';b.ariaLabel='移除第'+(i+1)+'张照片';b.onclick=()=>{if(busy)return;photos.splice(i,1);drawPhotos();};wrap.append(img,b);row.append(wrap);});if(photos.length<3){const b=el('button','b-add-photo');b.type='button';b.append(el('span','','＋'),el('span','','添张照片'));b.onclick=()=>{if(!busy)q('[name=photos]').click();};row.append(b);}}
-  q('[name=photos]').onchange=event=>{if(busy)return;q('.b-error').textContent='';for(const file of [...event.target.files].slice(0,3-photos.length)){if(!['image/jpeg','image/png'].includes(file.type)||file.size>10*1024*1024){q('.b-error').textContent='请选择10MB以内的JPG或PNG照片';continue;}const url=URL.createObjectURL(file);urls.push(url);photos.push(url);photoFiles.set(url,file);}event.target.value='';drawPhotos();};
+  function appendText(value){const next=editor.append(q('[name=text]').value,value);if(next===null){q('.b-error').textContent='正文最多160字，请删减后再加入';return;}q('[name=text]').value=next;q('.b-counter').textContent=Array.from(next).length+' / 160';}
+  function drawEmoji(){const row=q('.b-emoji-row');row.replaceChildren();EMOJIS.forEach(emoji=>{const b=el('button','b-emoji-choice',emoji);b.type='button';b.ariaLabel='加入正文 '+emoji;b.onclick=()=>{if(!busy)appendText(emoji);};row.append(b);});}
+  function drawPhrases(){const row=q('.b-phrase-row');row.replaceChildren();const selected=[...BLESSING_PHRASES].sort(()=>Math.random()-.5).slice(0,10);selected.forEach(phrase=>{const b=el('button','b-phrase-choice',phrase);b.type='button';b.onclick=()=>{if(!busy)appendText(phrase);};row.append(b);});}
   q('[name=text]').oninput=event=>q('.b-counter').textContent=Array.from(event.target.value).length+' / 160';
   function burst(){const burstLayer=el('div','b-burst');burstLayer.ariaHidden='true';for(let i=0;i<12;i++){const piece=el('span','',['✿','♡','✧'][i%3]);piece.style.setProperty('--x',((i%2?-1:1)*(15+i*4))+'px');piece.style.setProperty('--y',-(40+i%5*18)+'px');piece.style.animationDelay=i*.025+'s';burstLayer.append(piece);}root.append(burstLayer);wait(()=>burstLayer.remove(),1800);}
   function dateLabel(time){const d=new Date(time),pad=n=>String(n).padStart(2,'0');return (d.getMonth()+1)+'月'+d.getDate()+'日 '+pad(d.getHours())+':'+pad(d.getMinutes());}
@@ -140,7 +140,7 @@ function mount(root,options){
   form.onsubmit=async event=>{
     event.preventDefault();if(busy||mutating)return;
     const data=new FormData(form),name=String(data.get('name')).trim(),text=String(data.get('text')).trim();
-    if(!name||(!text&&!photos.length)){q('.b-error').textContent='请写下称呼，再添一句祝福、一个表情或一张照片';return;}
+    if(!name||!text){q('.b-error').textContent='请写下称呼，再添一句祝福或一个表情';return;}
     if(Array.from(name).length>20||Array.from(text).length>160){q('.b-error').textContent='称呼最多20字，祝福最多160字';return;}
     q('.b-error').textContent='';setBusy(true,'正在送出这份心意');let sentId;
     try{
@@ -153,11 +153,11 @@ function mount(root,options){
         setBusy(true,'心意已送达，正在更新来信');await afterMutation('心意已送达');
         photos.forEach(url=>{URL.revokeObjectURL(url);photoFiles.delete(url);});draft=null;
       }
-      photos=[];form.reset();remember(name);drawPhotos();q('.b-counter').textContent='0 / 160';
+      photos=[];form.reset();remember(name);q('.b-counter').textContent='0 / 160';
       dialog.close();render();q('.b-feed-scroll').scrollTop=0;stopSnow();const item=items.find(item=>item.id===sentId);if(item)spawn(0,item);sync();burst();
     }catch(error){q('.b-error').textContent=errorText(error);}finally{mutating=false;setBusy(false);}
   };
-  const replyDialog=el('dialog','b-web-dialog b-web-reply-dialog');replyDialog.innerHTML=`<div class="b-sheet b-reply-sheet"><div class="b-sheet-head"><div><span class="b-sheet-to">一来一往，都是欢喜</span><h2 class="b-sheet-title">回复</h2></div><button type="button" class="b-close" aria-label="关闭回复窗口">×</button></div><form><div class="b-form-scroll b-reply-form-scroll"><div class="b-form-body"><label class="b-label b-name-label"><span>落款</span><input class="b-input" name="name" autocomplete="nickname" maxlength="20" placeholder="亲友熟悉的称呼" required></label><label class="b-label b-message-label"><span>回复内容</span><textarea class="b-textarea" name="text" maxlength="160" placeholder="接住这份心意，也说说你的欢喜…" required></textarea><span class="b-counter">0 / 160</span></label><div class="b-emoji-row"></div></div></div><div class="b-send-footer"><p class="b-error" role="alert"></p><div class="b-loading" role="status" hidden><div class="b-loading-spinner"></div><span>正在送出回复</span></div><span class="b-send-note">${demo?'示例回复只保留在本页':'一来一往，把欢喜接下去'}</span><button class="b-send" type="submit">送出回复 ↗</button></div></form></div>`;root.append(replyDialog);
+  const replyDialog=el('dialog','b-web-dialog b-web-reply-dialog');replyDialog.innerHTML=`<div class="b-sheet b-reply-sheet"><div class="b-sheet-head"><div><span class="b-sheet-to">一来一往，都是欢喜</span><h2 class="b-sheet-title">回复</h2></div><button type="button" class="b-close" aria-label="关闭回复窗口">×</button></div><form><div class="b-form-scroll b-reply-form-scroll"><div class="b-form-body"><label class="b-label b-name-label"><input class="b-input" name="name" autocomplete="nickname" maxlength="20" placeholder="请输入亲友熟悉的称呼" required></label><label class="b-label b-message-label"><span>回复内容</span><textarea class="b-textarea" name="text" maxlength="160" placeholder="接住这份心意，也说说你的欢喜…" required></textarea><span class="b-counter">0 / 160</span></label><div class="b-emoji-row"></div></div></div><div class="b-send-footer"><p class="b-error" role="alert"></p><div class="b-loading" role="status" hidden><div class="b-loading-spinner"></div><span>正在送出回复</span></div><span class="b-send-note">${demo?'示例回复只保留在本页':'一来一往，把欢喜接下去'}</span><button class="b-send" type="submit">送出回复 ↗</button></div></form></div>`;root.append(replyDialog);
   const rq=selector=>replyDialog.querySelector(selector);let replyTarget=null,replyBusy=false,replyOverflow='';
   bindName(replyDialog);
   function openReply(post,reply){if(mutating||busy)return;replyTarget={post,reply};rq('.b-sheet-title').textContent='回复 '+(reply||post).name;remember(q('[name=name]').value.trim());rq('[name=text]').value='';rq('.b-counter').textContent='0 / 160';rq('.b-error').textContent='';rq('.b-send').disabled=false;replyOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';replyDialog.showModal();sync();}
@@ -181,7 +181,7 @@ function mount(root,options){
       replyDialog.close();render();
     }catch(error){rq('.b-error').textContent=errorText(error);}finally{mutating=false;replyBusy=false;rq('.b-loading').hidden=true;replyDialog.querySelectorAll('button,input,textarea').forEach(node=>node.disabled=false);}
   };
-  drawEmoji();drawPhotos();render();sync();
+  drawEmoji();drawPhrases();render();sync();
   let started=false,feedObserver;
   const startLive=()=>{if(started||disposed||demo)return;started=true;feedObserver?.disconnect();message('正在打开亲友来信…');refresh();poll();};
   if(!demo){

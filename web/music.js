@@ -3,7 +3,9 @@
   // No placeholder playback control while the chosen recording is still missing.
   if(!config?.webFile){window.WeddingEntry?.unavailable('music');return;}
   const audio=document.createElement('audio');
-  audio.src=config.webFile;audio.preload='auto';audio.loop=true;audio.volume=.28;
+  // Start muted so browser autoplay policies allow the first frame of audio;
+  // unmute as soon as playback is confirmed below.
+  audio.src=config.webFile;audio.preload='auto';audio.autoplay=true;audio.muted=true;audio.defaultMuted=true;audio.setAttribute('muted','');audio.loop=true;audio.volume=.28;
   const control=document.createElement('button');control.type='button';control.className='wedding-music';
   const record=document.createElement('span');record.className='music-record';record.setAttribute('aria-hidden','true');
   const label=document.createElement('span');label.className='music-label';
@@ -28,7 +30,7 @@
     if(!wanted()){audio.pause();render();return;}
     if(pending||!audio.paused)return;
     pending=true;render();
-    try{if(audio.error)audio.load();await audio.play();firstGesture=false;}
+    try{if(audio.error)audio.load();await audio.play();audio.muted=false;firstGesture=false;}
     catch(error){
       enabled=false;
       if(error.name==='NotAllowedError'){
@@ -39,7 +41,7 @@
     }
     finally{pending=false;if(!wanted())audio.pause();render();}
   }
-  const start=event=>{if(event?.detail?.automatic!==true)firstGesture=false;failed=false;enabled=true;sync();};
+  const start=event=>{if(event?.detail?.automatic!==true)firstGesture=false;failed=false;enabled=true;if(!audio.paused)audio.muted=false;sync();};
   document.addEventListener('wedding:enter',start);
   const startOnGesture=event=>{
     if(window.WeddingEntry?.pending)return;
@@ -49,7 +51,7 @@
   };
   // Invoke play synchronously inside the first real tap; audible autoplay is
   // otherwise blocked by mobile browsers. A deliberate pause never re-arms it.
-  ['click','touchend','keydown'].forEach(type=>document.addEventListener(type,startOnGesture,{capture:true,passive:true}));
+  ['pointerdown','touchstart','click','touchend','keydown'].forEach(type=>document.addEventListener(type,startOnGesture,{capture:true,passive:true}));
   controls.forEach(button=>button.addEventListener('click',()=>{firstGesture=false;failed=false;enabled=!enabled;sync();}));
   audio.addEventListener('playing',()=>{if(!wanted())audio.pause();render();});
   audio.addEventListener('pause',()=>render());
@@ -62,4 +64,7 @@
   window.WeddingEntry?.track('music',audio);
   audio.load();
   render();
+  // Dynamic audio elements do not consistently honor autoplay on mobile;
+  // explicitly request the muted autoplay path as soon as the source is ready.
+  start({detail:{automatic:true}});
 })();
