@@ -5,7 +5,7 @@
   const audio=document.createElement('audio');
   // Start muted so browser autoplay policies allow the first frame of audio;
   // unmute as soon as playback is confirmed below.
-  audio.src=config.webFile;audio.preload='auto';audio.autoplay=true;audio.muted=true;audio.defaultMuted=true;audio.setAttribute('muted','');audio.loop=true;audio.volume=.28;
+  audio.src=config.webFile;audio.preload='auto';audio.autoplay=!window.WeddingEntry?.pending;audio.muted=true;audio.defaultMuted=true;audio.setAttribute('muted','');audio.loop=true;audio.volume=.28;
   const control=document.createElement('button');control.type='button';control.className='wedding-music';
   const record=document.createElement('span');record.className='music-record';record.setAttribute('aria-hidden','true');
   const label=document.createElement('span');label.className='music-label';
@@ -15,7 +15,8 @@
   controls.forEach(button=>{button.hidden=false;});
   document.documentElement.classList.add('has-music');
   let enabled=false,pending=false,pageActive=true,failed=false,firstGesture=true,audible=false;
-  const wanted=()=>enabled&&pageActive&&!document.hidden;
+  // Buffer during the seal, but let its existing entry event start playback.
+  const wanted=()=>enabled&&pageActive&&!document.hidden&&!window.WeddingEntry?.pending;
   function render(){
     const playing=!audio.paused;
     const action=failed?'重试音乐':playing?'暂停音乐':pending?'加载音乐':'播放音乐';
