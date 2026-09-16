@@ -63,6 +63,7 @@ function fixture({gate=true,popout=true,reduced=false,blockMusic=false,blockMoti
   const f=fixture();try{
     await flush();assert(f.w.WeddingEntry.pending);assert(f.q('main').inert);assert(!f.q('#entry-open').disabled,'Seal accepts a tap before metadata arrives');
     assert.equal(f.calls.filter(c=>c.type==='play').length,0,'Preload must not start invisible video or audible music');
+    assert(!f.audio.autoplay,'Native autoplay must not bypass the loading gate');
     f.d.dispatchEvent(new f.w.Event('pointerdown'));f.d.dispatchEvent(new f.w.Event('click'));await flush();assert.equal(f.calls.filter(c=>c.type==='play').length,0);
     let revealed=0;f.d.addEventListener('wedding:revealed',()=>revealed++);
     f.q('#entry-open').click();assert(!f.w.WeddingEntry.pending);assert(f.q('main').inert,'The cover remains while the streams connect');
