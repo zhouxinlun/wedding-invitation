@@ -22,7 +22,8 @@ function setup(webFile,{autoStart=true}={}){
   const a=setup('media/recording.mp3');try{
     assert(a.audio.loop);assert(a.audio.autoplay);assert(a.audio.defaultMuted);assert.equal(a.audio.preload,'auto');assert.equal(a.loads,1,'Request audio buffering on page entry');await flush();assert.equal(a.calls.length,1,'Audio creation automatically starts the music');
     a.w.document.dispatchEvent(new a.w.CustomEvent('wedding:enter',{detail:{automatic:true}}));await flush();assert.equal(a.calls.length,1,'Invitation entry does not restart already playing music');
-    assert(!a.audio.paused);a.button.click();await flush();assert(a.audio.paused);
+    assert(!a.audio.paused);a.button.click();await flush();assert(!a.audio.paused);assert(!a.audio.muted);
+    a.button.click();await flush();assert(a.audio.paused);
     a.w.document.dispatchEvent(new a.w.Event('click'));await flush();assert(a.audio.paused,'A manual pause survives other page taps');
     assert(!a.badge.hidden);assert.equal(a.w.document.querySelectorAll('audio').length,1,'Both controls share a single recording');
     a.badge.click();await flush();assert(!a.audio.paused);assert.equal(a.button.getAttribute('aria-pressed'),'true');

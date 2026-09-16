@@ -14,7 +14,7 @@
   const controls=[control,...document.querySelectorAll('[data-music-toggle]')];
   controls.forEach(button=>{button.hidden=false;});
   document.documentElement.classList.add('has-music');
-  let enabled=false,pending=false,pageActive=true,failed=false,firstGesture=true;
+  let enabled=false,pending=false,pageActive=true,failed=false,firstGesture=true,audible=false;
   const wanted=()=>enabled&&pageActive&&!document.hidden;
   function render(){
     const playing=!audio.paused;
@@ -30,7 +30,7 @@
     if(!wanted()){audio.pause();render();return;}
     if(pending||!audio.paused)return;
     pending=true;render();
-    try{if(audio.error)audio.load();await audio.play();audio.muted=false;firstGesture=false;}
+    try{if(audio.error)audio.load();if(!audio.paused&&audible&&audio.muted){audio.pause();}audio.muted=!audible;await audio.play();firstGesture=false;}
     catch(error){
       enabled=false;
       if(error.name==='NotAllowedError'){
@@ -41,7 +41,7 @@
     }
     finally{pending=false;if(!wanted())audio.pause();render();}
   }
-  const start=event=>{if(event?.detail?.automatic!==true)firstGesture=false;failed=false;enabled=true;if(!audio.paused)audio.muted=false;sync();};
+  const start=event=>{const automatic=event?.detail?.automatic===true;if(!automatic){firstGesture=false;audible=true;audio.muted=false;}failed=false;enabled=true;sync();};
   document.addEventListener('wedding:enter',start);
   const startOnGesture=event=>{
     if(window.WeddingEntry?.pending)return;
@@ -52,7 +52,7 @@
   // Invoke play synchronously inside the first real tap; audible autoplay is
   // otherwise blocked by mobile browsers. A deliberate pause never re-arms it.
   ['pointerdown','touchstart','click','touchend','keydown'].forEach(type=>document.addEventListener(type,startOnGesture,{capture:true,passive:true}));
-  controls.forEach(button=>button.addEventListener('click',()=>{firstGesture=false;failed=false;enabled=!enabled;sync();}));
+  controls.forEach(button=>button.addEventListener('click',()=>{firstGesture=false;failed=false;if(enabled&&pending){enabled=false;audible=false;audio.pause();render();return;}if(enabled&&!audio.paused){if(audio.muted){audible=true;audio.muted=false;audio.pause();sync();}else{enabled=false;audio.pause();render();}return;}audible=true;audio.muted=false;enabled=true;sync();}));
   audio.addEventListener('playing',()=>{if(!wanted())audio.pause();render();});
   audio.addEventListener('pause',()=>render());
   audio.addEventListener('error',()=>{enabled=false;failed=true;audio.pause();render();});
