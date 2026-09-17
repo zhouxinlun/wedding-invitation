@@ -346,6 +346,13 @@ main > .nav-section{position:relative}
 @media(max-width:519px){.opening-portrait .portrait-lantern{left:-17px;top:25%}.opening-portrait .portrait-lantern .lantern-body{width:31px;height:33px;font-size:18px}.opening-portrait .portrait-lantern .lantern-body::after{left:8px;width:13px;box-shadow:0 32px #cc9c58}}
 
 .invitation-opening{display:flex;flex-direction:column;align-items:center;gap:20px;max-width:760px;min-height:calc(100svh - 100px);padding:24px 28px 40px;text-align:center;justify-content:center}
+.wedding-countdown{display:flex;align-items:baseline;justify-content:center;gap:9px;margin:-5px 0 1px;padding:10px 22px 12px;border:1px solid #c59f6b99;border-radius:4px;background:linear-gradient(120deg,#173e40e8,#28524ee8);box-shadow:0 7px 22px #082c3040;color:#f2d6a6;letter-spacing:2px}
+.wedding-countdown[hidden]{display:none}
+.wedding-countdown-label{font-size:12px;color:#c8d2bd;letter-spacing:1px}
+.wedding-countdown strong{min-width:2ch;color:#f8e3b8;font-family:"Wedding Display","Songti SC","STSong",serif;font-size:34px;font-weight:400;line-height:1;animation:countdown-glow 2.4s ease-in-out infinite}
+.wedding-countdown-unit{font-size:14px;color:#d8bc8b;letter-spacing:1px}
+@keyframes countdown-glow{0%,100%{transform:scale(1);text-shadow:0 0 0 #eac17c00}50%{transform:scale(1.1);text-shadow:0 0 14px #eac17caa}}
+@media(prefers-reduced-motion:reduce){.wedding-countdown strong{animation:none}}
 .invitation-opening>.chapter-brand{margin:0;gap:12px}
 .invitation-opening .chapter-brand .wax-seal{width:54px;height:54px}
 .invitation-copy .eyebrow{font-size:9px;letter-spacing:3px;color:#c3a777}
@@ -363,6 +370,10 @@ main > .nav-section{position:relative}
 @keyframes invitation-next{0%,100%{transform:translateY(0) rotate(45deg);opacity:.45}50%{transform:translateY(4px) rotate(45deg);opacity:1}}
 @media(max-width:519px){
  .invitation-opening{gap:18px;padding:18px 25px 34px;min-height:calc(100svh - 90px)}
+ .wedding-countdown{margin:-3px 0 0;padding:8px 17px 10px;gap:7px}
+ .wedding-countdown-label{font-size:10px}
+ .wedding-countdown strong{font-size:29px}
+ .wedding-countdown-unit{font-size:12px}
  .invitation-copy h1{font-size:39px;letter-spacing:7px;margin-top:5px}
  .invitation-names{font-size:19px;gap:15px;letter-spacing:2px}
  .invitation-opening .chapter-brand .wax-seal{width:46px;height:46px}

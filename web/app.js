@@ -4,6 +4,19 @@
   const journeyMap = window.WeddingMap?.create();
   const fields = {...w, venue: w.venue.fullName, venueName: w.venue.name, branch: w.venue.branch, district: w.venue.district};
   document.querySelectorAll('[data-field]').forEach(el => {el.textContent = fields[el.dataset.field] || '';});
+  const countdown = document.querySelector('[data-countdown]');
+  if (countdown) {
+    const days = countdown.querySelector('[data-countdown-days]');
+    const targetDate = new Date(`${countdown.dataset.countdownDate}T00:00:00`);
+    const updateCountdown = () => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const remaining = Math.ceil((targetDate - today) / 86400000);
+      countdown.hidden = remaining < 0;
+      if (remaining >= 0) days.textContent = remaining;
+    };
+    updateCountdown();
+    setInterval(updateCountdown, 3600000);
+  }
   const asset = file => '../miniprogram/assets/' + file;
   document.querySelectorAll('main > .nav-section').forEach(section => {
     const brand = document.createElement('div'); brand.className = 'chapter-brand';
