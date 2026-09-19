@@ -198,6 +198,16 @@ const post=(id,own=true)=>({id,name:'亲友'+id,text:'长长久久',emoji:'',pho
     assert.equal(image.protocol,'https:');assert.equal(image.search,'');
     assert.equal(image.origin,new URL(require('../miniprogram/wedding').shareUrl).origin);
     assert(fs.existsSync(path.join(out,image.pathname)),'Share image must ship with the public site');
+    const cover=inner.window.document.querySelector('.invitation-portrait img');
+    assert.equal(new URL(cover.getAttribute('src'),new URL('/web/index.html',image.origin)).href,image.href,'Link previews use the current invitation cover');
+    for(const doc of [inner.window.document,landing.window.document]){
+      assert.equal(doc.querySelector('meta[property="og:image:secure_url"]').content,image.href);
+      assert.equal(doc.querySelector('link[rel="image_src"]').getAttribute('href'),image.href);
+      assert.equal(doc.querySelector('meta[name="twitter:image"]').content,image.href);
+      assert.equal(doc.querySelector('meta[property="og:image:width"]').content,cover.getAttribute('width'));
+      assert.equal(doc.querySelector('meta[property="og:image:height"]').content,cover.getAttribute('height'));
+    }
+    assert.equal(landing.window.document.querySelector('body img').getAttribute('src'),image.href,'Root previews can read a cover without following JavaScript');
     let redirect='';
     require('node:vm').runInNewContext(landing.window.document.querySelector('script').textContent,{location:{search:'?from=friend',hash:'#album',replace:url=>{redirect=url;}}});
     assert.equal(redirect,'./web/index.html?from=friend#album');

@@ -51,8 +51,11 @@ async function build(){
   await fs.writeFile(path.join(out,'web/poster.html'),await versionResources(await fs.readFile(path.join(out,'web/poster.html'),'utf8')));
   const shareHead=page.match(/<!-- Share preview:[\s\S]*?-->([\s\S]*?)<!-- \/Share preview -->/);
   if(!shareHead)throw new Error('Missing static H5 share metadata');
-  // Link crawlers may not follow a JavaScript redirect. Give the root the same preview.
-  await fs.writeFile(path.join(out,'index.html'),'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+shareHead[1]+'<link rel="icon" href="./favicon.ico"></head><body><script>location.replace("./web/index.html"+location.search+location.hash)</script><a href="./web/index.html">打开婚礼请柬</a></body></html>\n');
+  const shareImage=shareHead[1].match(/<meta property="og:image" content="([^"]+)">/);
+  if(!shareImage)throw new Error('Missing static H5 share image');
+  // A non-JavaScript preview can read the actual cover at the root as well as
+  // its metadata. This is a crawler fallback, not WeChat JS-SDK authorization.
+  await fs.writeFile(path.join(out,'index.html'),'<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+shareHead[1]+'<link rel="icon" href="./favicon.ico"></head><body><a href="./web/index.html"><img src="'+shareImage[1]+'" width="240" alt="良辰之约 · 婚礼请柬封面">打开婚礼请柬</a><script>location.replace("./web/index.html"+location.search+location.hash)</script></body></html>\n');
   await fs.writeFile(path.join(out,'robots.txt'),'User-agent: *\nDisallow: /\n');
   await fs.writeFile(path.join(out,'404.html'),'<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>良辰之约</title><p>这一页暂时找不到了。</p><a href="/">回到婚礼请柬</a></html>\n');
   console.log('H5 public bundle: '+out+' (cloud credentials, function sources, guest data and demos excluded)');
